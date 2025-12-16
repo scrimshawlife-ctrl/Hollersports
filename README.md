@@ -27,6 +27,23 @@ A multi-signal filter for PTS-UNDER props that reduces miss-rate by requiring â‰
 
 See [`abraxas/modules/README.md`](abraxas/modules/README.md) for detailed documentation.
 
+### Contextual Correction Maps (CCM) - **NEW**
+
+Internal calibration layer that learns systematic residual biases by context and applies corrections to projections:
+
+- **Venue effects**: Arena-specific scoring suppression/inflation
+- **Coaching philosophy**: Usage concentration, rotation depth, pace
+- **Travel factors**: Back-to-back games, timezone shifts, rest days
+- **Matchup context**: Defensive rating, pace, opponent schemes
+
+**Key Features:**
+- Deterministic shrinkage-based estimation with provenance tracking
+- Progressive fallback ladder for robust runtime performance
+- Simple toggle: `HOLLERSPORTS_CCM_ENABLED=true/false`
+- Transparent: User sees improved projections, not calibration mechanics
+
+See [`hollersports/calibration/venue_coach_adjustments/README.md`](hollersports/calibration/venue_coach_adjustments/README.md) for detailed documentation.
+
 ## Quick Start
 
 ### Installation

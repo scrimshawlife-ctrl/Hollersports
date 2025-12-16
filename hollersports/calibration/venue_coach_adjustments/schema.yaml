@@ -1,0 +1,91 @@
+# Contextual Correction Map (CCM) Schema
+# Version: 1.0.0
+# Defines data structures for venue/coach/context-based prop adjustments
+
+schema_version: "1.0.0"
+
+prop_markets:
+  - PTS
+  - REB
+  - AST
+  - PRA
+  - PR
+  - PA
+  - RA
+  - BLK
+  - STL
+  - TO
+  - FG3M
+  - MIN
+
+prop_sides:
+  - higher
+  - lower
+
+required_fields:
+  prop_record:
+    - player_id          # str: unique player identifier
+    - game_id            # str: unique game identifier
+    - market             # str: one of prop_markets
+    - line               # float: bookmaker line
+    - actual             # float: actual stat result
+    - side               # str: higher or lower
+    - timestamp          # str: ISO 8601 timestamp
+    - team_id            # str: player's team identifier
+    - opp_id             # str: opponent team identifier
+    - venue_id           # str: venue/arena identifier
+
+  game_context:
+    - venue_id           # str: venue/arena identifier
+    - is_home            # bool: true if player's team is home
+    - team_id            # str: player's team identifier
+    - opp_id             # str: opponent team identifier
+
+optional_fields:
+  prop_record:
+    - hit                # bool: whether pick was correct (computed if missing)
+    - model_projection   # float: pre-correction model projection (if available)
+    - minutes_expected   # float: expected playing time
+
+  game_context:
+    - travel_b2b         # bool: back-to-back game (travel)
+    - travel_distance_km # float: travel distance in kilometers
+    - timezone_delta     # int: timezone difference (-12 to +12)
+    - rest_days          # int: days of rest (0, 1, 2, 3+)
+    - coach_id           # str: head coach identifier
+    - rotation_depth_proxy # float: 0-1, higher = deeper rotation
+    - pace_proxy         # float: team pace metric
+    - opponent_defense_proxy # float: opponent defensive rating
+    - scheme_proxy       # str: categorical scheme descriptor
+
+correction_map_fields:
+  - market             # str: prop market
+  - venue_bucket       # int: hashed venue bucket
+  - coach_bucket       # int: hashed coach bucket (or -1 if N/A)
+  - is_home            # int: 0 or 1
+  - travel_b2b         # int: 0 or 1
+  - timezone_bucket    # int: -2, -1, 0, 1, 2 (simplified buckets)
+  - mean_delta         # float: average residual correction
+  - median_delta       # float: median residual correction
+  - count              # int: sample size for this key
+  - confidence         # float: 0-1, shrinkage-adjusted confidence
+  - dispersion         # float: MAD or std dev of residuals
+
+config_defaults:
+  hash_buckets:
+    venue: 100
+    coach: 50
+    team: 32
+    opponent: 32
+    scheme: 10
+
+  shrinkage:
+    k: 25              # shrinkage parameter (count / (count + k))
+    min_samples: 5     # minimum samples to include correction
+
+  timezone_buckets:
+    bins: [-12, -3, -1, 1, 3, 12]  # maps to [-2, -1, 0, 1, 2]
+
+  fallback_confidence_decay: 0.8  # multiply confidence by this per fallback step
+
+  seed: 1337          # default random seed for deterministic operations
