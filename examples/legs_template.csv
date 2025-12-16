@@ -1,0 +1,6 @@
+date,player,team,opponent,home,arena,prop_type,pick,line,result,hit,spread,total
+2024-01-15,Jayson Tatum,BOS,LAL,1,TD Garden,PTS,lower,28.5,24,1,-7.5,225.5
+2024-01-15,LeBron James,LAL,BOS,0,TD Garden,PTS,higher,25.5,31,1,7.5,225.5
+2024-01-15,Anthony Davis,LAL,BOS,0,TD Garden,PRA,higher,45.5,52,1,7.5,225.5
+2024-01-16,Nikola Jokic,DEN,PHX,1,Ball Arena,PTS,lower,26.5,29,0,-3.0,230.0
+2024-01-16,Kevin Durant,PHX,DEN,0,Ball Arena,PTS,higher,27.5,33,1,3.0,230.0
