@@ -44,6 +44,25 @@ Internal calibration layer that learns systematic residual biases by context and
 
 See [`hollersports/calibration/venue_coach_adjustments/README.md`](hollersports/calibration/venue_coach_adjustments/README.md) for detailed documentation.
 
+### NHL Shots-on-Goal Median-Floor Engine - **NEW**
+
+Complete 5-part spine for NHL SOG prop projections with 150,000-run Monte Carlo simulation:
+
+**1. Median-Floor Engine:** Weighted recency (60%) + season median (40%) with conservative floor
+**2. Role Stability Filter:** TOI and PP usage stability gates (reject low/unstable minutes)
+**3. Opponent Pressure Model:** Bounded opponent adjustments (+/- 10% max)
+**4. Anti-Correlation Architecture:** Smart leg pairing to avoid correlated failures
+**5. Monte Carlo Simulation:** 150k-run Negative Binomial distribution for count data
+
+**Key Features:**
+- Fully deterministic with provenance tracking
+- Type-safe immutable data structures
+- Offline operation (no external APIs)
+- 32 comprehensive tests (100% pass rate)
+- CLI interface: `python -m hollersports.nhl.cli --data slate.csv --mode ultra_safe`
+
+See [`hollersports/nhl/`](hollersports/nhl/) for implementation.
+
 ## Quick Start
 
 ### Installation
