@@ -12,3 +12,5 @@ pytest-cov>=4.0.0
 black>=23.0.0
 flake8>=6.0.0
 mypy>=1.0.0
+pydantic>=2.6
+numpy>=1.26
