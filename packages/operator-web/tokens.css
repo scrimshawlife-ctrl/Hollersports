@@ -1,0 +1,22 @@
+/* Hallmark · macrostructure: Workbench · genre: atmospheric · theme: Cobalt · nav: N3 · footer: Ft4
+ * tone: technical-austere · pre-emit critique: P5 H4 E4 S5 R5 V4
+ */
+:root {
+  --color-paper: oklch(18% 0.02 250);
+  --color-paper-2: oklch(22% 0.02 250);
+  --color-ink: oklch(92% 0.02 250);
+  --color-muted: oklch(70% 0.02 250);
+  --color-accent: oklch(62% 0.14 250);
+  --color-accent-ink: oklch(18% 0.02 250);
+  --color-warn: oklch(75% 0.12 85);
+  --color-fail: oklch(65% 0.16 25);
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --hairline: color-mix(in oklch, var(--color-ink) 12%, transparent);
+  --surface-lift: oklch(24% 0.025 250);
+  --focus-ring: oklch(70% 0.12 250);
+}
