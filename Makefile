@@ -1,4 +1,4 @@
-.PHONY: validate test install smoke api web
+.PHONY: validate test install smoke api web free-first
 
 install:
 	python -m pip install -U pip
@@ -18,3 +18,7 @@ api:
 
 web:
 	cd packages/operator-web && npm run dev
+
+# Optional live observation (ESPN free; Odds API if THE_ODDS_API_KEY set). Advisory only.
+free-first:
+	python scripts/holler_free_first_ingest.py --out out/free_first_observation.json

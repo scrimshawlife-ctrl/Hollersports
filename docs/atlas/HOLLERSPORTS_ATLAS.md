@@ -33,14 +33,14 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 | **Paths** | `schemas/json/*.v1.schema.json`, `hollersports/schemas/packets.py`, `validate.py` |
 | **Tests** | `tests/unit/test_packets.py` |
 
-### Source health + fixture ingest — OBSERVED
+### Source health + fixture + free-first live ingest — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | Registry, fixture day pack, source health rune, market ingestion pipeline. |
-| **What it is not** | Recommendation engine; live network is optional future. |
-| **Paths** | `hollersports/sources/`, `hollersports/runes/source_health.py`, `hollersports/pipelines/market_ingestion.py`, `fixtures/day001/` |
-| **Tests** | `tests/unit/test_source_health.py`, `test_market_ingestion.py` |
+| **What it is** | Registry, fixture day pack, source health, market ingestion; optional ESPN + Odds API observation pack + conflict detector. |
+| **What it is not** | Recommendation engine or money path; live network never required for CI. |
+| **Paths** | `hollersports/sources/` (`espn_scoreboard`, `odds_api`, `source_conflict`, `free_first_ingest`), `runes/source_health.py`, `pipelines/market_ingestion.py`, `fixtures/day001/`, `scripts/holler_free_first_ingest.py` |
+| **Tests** | `test_source_health`, `test_market_ingestion`, `test_espn_scoreboard`, `test_odds_api`, `test_source_conflict`, `test_free_first_ingest` |
 
 ### Strategy competition — OBSERVED
 

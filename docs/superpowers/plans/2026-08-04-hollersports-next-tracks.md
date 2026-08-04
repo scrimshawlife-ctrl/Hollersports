@@ -11,10 +11,13 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 
 **Goal:** Optional live schedule/odds adapters behind source registry; fixture remains default and CI path.
 
-- ESPN scoreboard normalize + fetch (rate-limited, cached)
-- The Odds API adapter when `THE_ODDS_API_KEY` set
-- Source conflict packet when truth sources disagree
-- Tests: mock HTTP; never require keys in CI
+- [x] ESPN scoreboard normalize + optional fetch
+- [x] The Odds API normalize + fetch when `THE_ODDS_API_KEY` set
+- [x] Source conflict packet (`SourceConflictPacket.v1`)
+- [x] `build_live_observation_pack` + `scripts/holler_free_first_ingest.py` + `make free-first`
+- [x] Tests: injected raw / monkeypatch; never require keys in CI
+- [ ] Optional: HTTP response cache / backoff polish
+- [ ] Optional: API route `POST /v1/runs/free-first` (Workbench button)
 
 ## Track B — Workbench polish
 

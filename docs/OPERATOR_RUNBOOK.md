@@ -52,10 +52,26 @@ make web   # :3000 — Today → Ingest fixture → Compete → Paper → Settle
 
 `fixtures/day001/` — multi-league schedule + odds-shaped markets (NBA ML includes consensus / public / CLV feature fields).
 
-## Live free sources
+## Live free sources (optional — Track A)
 
-Optional adapters and API keys are **not required** for fixture mode.  
-Document keys when live fetch is wired (`THE_ODDS_API_KEY`, etc.). Without keys, stay on fixtures.
+Fixture mode remains the **CI and default** path. Live observation is opt-in and still **advisory only** (no money, no book placement).
+
+```bash
+# ESPN scoreboard only (no API key)
+make free-first
+# or: python scripts/holler_free_first_ingest.py --espn-only --out out/free_first_observation.json
+
+# ESPN + The Odds API when key present
+export THE_ODDS_API_KEY=your_key
+python scripts/holler_free_first_ingest.py --out out/free_first_observation.json
+```
+
+| Env | Purpose |
+|-----|---------|
+| `THE_ODDS_API_KEY` | Optional multi-book odds (The Odds API free tier) |
+
+Without keys, odds side is skipped (`errors` list notes `THE_ODDS_API_KEY_not_set`).  
+Output pack includes `espn_events`, `odds_events`, `conflict`, optional `ingest` packet.
 
 ## Authority checks
 
