@@ -50,9 +50,11 @@ After settlements exist in the API store:
 
 ```bash
 curl -s localhost:8000/v1/reliability | jq .
+# Append-only snapshots after each settle
+curl -s 'localhost:8000/v1/reliability?history=1&limit=20' | jq .
 ```
 
-Or open Workbench **Health → Advice reliability**.
+Or open Workbench **Health → Advice reliability** and **Reliability history**.
 
 Promotion stays **BLOCKED** until design gates (sample size, ROI, etc.) pass — still
 **review only**, never money.

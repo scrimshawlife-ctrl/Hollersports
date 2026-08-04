@@ -67,6 +67,15 @@ export function getReliability() {
   return request<Json>("/v1/reliability");
 }
 
+/** Append-only reliability ledger snapshots (oldest-first within window). */
+export function getReliabilityHistory(limit = 20) {
+  const q = new URLSearchParams({
+    history: "1",
+    limit: String(Math.max(1, Math.min(limit, 200))),
+  });
+  return request<Json>(`/v1/reliability?${q.toString()}`);
+}
+
 export function getHealth() {
   return request<Json>("/v1/health");
 }

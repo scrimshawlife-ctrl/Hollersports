@@ -17,7 +17,7 @@
 [![Advisory beta](https://img.shields.io/badge/advisory%20beta-local%20PASS-blue)](docs/PRODUCTION_READINESS.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
-[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
+[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Release notes](docs/RELEASE_NOTES.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
 
 </div>
 
@@ -46,7 +46,7 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 | Governance + hashing | **shipped** | Authority locks, fail-closed helpers |
 | Packet contracts v1 | **shipped** | Nine JSON Schemas + Pydantic |
 | Fixture ingest + source health | **shipped** | `fixtures/day001`, multi-league |
-| Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated off |
+| Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated (calibration) |
 | Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL |
 | Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
 | Golden 12-run + authority locks | **shipped** | `tests/golden/` |

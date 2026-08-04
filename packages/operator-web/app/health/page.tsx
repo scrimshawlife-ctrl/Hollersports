@@ -11,6 +11,7 @@ import {
   getPortfolio,
   getPromotion,
   getReliability,
+  getReliabilityHistory,
   type Json,
 } from "@/lib/api";
 
@@ -30,6 +31,15 @@ type ReliabilityRow = {
   roi: string;
 };
 
+type HistoryRow = {
+  key: string;
+  recorded: string;
+  status: string;
+  sample: string;
+  buckets: string;
+  hash: string;
+};
+
 function asRecord(v: unknown): Record<string, unknown> {
   return v && typeof v === "object" ? (v as Record<string, unknown>) : {};
 }
@@ -44,6 +54,9 @@ export default function HealthPage() {
   const [portfolio, setPortfolio] = useState<Json | null>(null);
   const [promotion, setPromotion] = useState<Json | null>(null);
   const [reliability, setReliability] = useState<Json | null>(null);
+  const [reliabilityHistory, setReliabilityHistory] = useState<Json | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,18 +64,20 @@ export default function HealthPage() {
     setError(null);
     setLoading(true);
     try {
-      const [h, d, p, promo, rel] = await Promise.all([
+      const [h, d, p, promo, rel, hist] = await Promise.all([
         getHealth(),
         getDashboard(),
         getPortfolio(),
         getPromotion(),
         getReliability(),
+        getReliabilityHistory(20),
       ]);
       setHealth(h);
       setDashboard(d);
       setPortfolio(p);
       setPromotion(promo);
       setReliability(rel);
+      setReliabilityHistory(hist);
     } catch (e) {
       const msg =
         e instanceof ApiError
@@ -143,6 +158,20 @@ export default function HealthPage() {
       hit: String(b.hit_rate ?? "—"),
       roi: String(b.sim_roi ?? "—"),
     }));
+
+  const historyRows: HistoryRow[] = asList(reliabilityHistory?.entries)
+    .filter((e): e is Record<string, unknown> => !!e && typeof e === "object")
+    .map((e, i) => {
+      const hash = String(e.entry_hash ?? "");
+      return {
+        key: hash || `hist-${i}`,
+        recorded: String(e.recorded_at ?? "—"),
+        status: String(e.status ?? "—"),
+        sample: String(e.sample_size ?? "—"),
+        buckets: String(e.bucket_count ?? "—"),
+        hash: hash ? `${hash.slice(0, 10)}…` : "—",
+      };
+    });
 
   const runLog: { key: string; label: string; value: string }[] = [
     {
@@ -406,6 +435,71 @@ export default function HealthPage() {
             loading
               ? "Loading reliability…"
               : "No settled advice yet — run full fixture day on Today, then Refresh"
+          }
+        />
+      </section>
+
+      <section className="section" aria-label="Reliability history">
+        <h2 className="section-title">Reliability history</h2>
+        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
+          Append-only snapshots after each settle — advice calibration trail,
+          not a bank ledger.
+        </p>
+        <div className="actions-row" style={{ marginBottom: 12 }}>
+          <AuthorityChip
+            label={String(
+              reliabilityHistory?.status ?? (loading ? "…" : "EMPTY"),
+            )}
+            tone={toneForStatus(reliabilityHistory?.status)}
+          />
+          <span className="muted mono" style={{ fontSize: 12 }}>
+            snapshots={String(reliabilityHistory?.count ?? "—")}
+          </span>
+        </div>
+        <DataTable
+          columns={[
+            {
+              key: "recorded",
+              header: "recorded_at",
+              render: (r: HistoryRow) => (
+                <span className="mono">{r.recorded}</span>
+              ),
+            },
+            {
+              key: "status",
+              header: "status",
+              render: (r: HistoryRow) => r.status,
+            },
+            {
+              key: "sample",
+              header: "sample",
+              align: "right" as const,
+              tabular: true,
+              render: (r: HistoryRow) => r.sample,
+            },
+            {
+              key: "buckets",
+              header: "buckets",
+              align: "right" as const,
+              tabular: true,
+              render: (r: HistoryRow) => r.buckets,
+            },
+            {
+              key: "hash",
+              header: "entry_hash",
+              render: (r: HistoryRow) => (
+                <span className="mono" title={r.key}>
+                  {r.hash}
+                </span>
+              ),
+            },
+          ]}
+          rows={historyRows}
+          rowKey={(r) => r.key}
+          emptyMessage={
+            loading
+              ? "Loading history…"
+              : "No history yet — settle a paper day (Today → full fixture day), then Refresh"
           }
         />
       </section>
