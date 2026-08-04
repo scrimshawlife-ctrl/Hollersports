@@ -4,7 +4,7 @@
 product: hollersports
 class_target: PAPER_OPERATOR_READY
 # Pin after commit lands; re-run make validate to refresh smoke
-assessed_sha: pending_next_commit
+assessed_sha: 5423f84c44a6cea2cf6471cd9b469ab3ebfbaae4
 branch: feature/hollersports-standalone-operator
 package_version: "0.2.0"
 date: "2026-08-04"
