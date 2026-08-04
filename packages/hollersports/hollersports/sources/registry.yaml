@@ -1,0 +1,38 @@
+# Free-first source registry (day one). Authority defaults SHADOW_ONLY.
+sources:
+  - id: FIXTURE
+    role: offline_slate
+    tier: free
+    adapter: hollersports.sources.fixture_adapter
+    authority: SHADOW_ONLY
+    provides:
+      - events
+      - markets
+      - odds
+      - schedule
+    missing: []
+
+  - id: ESPN
+    role: truth_schedule_scores
+    tier: free
+    adapter: hollersports.sources.espn_scoreboard
+    authority: SHADOW_ONLY
+    provides:
+      - schedule
+      - scores
+      - final_results
+    missing:
+      - odds
+      - public_splits
+
+  - id: ODDS_API
+    role: odds
+    tier: free
+    adapter: hollersports.sources.odds_api
+    authority: SHADOW_ONLY
+    provides:
+      - odds
+      - multi_book
+    missing:
+      - final_scores
+      - public_splits

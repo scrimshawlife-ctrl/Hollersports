@@ -1,0 +1,64 @@
+{
+  "events": [
+    {
+      "event_id": "NBA-20260424-BOS-LAL",
+      "sport": "BASKETBALL",
+      "league": "NBA",
+      "teams": ["BOS", "LAL"],
+      "home_team": "BOS",
+      "away_team": "LAL",
+      "start_time": "2026-04-24T23:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "NFL-20260424-KC-BUF",
+      "sport": "FOOTBALL",
+      "league": "NFL",
+      "teams": ["KC", "BUF"],
+      "home_team": "KC",
+      "away_team": "BUF",
+      "start_time": "2026-04-24T20:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "MLB-20260424-NYY-BOS",
+      "sport": "BASEBALL",
+      "league": "MLB",
+      "teams": ["NYY", "BOS"],
+      "home_team": "NYY",
+      "away_team": "BOS",
+      "start_time": "2026-04-24T23:05:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "NHL-20260424-TOR-MTL",
+      "sport": "HOCKEY",
+      "league": "NHL",
+      "teams": ["TOR", "MTL"],
+      "home_team": "TOR",
+      "away_team": "MTL",
+      "start_time": "2026-04-24T23:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "EPL-20260424-ARS-CHE",
+      "sport": "SOCCER",
+      "league": "EPL",
+      "teams": ["ARS", "CHE"],
+      "home_team": "ARS",
+      "away_team": "CHE",
+      "start_time": "2026-04-24T14:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "MLS-20260424-LAFC-SEA",
+      "sport": "SOCCER",
+      "league": "MLS",
+      "teams": ["LAFC", "SEA"],
+      "home_team": "LAFC",
+      "away_team": "SEA",
+      "start_time": "2026-04-24T02:30:00+00:00",
+      "status": "SCHEDULED"
+    }
+  ]
+}
