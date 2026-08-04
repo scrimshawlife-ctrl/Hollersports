@@ -152,6 +152,7 @@ PURPOSE=ADVISORY_ONLY
 | [SYSTEM_CONTRACT.md](../SYSTEM_CONTRACT.md) | Hard laws |
 | [PRODUCTION_READINESS.md](../PRODUCTION_READINESS.md) | Gates + decision model |
 | [evidence/PRODUCTION_READINESS_MATRIX.md](../evidence/PRODUCTION_READINESS_MATRIX.md) | SHA-pinned scores |
+| [MIGRATION_ENGINE.md](../MIGRATION_ENGINE.md) | Legacy engine / core notes |
 | [ABRAXAS_LINEAGE.md](../ABRAXAS_LINEAGE.md) | Concept export only |
 | [OPERATOR_RUNBOOK.md](../OPERATOR_RUNBOOK.md) | Operator day |
 | [Design spec](../superpowers/specs/2026-08-04-hollersports-standalone-design.md) | Approved product design |

@@ -14,7 +14,8 @@
 [![Mode](https://img.shields.io/badge/mode-PAPER%20SIM-blue)](docs/SYSTEM_CONTRACT.md)
 [![Books](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
 [![Abraxas](https://img.shields.io/badge/Abraxas-concept%20lineage%20only-lightgrey)](docs/ABRAXAS_LINEAGE.md)
-[![Production](https://img.shields.io/badge/production-NOT%20READY-red)](docs/PRODUCTION_READINESS.md)
+[![Advisory beta](https://img.shields.io/badge/advisory%20beta-local%20PASS-blue)](docs/PRODUCTION_READINESS.md)
+[![Money](https://img.shields.io/badge/real%20money-never-success)](docs/SYSTEM_CONTRACT.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
 [Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
@@ -38,8 +39,8 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 
 ## Status
 
-**Production:** [NOT READY](docs/PRODUCTION_READINESS.md) for advisory-operator GA (see [assessment](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) + [Phase B delta](docs/evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md)).  
-**Money / live books:** **never a product goal** — contract-forbidden.
+**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` @ merge PR #3 — see [post-merge assessment](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md).  
+**Money / live books:** **never** — contract-forbidden.
 
 | Track | State | Notes |
 |-------|--------|--------|
@@ -54,7 +55,8 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 | Next.js Workbench (Cobalt) | **shipped** | Today · Book · Health |
 | CI | **shipped** | `.github/workflows/ci.yml` |
 | Real money / book placement | **never** | Advisory only |
-| Advisory-operator GA | **not yet** | See production readiness (G0 freeze) |
+| Local advisory beta | **PASS** | Merged main + CI + smoke |
+| SaaS multi-tenant GA | **not claimed** | Local single-operator |
 
 Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.
 

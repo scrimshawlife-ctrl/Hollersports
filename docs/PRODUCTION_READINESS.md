@@ -28,18 +28,20 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 
 ## Current posture
 
-**Classification:** paper **beta** candidate on feature branch (library + API + Workbench + goldens + CI).  
-**Verdict:** **Not PAPER_OPERATOR_READY** — **G0** (scope freeze / merge / release decision) still FAIL.
-
-Local operator surface is substantially complete. Production-supported release still requires merge to `main` (or RC tag), remote CI green, and an explicit freeze-SHA assessment.
+**Classification:** **local advisory beta** on `main`.  
+**Freeze SHA:** `838ea88` (merge of PR #3).  
+**Verdict:** **PASS** for local **ADVISORY_OPERATOR_READY** (no real money, no book placement).  
+**Not claimed:** multi-tenant SaaS GA, hosted multi-user production, any money rail.
 
 | Document | Role |
 |----------|------|
 | [evidence/PRODUCTION_READINESS_MATRIX.md](evidence/PRODUCTION_READINESS_MATRIX.md) | SHA-pinned area scores |
-| [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) | Baseline narrative (pre Phase B) |
+| [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md) | Post-merge PASS (local advisory beta) |
+| [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) | Baseline pre Phase B (NOT READY) |
 | [evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md](evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md) | Phase B delta |
-| [evidence/smoke_operator_day.last.json](evidence/smoke_operator_day.last.json) | Latest fixture smoke receipt |
-| [atlas/HOLLERSPORTS_ATLAS.md](atlas/HOLLERSPORTS_ATLAS.md) | OBSERVED vs PLANNED topology |
+| [evidence/smoke_operator_day.last.json](evidence/smoke_operator_day.last.json) | Fixture smoke receipt |
+| [atlas/HOLLERSPORTS_ATLAS.md](atlas/HOLLERSPORTS_ATLAS.md) | OBSERVED topology |
+| [MIGRATION_ENGINE.md](MIGRATION_ENGINE.md) | Legacy engine notes |
 | [OPERATOR_RUNBOOK.md](OPERATOR_RUNBOOK.md) | Fixture operator day |
 
 ## Maturity ladder
