@@ -3,6 +3,12 @@
 
 Advisory only — accumulates settled simulation outcomes for advice quality.
 Never places bets or moves capital.
+
+Agent / Hermes:
+  1. Read docs/agents/HERMES_BACKFILL.md
+  2. Run scripts/backfill_status.py  (what needs backfill?)
+  3. Run this script (or make backfill)
+  4. Re-run backfill_status.py --assert-min-sample 20
 """
 
 from __future__ import annotations

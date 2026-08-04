@@ -17,7 +17,7 @@
 [![Advisory beta](https://img.shields.io/badge/advisory%20beta-local%20PASS-blue)](docs/PRODUCTION_READINESS.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
-[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Testing & calibration](docs/TESTING_AND_CALIBRATION.md) · [Release notes](docs/RELEASE_NOTES.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
+[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Testing & calibration](docs/TESTING_AND_CALIBRATION.md) · [Hermes backfill](docs/agents/HERMES_BACKFILL.md) · [Agents](AGENTS.md) · [Release notes](docs/RELEASE_NOTES.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
 
 </div>
 
@@ -90,6 +90,8 @@ python3 -m venv .venv && source .venv/bin/activate
 make validate   # install + pytest + smoke + multi-fixture calibration suite
 make test-calibration
 make calibration-suite
+make backfill-status   # Hermes: what needs paper backfill?
+make backfill          # grow calibration sample (offline fixtures)
 ```
 
 ### Operator UI (local)

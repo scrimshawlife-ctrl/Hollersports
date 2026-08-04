@@ -1,5 +1,5 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
-	install smoke calibration-suite backfill api web free-first
+	install smoke calibration-suite backfill backfill-status api web free-first
 
 install:
 	python -m pip install -U pip
@@ -32,8 +32,13 @@ calibration-suite:
 	python scripts/run_calibration_suite.py --out docs/evidence/calibration_suite.last.json
 
 # Multi-fixture accumulation into data/backfill (grows calibration sample).
+# Hermes: see docs/agents/HERMES_BACKFILL.md — run backfill-status first.
+backfill-status:
+	python scripts/backfill_status.py
+
 backfill:
 	python scripts/backfill_fixtures.py --out docs/evidence/backfill_calibration.last.json
+	python scripts/backfill_status.py
 
 validate: install test smoke calibration-suite
 	@echo "validate OK"

@@ -34,6 +34,8 @@ make smoke
 make calibration-suite
 
 # Grow cumulative settlement bank (offline fixtures)
+# Hermes playbook: docs/agents/HERMES_BACKFILL.md
+make backfill-status   # needs_backfill? sample gap? suggested_command?
 make backfill
 # → data/backfill/ledgers/settlements_history.jsonl
 # → docs/evidence/backfill_calibration.last.json

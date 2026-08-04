@@ -1,0 +1,36 @@
+{
+  "schema_version": "HollerFixtureManifest.v1",
+  "purpose": "Inventory of offline fixture days for paper backfill / calibration",
+  "product_law": {
+    "real_money": false,
+    "live_books": false,
+    "capital_authority": false
+  },
+  "agent_playbook": "docs/agents/HERMES_BACKFILL.md",
+  "status_command": "python scripts/backfill_status.py",
+  "backfill_command": "make backfill",
+  "days": [
+    {
+      "id": "day001",
+      "run_id": "FIX-DAY001",
+      "role": "default multi-league operator day",
+      "has_model_probability": false,
+      "path": "fixtures/day001"
+    },
+    {
+      "id": "day002",
+      "run_id": "FIX-DAY002",
+      "role": "second slate + model_probability fields for gated model edge demos",
+      "has_model_probability": true,
+      "path": "fixtures/day002"
+    }
+  ],
+  "required_files_per_day": [
+    "meta.json",
+    "espn_events.json",
+    "odds_records.json",
+    "results.json"
+  ],
+  "calibration_bank": "data/backfill/ledgers/settlements_history.jsonl",
+  "target_sample_reliable_floor": 20
+}

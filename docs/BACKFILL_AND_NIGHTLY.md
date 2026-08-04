@@ -2,6 +2,18 @@
 
 Advisory only — **no real money**, **no book placement**.
 
+## Hermes / agents — start here
+
+| | |
+|--|--|
+| **Playbook** | [`docs/agents/HERMES_BACKFILL.md`](agents/HERMES_BACKFILL.md) |
+| **What needs backfill?** | `make backfill-status` or `python scripts/backfill_status.py` |
+| **Run backfill** | `make backfill` |
+| **Fixture list** | [`fixtures/MANIFEST.json`](../fixtures/MANIFEST.json) |
+| **Repo agent entry** | [`AGENTS.md`](../AGENTS.md) |
+
+Status JSON includes `needs_backfill`, `current_sample`, `target_sample`, and `suggested_command`.
+
 ## Purpose
 
 Accumulate settled paper simulations so reliability buckets and promotion review
@@ -17,7 +29,8 @@ pip install -e "packages/hollersports[dev]"
 # Repeatable operator day → smoke receipt
 python scripts/smoke_operator_day.py --out docs/evidence/smoke_operator_day.last.json
 
-# Multi-fixture accumulation into shared calibration bank
+# Discover gaps then accumulate into shared calibration bank
+make backfill-status
 make backfill
 # or: python scripts/backfill_fixtures.py --repeats 4 --paper-top-n 50 \
 #        --data-root data/backfill --out docs/evidence/backfill_calibration.last.json
