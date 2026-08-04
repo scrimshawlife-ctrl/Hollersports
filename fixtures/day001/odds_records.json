@@ -1,0 +1,75 @@
+{
+  "markets": [
+    {
+      "event_id": "NBA-20260424-BOS-LAL",
+      "market_id": "NBA-20260424-BOS-LAL-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -145,
+      "sportsbook": "consensus",
+      "consensus_score": 0.78,
+      "public_bet_pct": 0.72,
+      "handle_pct": 0.54,
+      "fade_selection": "AWAY_ML",
+      "clv_retention": 0.02
+    },
+    {
+      "event_id": "NBA-20260424-BOS-LAL",
+      "market_id": "NBA-20260424-BOS-LAL-ML-AWAY",
+      "market_type": "MONEYLINE",
+      "selection": "AWAY_ML",
+      "price": 125,
+      "sportsbook": "consensus",
+      "consensus_score": 0.35,
+      "public_bet_pct": 0.28,
+      "handle_pct": 0.46,
+      "fade_selection": "HOME_ML",
+      "clv_retention": -0.01
+    },
+    {
+      "event_id": "NFL-20260424-KC-BUF",
+      "market_id": "NFL-20260424-KC-BUF-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -130,
+      "sportsbook": "consensus",
+      "consensus_score": 0.65
+    },
+    {
+      "event_id": "MLB-20260424-NYY-BOS",
+      "market_id": "MLB-20260424-NYY-BOS-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -110,
+      "sportsbook": "consensus",
+      "consensus_score": 0.55
+    },
+    {
+      "event_id": "NHL-20260424-TOR-MTL",
+      "market_id": "NHL-20260424-TOR-MTL-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -120,
+      "sportsbook": "consensus",
+      "consensus_score": 0.60
+    },
+    {
+      "event_id": "EPL-20260424-ARS-CHE",
+      "market_id": "EPL-20260424-ARS-CHE-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -105,
+      "sportsbook": "consensus",
+      "consensus_score": 0.58
+    },
+    {
+      "event_id": "MLS-20260424-LAFC-SEA",
+      "market_id": "MLS-20260424-LAFC-SEA-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -115,
+      "sportsbook": "consensus",
+      "consensus_score": 0.62
+    }
+  ]
+}

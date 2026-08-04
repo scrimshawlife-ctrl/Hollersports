@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PerformancePacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "PerformancePacket.v1" },
+    "status": {
+      "enum": ["INFERRED", "NOT_COMPUTABLE"]
+    },
+    "portfolio_id": { "type": "string" },
+    "sample_size": { "type": "number", "minimum": 0 },
+    "roi": { "type": "number" },
+    "hit_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "clv_retention": { "type": "number" },
+    "max_drawdown": { "type": "number", "minimum": 0, "maximum": 1 },
+    "volatility": { "type": "number" },
+    "sharpe_like_ratio": { "type": "number" },
+    "profit_factor": { "type": "number" },
+    "average_stake": { "type": "number" },
+    "average_expected_value": { "type": "number" },
+    "average_settled_value": { "type": "number" },
+    "by_strategy": { "type": "object" },
+    "by_league": { "type": "object" },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

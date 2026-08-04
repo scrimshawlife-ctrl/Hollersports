@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PaperPortfolioPacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "run_id",
+    "portfolio_id",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "PaperPortfolioPacket.v1" },
+    "status": {
+      "enum": ["RECORDED", "NOT_COMPUTABLE"]
+    },
+    "run_id": { "type": "string" },
+    "portfolio_id": { "type": "string" },
+    "entry_id": { "type": "string" },
+    "starting_bankroll": { "type": "number" },
+    "paper_stake": { "type": "number", "minimum": 0 },
+    "paper_result": {
+      "enum": ["PENDING", "WIN", "LOSS", "PUSH", "VOID", "NOT_COMPUTABLE"]
+    },
+    "expected_value": { "type": "number" },
+    "settled_value": { "type": ["number", "null"] },
+    "event_id": { "type": "string" },
+    "market_id": { "type": "string" },
+    "selection": { "type": "string" },
+    "price": { "type": "number" },
+    "packet_refs": { "type": "object" },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

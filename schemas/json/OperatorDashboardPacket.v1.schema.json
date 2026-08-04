@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "OperatorDashboardPacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "panels",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "OperatorDashboardPacket.v1" },
+    "status": {
+      "enum": ["PROJECTED", "NOT_COMPUTABLE"]
+    },
+    "run_id": { "type": "string" },
+    "portfolio_id": { "type": "string" },
+    "panels": {
+      "type": "object",
+      "properties": {
+        "paper_portfolio_summary": { "type": "object" },
+        "settlement_queue": { "type": "object" },
+        "performance_metrics": { "type": "object" },
+        "promotion_gate_status": { "type": "object" },
+        "failed_gates": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "risk_state": { "type": "object" },
+        "sources": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

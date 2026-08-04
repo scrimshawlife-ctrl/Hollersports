@@ -1,0 +1,6 @@
+{
+  "run_id": "FIX-DAY001",
+  "fetched_at": "2026-04-24T18:00:00+00:00",
+  "current_time": "2026-04-24T18:00:30+00:00",
+  "leagues": ["NBA", "NFL", "MLB", "NHL", "EPL", "MLS"]
+}
