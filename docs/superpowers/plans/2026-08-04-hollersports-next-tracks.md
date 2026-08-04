@@ -50,7 +50,9 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Testing framework: markers, conftest, `make test-*`, calibration suite + CI
 - [x] `GET /v1/calibration` + Health Calibration panel + auto-cal compete
 - [x] Cumulative settlement history bank + `make backfill` multi-fixture accumulation
-- [ ] Optional: more fixture days / free-first sport coverage as needed
+- [x] Multi-event fixture markets (full slate, not primary-only)
+- [x] Fixture `day003` + Book model-edge chip / strategy family
+- [ ] Optional: free-first live sport coverage expansion as needed
 
 ## Track D — Packaging / release
 

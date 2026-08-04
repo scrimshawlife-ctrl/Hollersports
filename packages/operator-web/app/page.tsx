@@ -42,7 +42,7 @@ function panelField(
   return fieldOrDash(cur, `missing ${path.join(".")}`);
 }
 
-const FIXTURES = ["day001", "day002"] as const;
+const FIXTURES = ["day001", "day002", "day003"] as const;
 type FixtureId = (typeof FIXTURES)[number];
 
 export default function TodayPage() {

@@ -18,6 +18,7 @@ import {
 type Candidate = {
   key: string;
   strategy_id: string;
+  strategy_family: string;
   event_id: string;
   market_id: string;
   selection: string;
@@ -66,6 +67,7 @@ function parseCandidates(competition: Json | null): Candidate[] {
       return {
         key: candidateKey({ strategy_id, market_id, selection }),
         strategy_id,
+        strategy_family: String(c.strategy_family ?? ""),
         event_id,
         market_id,
         selection,
@@ -174,11 +176,23 @@ export default function BookPage() {
   const candidates = useMemo(() => parseCandidates(competition), [competition]);
   const portfolioRows = useMemo(() => parsePortfolio(portfolio), [portfolio]);
 
+  const modelEdgeEnabled = Boolean(competition?.model_edge_enabled);
+  const modelEdgeCount = candidates.filter(
+    (c) => c.strategy_id === "MODEL_PROBABILITY_EDGE",
+  ).length;
+
   const candidateColumns: Column<Candidate>[] = [
     {
       key: "strategy_id",
       header: "Strategy",
-      render: (r) => <span className="mono">{r.strategy_id || "—"}</span>,
+      render: (r) => (
+        <span className="mono">
+          {r.strategy_id || "—"}
+          {r.strategy_family ? (
+            <span className="muted"> · {r.strategy_family}</span>
+          ) : null}
+        </span>
+      ),
     },
     {
       key: "event_id",
@@ -353,8 +367,22 @@ export default function BookPage() {
             label={portfolioStatus}
             tone={toneForStatus(portfolioStatus)}
           />
+          <AuthorityChip
+            label={
+              modelEdgeEnabled
+                ? `model_edge on · ${modelEdgeCount}`
+                : "model_edge off"
+            }
+            tone={modelEdgeEnabled ? "warn" : "neutral"}
+            title="MODEL_PROBABILITY_EDGE loads only when calibration allows — still SHADOW_ONLY, no money"
+          />
         </div>
       </header>
+
+      <p className="status-line" role="note">
+        Advisory candidates only — paper sim scores advice quality. No real money.
+        No book placement.
+      </p>
 
       <section className="section" aria-label="Candidates">
         <div className="page-header" style={{ borderBottom: "none", marginBottom: 8, paddingBottom: 0 }}>

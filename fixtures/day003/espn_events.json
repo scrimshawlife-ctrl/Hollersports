@@ -1,0 +1,82 @@
+{
+  "events": [
+    {
+      "event_id": "NBA-20260426-GSW-PHX",
+      "sport": "BASKETBALL",
+      "league": "NBA",
+      "teams": [
+        "GSW",
+        "PHX"
+      ],
+      "home_team": "GSW",
+      "away_team": "PHX",
+      "start_time": "2026-04-26T23:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "NFL-20260426-DAL-NYG",
+      "sport": "FOOTBALL",
+      "league": "NFL",
+      "teams": [
+        "DAL",
+        "NYG"
+      ],
+      "home_team": "DAL",
+      "away_team": "NYG",
+      "start_time": "2026-04-26T20:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "MLB-20260426-CHC-STL",
+      "sport": "BASEBALL",
+      "league": "MLB",
+      "teams": [
+        "CHC",
+        "STL"
+      ],
+      "home_team": "CHC",
+      "away_team": "STL",
+      "start_time": "2026-04-26T23:15:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "NHL-20260426-BOS-NYR",
+      "sport": "HOCKEY",
+      "league": "NHL",
+      "teams": [
+        "BOS",
+        "NYR"
+      ],
+      "home_team": "BOS",
+      "away_team": "NYR",
+      "start_time": "2026-04-26T23:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "EPL-20260426-TOT-NEW",
+      "sport": "SOCCER",
+      "league": "EPL",
+      "teams": [
+        "TOT",
+        "NEW"
+      ],
+      "home_team": "TOT",
+      "away_team": "NEW",
+      "start_time": "2026-04-26T15:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "MLS-20260426-POR-SKC",
+      "sport": "SOCCER",
+      "league": "MLS",
+      "teams": [
+        "POR",
+        "SKC"
+      ],
+      "home_team": "POR",
+      "away_team": "SKC",
+      "start_time": "2026-04-26T02:30:00+00:00",
+      "status": "SCHEDULED"
+    }
+  ]
+}

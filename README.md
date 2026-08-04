@@ -131,8 +131,9 @@ Use `hollersports.runes.execution_guard.run_execution_guard` with all gates `Tru
 |------|------|
 | `packages/hollersports/` | Primary Python package (`hollersports` 0.3.0) |
 | `schemas/json/` | Canonical `*.v1.schema.json` packet contracts |
-| `fixtures/day001/` | Offline multi-league operator day |
+| `fixtures/day001/` | Offline multi-league operator day (full slate markets) |
 | `fixtures/day002/` | Second day + `model_probability` for gated model edge |
+| `fixtures/day003/` | Third day for multi-day backfill / calibration sample |
 | `tests/unit/` | TDD suite for the primary package |
 | `docs/atlas/` | Repository atlas |
 | `engine/` | Legacy slate isolation engine (migration reference) |

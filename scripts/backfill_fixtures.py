@@ -23,7 +23,7 @@ from hollersports.runes.calibration_evaluator import evaluate_calibration
 from hollersports.paper.settlement_history import read_settlement_history
 from hollersports.schemas.hashing import packet_hash
 
-DEFAULT_FIXTURES = ("day001", "day002")
+DEFAULT_FIXTURES = ("day001", "day002", "day003")
 
 
 def main() -> int:

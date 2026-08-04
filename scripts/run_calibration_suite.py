@@ -16,7 +16,7 @@ from hollersports.pipelines.operator_day import run_operator_day
 from hollersports.runes.calibration_evaluator import evaluate_calibration
 from hollersports.schemas.hashing import packet_hash
 
-DEFAULT_FIXTURES = ("day001", "day002")
+DEFAULT_FIXTURES = ("day001", "day002", "day003")
 
 
 def _run_fixture(fixture: Path, data_root: Path) -> dict:

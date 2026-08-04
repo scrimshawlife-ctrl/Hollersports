@@ -23,6 +23,13 @@
       "role": "second slate + model_probability fields for gated model edge demos",
       "has_model_probability": true,
       "path": "fixtures/day002"
+    },
+    {
+      "id": "day003",
+      "run_id": "FIX-DAY003",
+      "role": "third slate for multi-day backfill sample growth + model fields",
+      "has_model_probability": true,
+      "path": "fixtures/day003"
     }
   ],
   "required_files_per_day": [

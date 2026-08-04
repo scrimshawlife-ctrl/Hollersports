@@ -145,7 +145,7 @@ def build_report(
     if not ready_ids:
         needs = True  # cannot complete; still flag
 
-    fixture_args = " ".join(ready_ids) if ready_ids else "day001 day002"
+    fixture_args = " ".join(ready_ids) if ready_ids else "day001 day002 day003"
     suggested = (
         f"python scripts/backfill_fixtures.py "
         f"--fixtures {fixture_args} "

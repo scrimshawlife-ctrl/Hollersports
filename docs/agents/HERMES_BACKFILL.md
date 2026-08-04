@@ -43,7 +43,7 @@ python scripts/backfill_status.py --assert-min-sample 20
 | Repo agent entry | `AGENTS.md` (root) |
 | Status CLI | `scripts/backfill_status.py` · `make backfill-status` |
 | Backfill CLI | `scripts/backfill_fixtures.py` · `make backfill` |
-| Fixture days | `fixtures/day001/`, `fixtures/day002/` (+ any new `fixtures/day*/`) |
+| Fixture days | `fixtures/day001/`, `day002/`, `day003/` (+ any new `fixtures/day*/`) |
 | Fixture inventory | `fixtures/MANIFEST.json` |
 | Cumulative bank | `data/backfill/ledgers/settlements_history.jsonl` |
 | Last receipt | `docs/evidence/backfill_calibration.last.json` |
