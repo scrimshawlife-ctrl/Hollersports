@@ -60,13 +60,21 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 | **Paths** | `hollersports/runes/execution_guard.py`, `stake_sizer.py`, `bet_construct.py`, `portfolio_simulator.py`, `hollersports/paper/`, `pipelines/paper_loop.py` |
 | **Tests** | `tests/unit/test_execution_guard.py`, `test_paper_ledger.py` |
 
-### Settlement / performance / promotion / operator day — PLANNED
+### Settlement / performance / promotion / operator day — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | Design + plan Tasks 6–8: settle, metrics, promotion gates, full fixture day, golden 12-run. |
-| **What it is not** | Present as shipped until modules + tests land. |
-| **Paths** | [plan Task 6–8](../superpowers/plans/2026-08-04-hollersports-standalone-operator.md) |
+| **What it is** | Settle entries, performance (excludes PENDING), promotion gates (§8.2), PROJECTION_ONLY dashboard, full fixture `run_operator_day`. |
+| **What it is not** | Live capital or auto-promotion to live books. |
+| **Paths** | `runes/settlement_engine.py`, `performance_tracker.py`, `promotion_evaluator.py`, `operator_project.py`, `pipelines/operator_day.py`, `fixtures/day001/results.json` |
+| **Tests** | `tests/unit/test_settlement.py`, `test_performance_promotion.py`, `tests/integration/test_operator_day_fixture.py` |
+
+### Golden invariance / authority locks — PLANNED
+
+| | |
+|--|--|
+| **What it is** | Plan Task 8: 12-run invariance + live-flag locks. |
+| **Paths** | [plan Task 8](../superpowers/plans/2026-08-04-hollersports-standalone-operator.md) |
 
 ### FastAPI packet API — PLANNED
 

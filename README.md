@@ -41,7 +41,8 @@ Sports market tools often either invent certainty or quietly couple analysis to 
 | Fixture ingest + source health | **shipped** | `fixtures/day001`, multi-league |
 | Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated off |
 | Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL |
-| Settlement / promotion / full day | **planned** | Plan Tasks 6–8 |
+| Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
+| Golden 12-run + authority locks | **planned** | Plan Task 8 |
 | FastAPI + Next.js operator | **planned** | Plan Tasks 7–9 (Workbench / Cobalt) |
 | Live capital / books | **forbidden** | System contract |
 
@@ -60,10 +61,13 @@ fixtures/day001 ──► source_health ──► MarketIngestionPacket
                               execution_guard (PAPER_ONLY)
                                           │
                                           ▼
-                              append-only paper ledger
+                              paper ledger → settle → performance
+                                          │
+                                          ▼
+                              promotion (review only) → dashboard projection
 ```
 
-Target end-state (design): settle → performance → promotion → operator dashboard.
+API + Next.js Workbench UI remain planned (Tasks 7–9).
 
 ## Quick start
 

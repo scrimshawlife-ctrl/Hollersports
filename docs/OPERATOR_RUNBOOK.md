@@ -16,41 +16,22 @@ pytest tests/ --ignore=hollersports-core -q
 
 ## Fixture day (current path)
 
-Closed path available **through paper ledger** (ingest → compete → paper).  
-Settlement / promotion / FastAPI / Next.js operator UI are design-specified and planned; land them before treating the full day loop as shipped.
+Closed loop available via **`run_operator_day`**: ingest → compete → paper → settle → performance → promotion → dashboard projection.  
+FastAPI + Next.js operator UI remain planned.
 
-### Programmatic paper path
+### Programmatic full day
 
 ```python
 from pathlib import Path
-from hollersports.sources.fixture_adapter import load_fixture_day
-from hollersports.pipelines.market_ingestion import run_market_ingestion
-from hollersports.pipelines.strategy_competition import run_strategy_competition
-from hollersports.pipelines.paper_loop import run_paper_loop
+from hollersports.pipelines.operator_day import run_operator_day
 
-day = load_fixture_day(Path("fixtures/day001"))
-ingest = run_market_ingestion(day["ingest_payload"])
-assert ingest["status"] == "INGESTED"
-
-comp = run_strategy_competition(ingest)
-assert comp["status"] == "COMPUTED"
-
-# paper first N candidates under all-true fixture gates
-candidates = comp.get("candidates", [])[:5]
-context = {
-    "run_id": ingest.get("run_id", "FIX-DAY001"),
-    "price": 1.91,
-    "bankroll": 1000.0,
-    "human_max_stake": 25.0,
-    "gates": {
-        "source_health_gate": True,
-        "governance_gate": True,
-        "truth_gate": True,
-        "liquidity_gate": True,
-        "bankroll_gate": True,
-    },
-}
-# Prefer per-candidate paper via run_execution_guard + ledger; see paper_loop
+out = run_operator_day(Path("fixtures/day001"), data_root=Path("data/demo-run"))
+assert out["ingest"]["status"] == "INGESTED"
+assert out["competition"]["status"] == "COMPUTED"
+assert out["dashboard"]["authority"] == "PROJECTION_ONLY"
+assert out["promotion"]["status"] in ("BLOCKED", "WATCH", "REVIEW_ELIGIBLE", "PROMOTION_RECOMMENDED")
+# small fixture sample normally yields BLOCKED
+print(out.keys())  # ingest, competition, paper, settlements, performance, promotion, dashboard
 ```
 
 ### Fixture location
