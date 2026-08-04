@@ -15,7 +15,6 @@
 [![Books](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
 [![Abraxas](https://img.shields.io/badge/Abraxas-concept%20lineage%20only-lightgrey)](docs/ABRAXAS_LINEAGE.md)
 [![Advisory beta](https://img.shields.io/badge/advisory%20beta-local%20PASS-blue)](docs/PRODUCTION_READINESS.md)
-[![Money](https://img.shields.io/badge/real%20money-never-success)](docs/SYSTEM_CONTRACT.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
 [Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
