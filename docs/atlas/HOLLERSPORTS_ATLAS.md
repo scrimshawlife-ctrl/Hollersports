@@ -11,7 +11,8 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 | **What it is not** | Money handler, sportsbook, payment rail, live bet placer, or Abraxas runtime dependency. |
 | **Package** | `hollersports` **0.3.0** (`packages/hollersports`) |
 | **Mode** | `ADVISORY_ONLY` / `PAPER_ONLY` (sim) · `capital_authority=false` · `execution_authority=false` · **no real money** |
-| **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/unit/` |
+| **Main tip (docs pin)** | `4a91728` · foundation PR **#3** MERGED `838ea88` |
+| **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/`, `docs/agents/` |
 
 ## Surfaces
 
@@ -37,50 +38,43 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 
 | | |
 |--|--|
-| **What it is** | Registry, fixture day pack, source health, market ingestion; optional ESPN + Odds API observation pack + conflict detector. |
+| **What it is** | Registry, fixture day packs (`day001`, `day002`), source health, market ingestion; optional ESPN + Odds API observation pack + conflict detector. |
 | **What it is not** | Recommendation engine or money path; live network never required for CI. |
-| **Paths** | `hollersports/sources/` (`espn_scoreboard`, `odds_api`, `source_conflict`, `free_first_ingest`), `runes/source_health.py`, `pipelines/market_ingestion.py`, `fixtures/day001/`, `scripts/holler_free_first_ingest.py` |
+| **Paths** | `hollersports/sources/`, `fixtures/day001/`, `fixtures/day002/`, `fixtures/MANIFEST.json`, `scripts/holler_free_first_ingest.py` |
 | **Tests** | `test_source_health`, `test_market_ingestion`, `test_espn_scoreboard`, `test_odds_api`, `test_source_conflict`, `test_free_first_ingest` |
 
-### Strategy competition — OBSERVED
+### Strategy competition + model edge — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | Market-first strategies (consensus, public fade, CLV) + gated-off model edge + competition loop. |
-| **What it is not** | Execution or stake sizing. |
-| **Paths** | `hollersports/strategies/`, `hollersports/pipelines/strategy_competition.py` |
-| **Tests** | `tests/unit/test_strategy_registry.py`, `test_strategy_competition.py` |
+| **What it is** | Market-first strategies (consensus, public fade, CLV) + gated `MODEL_PROBABILITY_EDGE` (calibration + market fields). |
+| **What it is not** | Execution or stake sizing; inventing model probs. |
+| **Paths** | `hollersports/strategies/`, `pipelines/strategy_competition.py`, `runes/calibration_evaluator.py` |
+| **Tests** | `test_strategy_*`, `test_model_edge`, `test_calibration_*` |
 
-### Paper execution + ledger — OBSERVED
+### Paper execution + ledgers — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | Execution guard (`PAPER_ONLY`), stake sizer, bet construct, portfolio simulator, append-only hash-chained paper ledger, paper loop. |
+| **What it is** | Execution guard (`PAPER_ONLY`), paper loop, hash-chained paper ledger, reliability history, **cumulative settlement bank**. |
 | **What it is not** | Live books or capital authority. |
-| **Paths** | `hollersports/runes/execution_guard.py`, `stake_sizer.py`, `bet_construct.py`, `portfolio_simulator.py`, `hollersports/paper/`, `pipelines/paper_loop.py` |
-| **Tests** | `tests/unit/test_execution_guard.py`, `test_paper_ledger.py` |
+| **Paths** | `hollersports/paper/` (`ledger`, `reliability_ledger`, `settlement_history`), `pipelines/paper_loop.py` |
+| **Tests** | `test_paper_ledger`, `test_reliability_*`, `test_settlement_history` |
 
 ### Settlement / performance / promotion / operator day — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | Settle entries, performance (excludes PENDING), promotion gates (§8.2), PROJECTION_ONLY dashboard, full fixture `run_operator_day`. |
+| **What it is** | Settle entries, performance, promotion (review only), PROJECTION_ONLY dashboard, `run_operator_day`. |
 | **What it is not** | Live capital or auto-promotion to live books. |
-| **Paths** | `runes/settlement_engine.py`, `performance_tracker.py`, `promotion_evaluator.py`, `operator_project.py`, `pipelines/operator_day.py`, `fixtures/day001/results.json` |
-| **Tests** | `tests/unit/test_settlement.py`, `test_performance_promotion.py`, `tests/integration/test_operator_day_fixture.py` |
-
-### Golden invariance / authority locks — OBSERVED
-
-| | |
-|--|--|
-| **What it is** | 12-run fixture invariance + authority lock goldens. |
-| **Paths** | `tests/golden/` |
+| **Paths** | `runes/settlement_engine.py`, `performance_tracker.py`, `promotion_evaluator.py`, `operator_project.py`, `pipelines/operator_day.py` |
+| **Tests** | `test_settlement`, `test_performance_promotion`, `test_operator_day_fixture` |
 
 ### FastAPI packet API — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | `/v1/runs/*`, `/v1/dashboard`, `/v1/portfolio`, `/v1/promotion` |
+| **What it is** | `/v1/runs/*`, dashboard, portfolio, promotion, reliability (+ history), **calibration**, candidates, free-first, full-day. |
 | **Paths** | `hollersports/api/` |
 | **Tests** | `tests/integration/test_api.py` |
 
@@ -88,72 +82,60 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 
 | | |
 |--|--|
-| **What it is** | Next.js local dashboard: Today · Book · Health; Hallmark Workbench + Cobalt + N3 + Ft4. |
+| **What it is** | Next.js local dashboard: Today · Book · Health (calibration + reliability history). |
 | **What it is not** | Place-bet UI. |
 | **Paths** | `packages/operator-web/` |
+
+### Testing + backfill + Hermes — OBSERVED
+
+| | |
+|--|--|
+| **What it is** | Layered pytest (unit/integration/golden/calibration), smoke + calibration suite + backfill, agent playbooks. |
+| **Paths** | `tests/`, `scripts/backfill_status.py`, `scripts/backfill_fixtures.py`, `docs/agents/`, `AGENTS.md` |
+| **Commands** | `make test`, `make backfill-status`, `make backfill` |
 
 ### Legacy engine / feedback core — OBSERVED (legacy)
 
 | | |
 |--|--|
 | **What it is** | Original slate isolation + feedback loop packages kept during migration. |
-| **What it is not** | Primary operator path going forward. |
+| **What it is not** | Primary operator path. |
 | **Paths** | `engine/`, `hollersports-core/`, `INTEGRATION_GUIDE.md` |
+| **Notes** | [MIGRATION_ENGINE.md](../MIGRATION_ENGINE.md) |
 
 ## Repository map
 
 ```text
 Hollersports/
-├── packages/hollersports/     # Primary Python package (v0.2)
-├── schemas/json/              # Canonical packet contracts
-├── fixtures/day001/           # Offline multi-league day pack
-├── tests/unit/                # TDD unit suite (primary)
+├── AGENTS.md                    # Agent entry (Hermes backfill)
+├── packages/hollersports/       # Primary Python package (v0.3.0)
+├── packages/operator-web/       # Cobalt Workbench
+├── schemas/json/                # Canonical packet contracts
+├── fixtures/day001|day002/      # Offline multi-league day packs
+├── fixtures/MANIFEST.json       # Fixture inventory for agents
+├── tests/{unit,integration,golden,calibration}/
+├── scripts/                     # smoke, calibration suite, backfill*
 ├── docs/
+│   ├── agents/HERMES_BACKFILL.md
 │   ├── atlas/HOLLERSPORTS_ATLAS.md
 │   ├── SYSTEM_CONTRACT.md
-│   ├── ABRAXAS_LINEAGE.md
-│   ├── OPERATOR_RUNBOOK.md
-│   ├── images/hollersports-hero.jpg
-│   └── superpowers/           # Design + implementation plan
-├── engine/                    # Legacy slate engine
-├── hollersports-core/         # Legacy feedback loop
+│   ├── PRODUCTION_READINESS.md
+│   ├── TESTING_AND_CALIBRATION.md
+│   └── evidence/                # Smoke + readiness pins
+├── engine/                      # Legacy
+├── hollersports-core/           # Legacy
 └── README.md
 ```
 
-## Pipeline
+## PLANNED (not claimed)
 
-```text
-fixtures | free sources
-    → source_health
-    → MarketIngestionPacket
-    → strategy competition (SHADOW_ONLY candidates)
-    → execution_guard (PAPER_ONLY)
-    → paper ledger
-    → settle → performance → promotion → dashboard projection  [library OBSERVED]
-    → FastAPI /v1 + Workbench UI                               [OBSERVED local]
-```
+- Hosted multi-tenant SaaS / Vercel production deploy  
+- PyPI publish  
+- Full Monte Carlo operator default  
 
-## Governance seals
+## Related
 
-```text
-REAL_MONEY=false
-CAPITAL_AUTHORITY=false
-EXECUTION_AUTHORITY=false
-LIVE_BOOKS=false
-ABRAXAS_RUNTIME_REQUIRED=false
-MODE=PAPER_ONLY   # simulation of advice quality, not funds
-PURPOSE=ADVISORY_ONLY
-```
-
-## Related docs
-
-| Doc | Role |
-|-----|------|
-| [SYSTEM_CONTRACT.md](../SYSTEM_CONTRACT.md) | Hard laws |
-| [PRODUCTION_READINESS.md](../PRODUCTION_READINESS.md) | Gates + decision model |
-| [evidence/PRODUCTION_READINESS_MATRIX.md](../evidence/PRODUCTION_READINESS_MATRIX.md) | SHA-pinned scores |
-| [MIGRATION_ENGINE.md](../MIGRATION_ENGINE.md) | Legacy engine / core notes |
-| [ABRAXAS_LINEAGE.md](../ABRAXAS_LINEAGE.md) | Concept export only |
-| [OPERATOR_RUNBOOK.md](../OPERATOR_RUNBOOK.md) | Operator day |
-| [Design spec](../superpowers/specs/2026-08-04-hollersports-standalone-design.md) | Approved product design |
-| [Implementation plan](../superpowers/plans/2026-08-04-hollersports-standalone-operator.md) | Task DAG |
+- [SYSTEM_CONTRACT.md](../SYSTEM_CONTRACT.md)  
+- [PRODUCTION_READINESS.md](../PRODUCTION_READINESS.md)  
+- [RELEASE_NOTES.md](../RELEASE_NOTES.md)  
+- [agents/HERMES_BACKFILL.md](../agents/HERMES_BACKFILL.md)  

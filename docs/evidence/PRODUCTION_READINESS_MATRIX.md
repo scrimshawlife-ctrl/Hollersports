@@ -3,21 +3,26 @@
 ```yaml
 product: hollersports
 class_target: ADVISORY_OPERATOR_READY
+# Foundation freeze (historical pin — do not rewrite scores without re-run)
 assessed_sha: 838ea88d0aa85b1c85f810bb080c590f5c8a7804
 branch: main
-package_version: "0.2.0"
+package_version: "0.2.0"   # at foundation merge; tip is 0.3.0
 date: "2026-08-04"
 merged_pr: 3
+pr_state: MERGED
 tests:
   command: "pytest tests/ --ignore=hollersports-core -q"
-  result: "43 passed"
+  result: "43 passed"   # at foundation; tip ~101 passed
 smoke:
   command: "python scripts/smoke_operator_day.py"
   receipt: docs/evidence/smoke_operator_day.last.json
 full_narrative: PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md
+continuum: PRODUCTION_READINESS_CONTINUUM_2026-08-04.md
 prior: PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md
 delta: PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md
 ```
+
+> **Current tip** (post-merge continuum): see [PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](PRODUCTION_READINESS_CONTINUUM_2026-08-04.md) (`4a91728`, package 0.3.0). Gate table below is the **PR #3 foundation** pin.
 
 ## Gate scores
 

@@ -38,7 +38,8 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 
 ## Status
 
-**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` @ merge PR #3 — see [post-merge assessment](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md).  
+**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `4a91728` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
+**Open PRs:** none (all continuum work is on `main`).  
 **Money / live books:** **never** — contract-forbidden.
 
 | Track | State | Notes |
@@ -47,16 +48,16 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 | Packet contracts v1 | **shipped** | Nine JSON Schemas + Pydantic |
 | Fixture ingest + source health | **shipped** | `fixtures/day001` + `day002` (model fields) |
 | Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated (calibration) |
-| Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL |
+| Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL + settlement bank |
 | Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
-| Golden 12-run + authority locks | **shipped** | `tests/golden/` |
+| Calibration ladder + backfill | **shipped** | `GET /v1/calibration`, `make backfill`, Hermes playbook |
+| Golden 12-run + authority locks | **shipped** | `tests/golden/` + calibration suite |
 | FastAPI `/v1` | **shipped** | `create_app` factory |
 | Next.js Workbench (Cobalt) | **shipped** | Today · Book · Health |
 | CI | **shipped** | `.github/workflows/ci.yml` |
 | Real money / book placement | **never** | Advisory only |
-| Local advisory beta | **PASS** | Merged main + CI + smoke |
+| Local advisory beta | **PASS** | PR #3 merge + continuum on main |
 | SaaS multi-tenant GA | **not claimed** | Local single-operator |
-
 Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.
 
 ## Architecture (current)

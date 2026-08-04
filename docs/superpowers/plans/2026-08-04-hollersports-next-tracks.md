@@ -1,11 +1,13 @@
 # HollerSports — next tracks (post advisory beta)
 
-> After PR #3 merge to `main`. Advisory only — no real money.
+> After PR #3 merge to `main` (**MERGED** `838ea88`). Continuum tip `4a91728`.  
+> Advisory only — no real money. **No open PR** — work lands on `main`.
 
-## Completed (v0.2 advisory beta)
+## Completed (v0.2 → v0.3 advisory beta)
 
 Tasks 1–9 of standalone operator plan + readiness board + CI + smoke.  
-Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
+Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.  
+Post-merge continuum: free-first, model edge, calibration ladder, settlement bank, Hermes backfill docs.
 
 ## Track A — Free-first live ingest (optional keys)
 

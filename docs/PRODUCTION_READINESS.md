@@ -29,20 +29,25 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 ## Current posture
 
 **Classification:** **local advisory beta** on `main`.  
-**Freeze SHA:** `838ea88` (merge of PR #3).  
+**Foundation merge:** PR **#3** → `838ea88` (2026-08-04) — **MERGED** (no open PR remains).  
+**Tip SHA:** `4a91728` (continuum on `main`; package **0.3.0**, tag `v0.3.0-advisory-beta`).  
 **Verdict:** **PASS** for local **ADVISORY_OPERATOR_READY** (no real money, no book placement).  
 **Not claimed:** multi-tenant SaaS GA, hosted multi-user production, any money rail.
 
 | Document | Role |
 |----------|------|
-| [evidence/PRODUCTION_READINESS_MATRIX.md](evidence/PRODUCTION_READINESS_MATRIX.md) | SHA-pinned area scores |
+| [evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md) | Tip continuum after PR #3 (this board’s current pin) |
+| [evidence/PRODUCTION_READINESS_MATRIX.md](evidence/PRODUCTION_READINESS_MATRIX.md) | Foundation matrix @ PR #3 merge SHA |
 | [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md) | Post-merge PASS (local advisory beta) |
 | [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) | Baseline pre Phase B (NOT READY) |
 | [evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md](evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md) | Phase B delta |
 | [evidence/smoke_operator_day.last.json](evidence/smoke_operator_day.last.json) | Fixture smoke receipt |
+| [evidence/calibration_suite.last.json](evidence/calibration_suite.last.json) | Multi-fixture calibration receipt |
 | [atlas/HOLLERSPORTS_ATLAS.md](atlas/HOLLERSPORTS_ATLAS.md) | OBSERVED topology |
+| [agents/HERMES_BACKFILL.md](agents/HERMES_BACKFILL.md) | Agent backfill playbook |
 | [MIGRATION_ENGINE.md](MIGRATION_ENGINE.md) | Legacy engine notes |
 | [OPERATOR_RUNBOOK.md](OPERATOR_RUNBOOK.md) | Fixture operator day |
+| [TESTING_AND_CALIBRATION.md](TESTING_AND_CALIBRATION.md) | Test layers + calibration ladder |
 
 ## Maturity ladder
 

@@ -1,6 +1,7 @@
 # Operator runbook
 
 Advisory operator day using fixtures. **No real money. No live book placement.**  
+**Main tip:** package 0.3.0 · PR #3 merged · continuum on `main` (see [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md)).  
 Paper stakes/settlement measure **advice quality**, not payouts.
 
 ## Prerequisites
