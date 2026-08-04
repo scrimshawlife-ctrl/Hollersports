@@ -87,10 +87,20 @@ export function postIngest(fixture = "day001") {
   });
 }
 
-export function postCompete() {
+export function postCompete(opts?: {
+  allow_forecast_weighting?: boolean;
+  reliability_status?: string;
+}) {
+  const allow = Boolean(opts?.allow_forecast_weighting);
   return request<Json>("/v1/runs/compete", {
     method: "POST",
-    body: JSON.stringify({}),
+    body: JSON.stringify({
+      allow_forecast_weighting: allow,
+      // Model edge requires RELIABLE + allow_forecast_weighting
+      reliability_status: allow
+        ? opts?.reliability_status ?? "RELIABLE"
+        : opts?.reliability_status ?? "UNRELIABLE",
+    }),
   });
 }
 

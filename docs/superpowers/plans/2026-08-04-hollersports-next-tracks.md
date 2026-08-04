@@ -35,7 +35,16 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 - [x] Gated `MODEL_PROBABILITY_EDGE` (deterministic package-native; calibration on)
 - [x] Append-only reliability history ledger + `GET /v1/reliability?history=1`
 - [x] Workbench Health “Reliability history” table + release notes
+- [x] Compete calibration body + Today toggle; fixture `day002` (model fields)
 - Keep promotion **advisory review only** (never money)
+
+## Track E — Local operator polish (post Vercel deferral)
+
+Original local-first path (no hosted SaaS). Continue here:
+
+- [x] Second fixture day for multi-day / model-edge demos
+- [x] Operator-visible model-edge calibration gate (default off)
+- [ ] Optional: more fixture days / free-first sport coverage as needed
 
 ## Track D — Packaging / release
 

@@ -20,6 +20,7 @@ _STATE_KEYS = (
     "dashboard",
     "fixture",
     "meta",
+    "calibration",
 )
 
 

@@ -1,0 +1,81 @@
+{
+  "markets": [
+    {
+      "event_id": "NBA-20260425-MIA-DEN",
+      "market_id": "NBA-20260425-MIA-DEN-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -135,
+      "sportsbook": "consensus",
+      "consensus_score": 0.74,
+      "public_bet_pct": 0.68,
+      "handle_pct": 0.52,
+      "fade_selection": "AWAY_ML",
+      "clv_retention": 0.015,
+      "model_probability": 0.62,
+      "market_implied_probability": 0.52
+    },
+    {
+      "event_id": "NBA-20260425-MIA-DEN",
+      "market_id": "NBA-20260425-MIA-DEN-ML-AWAY",
+      "market_type": "MONEYLINE",
+      "selection": "AWAY_ML",
+      "price": 115,
+      "sportsbook": "consensus",
+      "consensus_score": 0.38,
+      "public_bet_pct": 0.32,
+      "handle_pct": 0.48,
+      "fade_selection": "HOME_ML",
+      "clv_retention": -0.005,
+      "model_probability": 0.4,
+      "market_implied_probability": 0.48
+    },
+    {
+      "event_id": "NFL-20260425-SF-PHI",
+      "market_id": "NFL-20260425-SF-PHI-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -140,
+      "sportsbook": "consensus",
+      "consensus_score": 0.7,
+      "model_probability": 0.58,
+      "market_implied_probability": 0.55
+    },
+    {
+      "event_id": "MLB-20260425-LAD-ATL",
+      "market_id": "MLB-20260425-LAD-ATL-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -120,
+      "sportsbook": "consensus",
+      "consensus_score": 0.58
+    },
+    {
+      "event_id": "NHL-20260425-EDM-VGK",
+      "market_id": "NHL-20260425-EDM-VGK-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -125,
+      "sportsbook": "consensus",
+      "consensus_score": 0.61
+    },
+    {
+      "event_id": "EPL-20260425-MCI-LIV",
+      "market_id": "EPL-20260425-MCI-LIV-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -110,
+      "sportsbook": "consensus",
+      "consensus_score": 0.57
+    },
+    {
+      "event_id": "MLS-20260425-ATL-CLB",
+      "market_id": "MLS-20260425-ATL-CLB-ML-HOME",
+      "market_type": "MONEYLINE",
+      "selection": "HOME_ML",
+      "price": -105,
+      "sportsbook": "consensus",
+      "consensus_score": 0.59
+    }
+  ]
+}

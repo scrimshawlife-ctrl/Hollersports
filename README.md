@@ -45,7 +45,7 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 |-------|--------|--------|
 | Governance + hashing | **shipped** | Authority locks, fail-closed helpers |
 | Packet contracts v1 | **shipped** | Nine JSON Schemas + Pydantic |
-| Fixture ingest + source health | **shipped** | `fixtures/day001`, multi-league |
+| Fixture ingest + source health | **shipped** | `fixtures/day001` + `day002` (model fields) |
 | Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated (calibration) |
 | Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL |
 | Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
@@ -127,6 +127,7 @@ Use `hollersports.runes.execution_guard.run_execution_guard` with all gates `Tru
 | `packages/hollersports/` | Primary Python package (`hollersports` 0.3.0) |
 | `schemas/json/` | Canonical `*.v1.schema.json` packet contracts |
 | `fixtures/day001/` | Offline multi-league operator day |
+| `fixtures/day002/` | Second day + `model_probability` for gated model edge |
 | `tests/unit/` | TDD suite for the primary package |
 | `docs/atlas/` | Repository atlas |
 | `engine/` | Legacy slate isolation engine (migration reference) |

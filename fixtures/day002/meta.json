@@ -1,0 +1,14 @@
+{
+  "run_id": "FIX-DAY002",
+  "fetched_at": "2026-04-25T18:00:00+00:00",
+  "current_time": "2026-04-25T18:00:30+00:00",
+  "leagues": [
+    "NBA",
+    "NFL",
+    "MLB",
+    "NHL",
+    "EPL",
+    "MLS"
+  ],
+  "note": "day002 includes model_probability for gated MODEL_PROBABILITY_EDGE demos"
+}

@@ -49,6 +49,40 @@ def test_full_day_and_candidates(tmp_path):
         assert len(hbody["entries"]) == hbody["count"]
 
 
+def test_day002_full_day_and_calibrated_model_edge(tmp_path):
+    """day002 carries model_probability; model edge only with RELIABLE calibration."""
+    with TestClient(create_app(data_root=str(tmp_path))) as client:
+        r = client.post("/v1/runs/full-day", json={"fixture": "day002"})
+        assert r.status_code == 200
+        assert r.json()["capital_authority"] is False
+
+        off = client.post("/v1/runs/compete", json={})
+        assert off.status_code == 200
+        off_body = off.json()
+        assert off_body.get("model_edge_enabled") is False
+        off_ids = [c.get("strategy_id") for c in off_body.get("candidates") or []]
+        assert "MODEL_PROBABILITY_EDGE" not in off_ids
+
+        on = client.post(
+            "/v1/runs/compete",
+            json={
+                "allow_forecast_weighting": True,
+                "reliability_status": "RELIABLE",
+            },
+        )
+        assert on.status_code == 200
+        on_body = on.json()
+        assert on_body.get("model_edge_enabled") is True
+        model = [
+            c
+            for c in on_body.get("candidates") or []
+            if c.get("strategy_id") == "MODEL_PROBABILITY_EDGE"
+        ]
+        assert len(model) >= 1
+        assert model[0].get("authority") == "SHADOW_ONLY"
+        assert model[0].get("capital_authority") is False
+
+
 def test_free_first_injected_no_network(tmp_path):
     with TestClient(create_app(data_root=str(tmp_path))) as client:
         espn_raw = {

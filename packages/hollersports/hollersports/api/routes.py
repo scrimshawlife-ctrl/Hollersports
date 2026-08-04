@@ -56,6 +56,24 @@ class EmptyRunRequest(BaseModel):
     portfolio_id: str | None = "default"
 
 
+class CompeteRequest(BaseModel):
+    """Strategy competition options (advisory; no money).
+
+    Model edge stays offline unless both allow_forecast_weighting and
+    reliability_status == RELIABLE (see calibration_allows_model_edge).
+    """
+
+    portfolio_id: str | None = "default"
+    allow_forecast_weighting: bool = Field(
+        default=False,
+        description="When true with RELIABLE status, load MODEL_PROBABILITY_EDGE",
+    )
+    reliability_status: str = Field(
+        default="UNRELIABLE",
+        description="RELIABLE unlocks model edge when allow_forecast_weighting",
+    )
+
+
 class PaperRunRequest(BaseModel):
     """Paper simulation of advised tickets (no real money)."""
 
@@ -305,12 +323,26 @@ def runs_ingest(body: IngestRequest, request: Request) -> dict[str, Any]:
 @router.post("/runs/compete")
 def runs_compete(
     request: Request,
-    body: EmptyRunRequest | None = None,  # noqa: ARG001
+    body: CompeteRequest | EmptyRunRequest | None = None,
 ) -> dict[str, Any]:
-    """Strategy competition on last ingest."""
+    """Strategy competition on last ingest.
+
+    Optional calibration (CompeteRequest) gates MODEL_PROBABILITY_EDGE.
+    Default body / EmptyRunRequest → model edge off.
+    """
     store = _store(request)
     ingest = store.get("ingest")
-    competition = run_strategy_competition(ingest if isinstance(ingest, dict) else None)
+    calibration: dict[str, Any] | None = None
+    if isinstance(body, CompeteRequest):
+        calibration = {
+            "allow_forecast_weighting": bool(body.allow_forecast_weighting),
+            "reliability_status": str(body.reliability_status or "UNRELIABLE"),
+        }
+        store.put("calibration", calibration)
+    competition = run_strategy_competition(
+        ingest if isinstance(ingest, dict) else None,
+        calibration=calibration,
+    )
     store.put("competition", competition)
     _rebuild_dashboard(store)
     return _safe_packet(competition)

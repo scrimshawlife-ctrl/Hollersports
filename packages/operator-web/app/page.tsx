@@ -42,12 +42,17 @@ function panelField(
   return fieldOrDash(cur, `missing ${path.join(".")}`);
 }
 
+const FIXTURES = ["day001", "day002"] as const;
+type FixtureId = (typeof FIXTURES)[number];
+
 export default function TodayPage() {
   const [dashboard, setDashboard] = useState<Json | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<ActionId | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<string | null>(null);
+  const [fixture, setFixture] = useState<FixtureId>("day001");
+  const [allowModelEdge, setAllowModelEdge] = useState(false);
 
   const refresh = useCallback(async () => {
     setError(null);
@@ -153,14 +158,45 @@ export default function TodayPage() {
 
       <section className="section" aria-label="Actions">
         <h2 className="section-title">Actions</h2>
+        <div className="actions-row" style={{ marginBottom: 12, gap: 16 }}>
+          <label className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            Fixture
+            <select
+              className="mono"
+              value={fixture}
+              disabled={disabled}
+              aria-label="Fixture day"
+              onChange={(e) => setFixture(e.target.value as FixtureId)}
+            >
+              {FIXTURES.map((id) => (
+                <option key={id} value={id}>
+                  {id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label
+            className="muted"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+            title="Loads MODEL_PROBABILITY_EDGE when markets carry model_probability (e.g. day002). Still SHADOW_ONLY — no money."
+          >
+            <input
+              type="checkbox"
+              checked={allowModelEdge}
+              disabled={disabled}
+              onChange={(e) => setAllowModelEdge(e.target.checked)}
+            />
+            Allow model edge (calibration RELIABLE)
+          </label>
+        </div>
         <div className="actions-row">
           <button
             type="button"
             className="btn btn-primary"
             disabled={disabled}
-            onClick={() => void runAction("fullday", () => postFullDay("day001"))}
+            onClick={() => void runAction("fullday", () => postFullDay(fixture))}
           >
-            {busy === "fullday" ? "Running day…" : "Run full fixture day"}
+            {busy === "fullday" ? "Running day…" : `Run full ${fixture}`}
           </button>
           <button
             type="button"
@@ -179,15 +215,19 @@ export default function TodayPage() {
             type="button"
             className="btn"
             disabled={disabled}
-            onClick={() => void runAction("ingest", () => postIngest("day001"))}
+            onClick={() => void runAction("ingest", () => postIngest(fixture))}
           >
-            {busy === "ingest" ? "Ingesting…" : "Ingest day001"}
+            {busy === "ingest" ? "Ingesting…" : `Ingest ${fixture}`}
           </button>
           <button
             type="button"
             className="btn"
             disabled={disabled}
-            onClick={() => void runAction("compete", () => postCompete())}
+            onClick={() =>
+              void runAction("compete", () =>
+                postCompete({ allow_forecast_weighting: allowModelEdge }),
+              )
+            }
           >
             {busy === "compete" ? "Competing…" : "Compete"}
           </button>

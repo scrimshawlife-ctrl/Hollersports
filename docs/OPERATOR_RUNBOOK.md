@@ -50,12 +50,25 @@ make web   # :3000 — Today → Run full fixture day (or Free-first live observ
 
 Today actions:
 
+- **Fixture** select — `day001` (default) or `day002` (includes model fields)  
+- **Allow model edge** — optional; sets calibration `RELIABLE` + `allow_forecast_weighting` on Compete only (default off; still SHADOW_ONLY)  
 - **Run full fixture day** — offline-safe closed loop  
 - **Free-first live observe** — optional network (ESPN; Odds if `THE_ODDS_API_KEY`); fail-closed if offline  
 
 ### Fixture location
 
-`fixtures/day001/` — multi-league schedule + odds-shaped markets (NBA ML includes consensus / public / CLV feature fields).
+| Day | Notes |
+|-----|--------|
+| `fixtures/day001/` | Multi-league schedule + odds-shaped markets (NBA ML includes consensus / public / CLV) |
+| `fixtures/day002/` | Second slate; NBA/NFL markets may include `model_probability` for gated model-edge demos |
+
+Compete with model edge (API):
+
+```bash
+curl -s -X POST localhost:8000/v1/runs/compete \
+  -H 'content-type: application/json' \
+  -d '{"allow_forecast_weighting":true,"reliability_status":"RELIABLE"}' | jq '.model_edge_enabled,.candidate_count'
+```
 
 ## Live free sources (optional — Track A)
 

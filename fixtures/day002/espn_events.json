@@ -1,0 +1,82 @@
+{
+  "events": [
+    {
+      "event_id": "NBA-20260425-MIA-DEN",
+      "sport": "BASKETBALL",
+      "league": "NBA",
+      "teams": [
+        "MIA",
+        "DEN"
+      ],
+      "home_team": "MIA",
+      "away_team": "DEN",
+      "start_time": "2026-04-25T23:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "NFL-20260425-SF-PHI",
+      "sport": "FOOTBALL",
+      "league": "NFL",
+      "teams": [
+        "SF",
+        "PHI"
+      ],
+      "home_team": "SF",
+      "away_team": "PHI",
+      "start_time": "2026-04-25T20:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "MLB-20260425-LAD-ATL",
+      "sport": "BASEBALL",
+      "league": "MLB",
+      "teams": [
+        "LAD",
+        "ATL"
+      ],
+      "home_team": "LAD",
+      "away_team": "ATL",
+      "start_time": "2026-04-25T23:05:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "NHL-20260425-EDM-VGK",
+      "sport": "HOCKEY",
+      "league": "NHL",
+      "teams": [
+        "EDM",
+        "VGK"
+      ],
+      "home_team": "EDM",
+      "away_team": "VGK",
+      "start_time": "2026-04-25T23:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "EPL-20260425-MCI-LIV",
+      "sport": "SOCCER",
+      "league": "EPL",
+      "teams": [
+        "MCI",
+        "LIV"
+      ],
+      "home_team": "MCI",
+      "away_team": "LIV",
+      "start_time": "2026-04-25T15:00:00+00:00",
+      "status": "SCHEDULED"
+    },
+    {
+      "event_id": "MLS-20260425-ATL-CLB",
+      "sport": "SOCCER",
+      "league": "MLS",
+      "teams": [
+        "ATL",
+        "CLB"
+      ],
+      "home_team": "ATL",
+      "away_team": "CLB",
+      "start_time": "2026-04-25T23:30:00+00:00",
+      "status": "SCHEDULED"
+    }
+  ]
+}
