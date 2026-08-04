@@ -95,11 +95,10 @@ def project_dashboard(state: Mapping[str, Any] | dict[str, Any] | None) -> dict[
             "live_mode": False,
         },
     )
-    out = packet.model_dump()
-    # Hard invariant: never surface live betting UX.
+    out = packet.model_dump(exclude_none=True)
+    # Projection is advisory-only: never surface execution mode or live UX.
     out.pop("mode", None)
-    if out.get("mode") == "LIVE_APPROVED":
-        out["mode"] = "PROJECTION_ONLY"
+    out.pop("recommendation", None)
     assert out["authority"] == Authority.PROJECTION_ONLY.value
     assert out["capital_authority"] is False
     assert out["execution_authority"] is False

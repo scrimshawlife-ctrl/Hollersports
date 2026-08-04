@@ -14,6 +14,13 @@ _VALID_SOURCE_TYPES = frozenset(
 )
 
 
+def _finalize(packet_dict: dict[str, Any]) -> dict[str, Any]:
+    """Never surface recommendations; enforce capital locks on every exit."""
+    packet_dict.pop("recommendation", None)
+    assert_no_live_capital(packet_dict)
+    return packet_dict
+
+
 def run_market_ingestion(payload: dict[str, Any]) -> dict[str, Any]:
     """Evaluate source health and emit a MarketIngestionPacket dict.
 
@@ -22,15 +29,15 @@ def run_market_ingestion(payload: dict[str, Any]) -> dict[str, Any]:
     - health PASS / WARN → status INGESTED with markets and source_health
     """
     if not isinstance(payload, Mapping):
-        out = not_computable(
-            "MarketIngestionPacket.v1",
-            "invalid_ingest_payload",
-            run_id="UNKNOWN",
-            source_id="UNKNOWN",
-            markets=[],
+        return _finalize(
+            not_computable(
+                "MarketIngestionPacket.v1",
+                "invalid_ingest_payload",
+                run_id="UNKNOWN",
+                source_id="UNKNOWN",
+                markets=[],
+            )
         )
-        assert_no_live_capital(out)
-        return out
 
     run_id = str(payload.get("run_id") or "UNKNOWN")
     source_id = str(payload.get("source_id") or "UNKNOWN")
@@ -96,8 +103,7 @@ def run_market_ingestion(payload: dict[str, Any]) -> dict[str, Any]:
             },
             markets=[],
         )
-        assert_no_live_capital(out)
-        return out
+        return _finalize(out)
 
     if status == "FAIL":
         packet = MarketIngestionPacket(
@@ -106,9 +112,7 @@ def run_market_ingestion(payload: dict[str, Any]) -> dict[str, Any]:
             reason=str(health.get("reason") or "source_health_fail"),
             **base_kwargs,
         )
-        out = packet.model_dump()
-        assert_no_live_capital(out)
-        return out
+        return _finalize(packet.model_dump())
 
     markets = list(event_payload.get("markets") or [])
     packet = MarketIngestionPacket(
@@ -117,8 +121,4 @@ def run_market_ingestion(payload: dict[str, Any]) -> dict[str, Any]:
         reason=str(health.get("reason")) if health.get("reason") else None,
         **base_kwargs,
     )
-    out = packet.model_dump()
-    # Never surface recommendations from ingestion.
-    out.pop("recommendation", None)
-    assert_no_live_capital(out)
-    return out
+    return _finalize(packet.model_dump())
