@@ -24,18 +24,19 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 - [x] `GET /v1/candidates` + `POST /v1/runs/full-day`
 - [x] Paper accepts optional `candidate_ids` (UI selection → sim)
 - [x] Today: one-click “Run full fixture day”
-- [ ] Empty/loading/error states audit on Health
+- [x] Health loading/error/empty copy + advisory banner
 - [ ] Optional free-first live button (needs network + keys)
 
 ## Track C — Advice quality loop
 
-- Nightly fixture/backfill job docs
-- Reliability buckets by league/market after more settlements
+- [x] Reliability buckets by strategy / league / market_type
+- [x] `GET /v1/reliability` + Health “Advice reliability” table
+- [ ] Nightly fixture/backfill job docs
 - Keep promotion **advisory review only** (never money)
 
 ## Track D — Packaging / release
 
-- Tag `v0.3.0-advisory-beta`
+- [x] Tag `v0.3.0-advisory-beta` (when cut)
 - Optional PyPI private publish later
 - Legacy `engine/` relocation only if consumers need it ([MIGRATION_ENGINE.md](../../MIGRATION_ENGINE.md))
 

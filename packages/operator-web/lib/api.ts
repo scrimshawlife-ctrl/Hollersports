@@ -63,6 +63,10 @@ export function getPromotion() {
   return request<Json>("/v1/promotion");
 }
 
+export function getReliability() {
+  return request<Json>("/v1/reliability");
+}
+
 export function getHealth() {
   return request<Json>("/v1/health");
 }

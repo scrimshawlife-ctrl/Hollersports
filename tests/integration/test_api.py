@@ -36,3 +36,7 @@ def test_full_day_and_candidates(tmp_path):
     c = client.get("/v1/candidates")
     assert c.status_code == 200
     assert c.json()["capital_authority"] is False
+    rel = client.get("/v1/reliability")
+    assert rel.status_code == 200
+    assert rel.json()["capital_authority"] is False
+    assert rel.json()["mode"] == "ADVISORY_ONLY"

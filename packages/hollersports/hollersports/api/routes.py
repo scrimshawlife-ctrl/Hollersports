@@ -18,6 +18,7 @@ from hollersports.pipelines.strategy_competition import run_strategy_competition
 from hollersports.runes.operator_project import project_dashboard
 from hollersports.runes.performance_tracker import compute_performance
 from hollersports.runes.promotion_evaluator import evaluate_promotion
+from hollersports.runes.reliability_bucket import compute_reliability_buckets
 from hollersports.runes.settlement_engine import settle_entry
 from hollersports.sources.fixture_adapter import load_fixture_day
 from hollersports.sources.registry import list_sources, load_registry
@@ -552,3 +553,13 @@ def get_promotion(request: Request) -> dict[str, Any]:
         "provenance": {"mode": "PAPER_ONLY"},
     }
     return _safe_packet(body)
+
+
+@router.get("/reliability")
+def get_reliability(request: Request) -> dict[str, Any]:
+    """Advice-quality reliability buckets from last settlements (sim metrics only)."""
+    store = _store(request)
+    settlements = store.get("settlements") if isinstance(store.get("settlements"), dict) else {}
+    entries = list((settlements or {}).get("entries") or [])
+    packet = compute_reliability_buckets(entries)
+    return _safe_packet(packet)

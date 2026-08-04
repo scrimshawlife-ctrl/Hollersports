@@ -10,6 +10,7 @@ import {
   getHealth,
   getPortfolio,
   getPromotion,
+  getReliability,
   type Json,
 } from "@/lib/api";
 
@@ -18,6 +19,15 @@ type SourceRow = {
   id: string;
   type: string;
   enabled: string;
+};
+
+type ReliabilityRow = {
+  key: string;
+  dimension: string;
+  bucket: string;
+  n: string;
+  hit: string;
+  roi: string;
 };
 
 function asRecord(v: unknown): Record<string, unknown> {
@@ -33,6 +43,7 @@ export default function HealthPage() {
   const [dashboard, setDashboard] = useState<Json | null>(null);
   const [portfolio, setPortfolio] = useState<Json | null>(null);
   const [promotion, setPromotion] = useState<Json | null>(null);
+  const [reliability, setReliability] = useState<Json | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,16 +51,18 @@ export default function HealthPage() {
     setError(null);
     setLoading(true);
     try {
-      const [h, d, p, promo] = await Promise.all([
+      const [h, d, p, promo, rel] = await Promise.all([
         getHealth(),
         getDashboard(),
         getPortfolio(),
         getPromotion(),
+        getReliability(),
       ]);
       setHealth(h);
       setDashboard(d);
       setPortfolio(p);
       setPromotion(promo);
+      setReliability(rel);
     } catch (e) {
       const msg =
         e instanceof ApiError
@@ -120,6 +133,17 @@ export default function HealthPage() {
   const passedGates = asList(promo.passed_gates).map(String);
   const failedGates = asList(promo.failed_gates).map(String);
 
+  const reliabilityRows: ReliabilityRow[] = asList(reliability?.buckets)
+    .filter((b): b is Record<string, unknown> => !!b && typeof b === "object")
+    .map((b, i) => ({
+      key: `${String(b.dimension)}|${String(b.key)}|${i}`,
+      dimension: String(b.dimension ?? "—"),
+      bucket: String(b.key ?? "—"),
+      n: String(b.sample_size ?? "—"),
+      hit: String(b.hit_rate ?? "—"),
+      roi: String(b.sim_roi ?? "—"),
+    }));
+
   const runLog: { key: string; label: string; value: string }[] = [
     {
       key: "run_id",
@@ -183,9 +207,20 @@ export default function HealthPage() {
         </div>
       </header>
 
+      <p className="status-line" role="note">
+        Advisory only — metrics are paper simulation for advice quality. No real
+        money. No book placement.
+      </p>
+
+      {loading && !error && (
+        <p className="muted" aria-live="polite">
+          Loading health surfaces…
+        </p>
+      )}
+
       {error && (
         <p className="error-line" role="alert">
-          {error}
+          {error} · Check API on :8000 (`make api`) then Refresh.
         </p>
       )}
 
@@ -213,7 +248,11 @@ export default function HealthPage() {
           columns={sourceColumns}
           rows={sourceRows}
           rowKey={(r) => r.key}
-          emptyMessage="No sources in registry summary"
+          emptyMessage={
+            loading
+              ? "Loading registry…"
+              : "No sources yet — start API and Refresh, or run a fixture day on Today"
+          }
         />
         {asList(sourceHealth.missing_required_fields).length > 0 && (
           <p className="status-line">
@@ -305,6 +344,70 @@ export default function HealthPage() {
             </ul>
           </div>
         </div>
+      </section>
+
+      <section className="section" aria-label="Advice reliability">
+        <h2 className="section-title">Advice reliability</h2>
+        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
+          Simulation hit rate / ROI by strategy, league, and market — not real
+          money.
+        </p>
+        <div className="actions-row" style={{ marginBottom: 12 }}>
+          <AuthorityChip
+            label={String(reliability?.status ?? (loading ? "…" : "EMPTY"))}
+            tone={toneForStatus(reliability?.status)}
+          />
+          <span className="muted mono" style={{ fontSize: 12 }}>
+            sample={String(reliability?.sample_size ?? "—")} · buckets=
+            {String(reliability?.bucket_count ?? "—")}
+          </span>
+        </div>
+        <DataTable
+          columns={[
+            {
+              key: "dimension",
+              header: "Dimension",
+              render: (r: ReliabilityRow) => (
+                <span className="mono">{r.dimension}</span>
+              ),
+            },
+            {
+              key: "bucket",
+              header: "Bucket",
+              render: (r: ReliabilityRow) => (
+                <span className="mono">{r.bucket}</span>
+              ),
+            },
+            {
+              key: "n",
+              header: "n",
+              align: "right" as const,
+              tabular: true,
+              render: (r: ReliabilityRow) => r.n,
+            },
+            {
+              key: "hit",
+              header: "hit_rate",
+              align: "right" as const,
+              tabular: true,
+              render: (r: ReliabilityRow) => r.hit,
+            },
+            {
+              key: "roi",
+              header: "sim_roi",
+              align: "right" as const,
+              tabular: true,
+              render: (r: ReliabilityRow) => r.roi,
+            },
+          ]}
+          rows={reliabilityRows}
+          rowKey={(r) => r.key}
+          emptyMessage={
+            loading
+              ? "Loading reliability…"
+              : "No settled advice yet — run full fixture day on Today, then Refresh"
+          }
+        />
       </section>
 
       <section className="section" aria-label="Run log">
