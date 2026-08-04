@@ -81,10 +81,13 @@ export function postCompete() {
   });
 }
 
-export function postPaper(portfolioId = "default") {
+export function postPaper(portfolioId = "default", candidateIds?: string[]) {
   return request<Json>("/v1/runs/paper", {
     method: "POST",
-    body: JSON.stringify({ portfolio_id: portfolioId }),
+    body: JSON.stringify({
+      portfolio_id: portfolioId,
+      ...(candidateIds?.length ? { candidate_ids: candidateIds } : {}),
+    }),
   });
 }
 
@@ -95,7 +98,18 @@ export function postSettle() {
   });
 }
 
-/** Session-backed last competition packet (no GET /candidates on API). */
+export function postFullDay(fixture = "day001") {
+  return request<Json>("/v1/runs/full-day", {
+    method: "POST",
+    body: JSON.stringify({ fixture }),
+  });
+}
+
+export function getCandidates() {
+  return request<Json>("/v1/candidates");
+}
+
+/** Session-backed last competition packet (fallback if GET /candidates empty). */
 const COMPETE_KEY = "holler.operator.lastCompetition";
 
 export function cacheCompetition(packet: Json): void {
@@ -116,6 +130,14 @@ export function readCachedCompetition(): Json | null {
   } catch {
     return null;
   }
+}
+
+export function candidateKey(c: {
+  strategy_id?: unknown;
+  market_id?: unknown;
+  selection?: unknown;
+}): string {
+  return `${String(c.strategy_id ?? "")}|${String(c.market_id ?? "")}|${String(c.selection ?? "")}`;
 }
 
 export function fieldOrDash(

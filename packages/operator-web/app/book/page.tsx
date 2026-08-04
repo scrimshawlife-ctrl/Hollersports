@@ -6,6 +6,8 @@ import { DataTable, type Column } from "@/components/DataTable";
 import {
   ApiError,
   cacheCompetition,
+  candidateKey,
+  getCandidates,
   getPortfolio,
   postCompete,
   postPaper,
@@ -56,13 +58,13 @@ function parseCandidates(competition: Json | null): Candidate[] {
   const raw = asList(competition.candidates);
   return raw
     .filter((c): c is Record<string, unknown> => !!c && typeof c === "object")
-    .map((c, i) => {
+    .map((c) => {
       const strategy_id = String(c.strategy_id ?? "");
       const event_id = String(c.event_id ?? "");
       const market_id = String(c.market_id ?? "");
       const selection = String(c.selection ?? "");
       return {
-        key: `${strategy_id}|${event_id}|${market_id}|${selection}|${i}`,
+        key: candidateKey({ strategy_id, market_id, selection }),
         strategy_id,
         event_id,
         market_id,
@@ -131,20 +133,28 @@ export default function BookPage() {
         const comp = await postCompete();
         cacheCompetition(comp);
         setCompetition(comp);
-      } else {
-        const cached = readCachedCompetition();
-        if (cached) {
-          setCompetition(cached);
-        } else {
-          // Best-effort: re-run compete against last ingest for candidates.
-          try {
-            const comp = await postCompete();
-            cacheCompetition(comp);
-            setCompetition(comp);
-          } catch {
-            setCompetition(null);
-          }
+        return;
+      }
+      try {
+        const list = await getCandidates();
+        if (list && (list.candidate_count as number) > 0) {
+          setCompetition(list);
+          return;
         }
+      } catch {
+        /* fall through */
+      }
+      const cached = readCachedCompetition();
+      if (cached) {
+        setCompetition(cached);
+        return;
+      }
+      try {
+        const comp = await postCompete();
+        cacheCompetition(comp);
+        setCompetition(comp);
+      } catch {
+        setCompetition(null);
       }
     } catch (e) {
       const msg =
@@ -287,10 +297,11 @@ export default function BookPage() {
     setError(null);
     setStatusLine(null);
     try {
-      // API papers top-N CANDIDATE rows from last competition (selection is UI intent).
-      const result = await postPaper();
+      const ids = Array.from(selected);
+      // Paper simulation only — no real money.
+      const result = await postPaper("default", ids);
       setStatusLine(
-        `paper → ${String(result.status ?? "ok")} · selected=${selected.size} (server top-N)`,
+        `paper sim → ${String(result.status ?? "ok")} · selected=${ids.length}`,
       );
       setSelected(new Set());
       await load(false);

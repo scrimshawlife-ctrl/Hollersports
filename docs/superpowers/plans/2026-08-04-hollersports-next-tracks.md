@@ -21,9 +21,11 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 
 ## Track B — Workbench polish
 
-- Persist candidates in API session/store so Book select matches UI selection (not only server top-N)
-- Empty/loading/error states audit on Today/Book/Health
-- One-click “run full fixture day” button → operator_day
+- [x] `GET /v1/candidates` + `POST /v1/runs/full-day`
+- [x] Paper accepts optional `candidate_ids` (UI selection → sim)
+- [x] Today: one-click “Run full fixture day”
+- [ ] Empty/loading/error states audit on Health
+- [ ] Optional free-first live button (needs network + keys)
 
 ## Track C — Advice quality loop
 

@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from hollersports.api.deps import RunStore, resolve_fixture_dir
 from hollersports.governance.authority import assert_no_live_capital
 from hollersports.pipelines.market_ingestion import run_market_ingestion
+from hollersports.pipelines.operator_day import run_operator_day
 from hollersports.pipelines.paper_loop import run_paper_loop
 from hollersports.pipelines.strategy_competition import run_strategy_competition
 from hollersports.runes.operator_project import project_dashboard
@@ -43,9 +44,23 @@ class IngestRequest(BaseModel):
 
 
 class EmptyRunRequest(BaseModel):
-    """Optional body for compete/paper/settle; currently unused fields reserved."""
+    """Optional body for compete/settle; portfolio reserved."""
 
     portfolio_id: str | None = "default"
+
+
+class PaperRunRequest(BaseModel):
+    """Paper simulation of advised tickets (no real money)."""
+
+    portfolio_id: str | None = "default"
+    candidate_ids: list[str] | None = Field(
+        default=None,
+        description="Optional strategy+market keys; default top-N by score",
+    )
+
+
+class FullDayRequest(BaseModel):
+    fixture: str = Field(default="day001", description="Fixture day name")
 
 
 def _store(request: Request) -> RunStore:
@@ -270,16 +285,84 @@ def runs_compete(
     return _safe_packet(competition)
 
 
+def _candidate_key(c: dict[str, Any]) -> str:
+    return f"{c.get('strategy_id')}|{c.get('market_id')}|{c.get('selection')}"
+
+
+@router.get("/candidates")
+def get_candidates(request: Request) -> dict[str, Any]:
+    """Last competition candidates (advisory projection)."""
+    store = _store(request)
+    competition = store.get("competition") if isinstance(store.get("competition"), dict) else {}
+    candidates = list((competition or {}).get("candidates") or [])
+    body: dict[str, Any] = {
+        "schema_version": "CandidateListPacket.v1",
+        "status": competition.get("status") if competition else "EMPTY",
+        "run_id": (competition or {}).get("run_id") or "UNKNOWN",
+        "candidate_count": len(candidates),
+        "candidates": candidates,
+        "authority": "PROJECTION_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+    }
+    return _safe_packet(body)
+
+
+@router.post("/runs/full-day")
+def runs_full_day(body: FullDayRequest, request: Request) -> dict[str, Any]:
+    """One-shot fixture operator day (advisory paper sim; no money)."""
+    store = _store(request)
+    try:
+        fixture_dir = resolve_fixture_dir(body.fixture)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    out = run_operator_day(fixture_dir, data_root=store.data_root)
+    store.update(
+        fixture=str(fixture_dir),
+        meta={"fixture": body.fixture, "path": "full-day"},
+        ingest=out.get("ingest"),
+        competition=out.get("competition"),
+        paper=out.get("paper"),
+        settlements=out.get("settlements"),
+        performance=out.get("performance"),
+        promotion=out.get("promotion"),
+        dashboard=out.get("dashboard"),
+    )
+    # Return projection summary without re-emitting full ledger noise
+    summary = {
+        "schema_version": "FullDaySummary.v1",
+        "status": "COMPUTED",
+        "fixture": body.fixture,
+        "run_id": (out.get("ingest") or {}).get("run_id"),
+        "ingest_status": (out.get("ingest") or {}).get("status"),
+        "candidate_count": (out.get("competition") or {}).get("candidate_count"),
+        "paper_status": (out.get("paper") or {}).get("status"),
+        "promotion_status": (out.get("promotion") or {}).get("status"),
+        "dashboard_authority": (out.get("dashboard") or {}).get("authority"),
+        "authority": "PROJECTION_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+    }
+    return _safe_packet(summary)
+
+
 @router.post("/runs/paper")
 def runs_paper(
     request: Request,
-    body: EmptyRunRequest | None = None,
+    body: PaperRunRequest | EmptyRunRequest | None = None,
 ) -> dict[str, Any]:
-    """Guard → construct → paper ledger for top-N candidates."""
+    """Guard → construct → paper ledger for selected or top-N candidates (sim only)."""
     store = _store(request)
     portfolio_id = "default"
-    if body and body.portfolio_id:
-        portfolio_id = str(body.portfolio_id)
+    candidate_ids: list[str] | None = None
+    if body is not None:
+        portfolio_id = str(getattr(body, "portfolio_id", None) or "default")
+        raw_ids = getattr(body, "candidate_ids", None)
+        if raw_ids:
+            candidate_ids = [str(x) for x in raw_ids]
 
     competition = store.get("competition") or {}
     ingest = store.get("ingest") or {}
@@ -290,8 +373,13 @@ def runs_paper(
                 cand_list.append(c)
 
     prices = _market_price_map(ingest if isinstance(ingest, dict) else None)
-    n = min(_TOP_N, len(cand_list))
-    paper_candidates = _top_candidates(cand_list, n, prices)
+    if candidate_ids:
+        wanted = set(candidate_ids)
+        selected = [c for c in cand_list if _candidate_key(c) in wanted]
+        paper_candidates = _top_candidates(selected, len(selected), prices)
+    else:
+        n = min(_TOP_N, len(cand_list))
+        paper_candidates = _top_candidates(cand_list, n, prices)
 
     run_id = "UNKNOWN"
     if isinstance(ingest, dict):

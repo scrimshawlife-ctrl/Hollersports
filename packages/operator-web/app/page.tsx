@@ -8,13 +8,14 @@ import {
   fieldOrDash,
   getDashboard,
   postCompete,
+  postFullDay,
   postIngest,
   postPaper,
   postSettle,
   type Json,
 } from "@/lib/api";
 
-type ActionId = "ingest" | "compete" | "paper" | "settle" | "refresh";
+type ActionId = "ingest" | "compete" | "paper" | "settle" | "refresh" | "fullday";
 
 function panelField(
   dashboard: Json | null,
@@ -149,6 +150,14 @@ export default function TodayPage() {
             type="button"
             className="btn btn-primary"
             disabled={disabled}
+            onClick={() => void runAction("fullday", () => postFullDay("day001"))}
+          >
+            {busy === "fullday" ? "Running day…" : "Run full fixture day"}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={disabled}
             onClick={() => void runAction("ingest", () => postIngest("day001"))}
           >
             {busy === "ingest" ? "Ingesting…" : "Ingest day001"}
@@ -167,7 +176,7 @@ export default function TodayPage() {
             disabled={disabled}
             onClick={() => void runAction("paper", () => postPaper())}
           >
-            {busy === "paper" ? "Papering…" : "Paper"}
+            {busy === "paper" ? "Papering…" : "Paper top-N"}
           </button>
           <button
             type="button"
