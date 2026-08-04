@@ -1,16 +1,11 @@
-# HollerSports Engine Requirements
-# Python 3.8+
+# HollerSports standalone operator dependencies.
+# Prefer installing the package (pulls runtime + optional dev extras):
+#
+#   pip install -e "packages/hollersports[dev]"
+#
+# Runtime deps are declared in packages/hollersports/pyproject.toml.
+# Listed here for convenience when not using editable install.
 
-# Core dependencies (standard library only for now)
-# The engine is designed to have minimal dependencies
-
-# Testing
-pytest>=7.0.0
-pytest-cov>=4.0.0
-
-# Development
-black>=23.0.0
-flake8>=6.0.0
-mypy>=1.0.0
-pydantic>=2.6
-numpy>=1.26
+-e packages/hollersports
+pytest>=8.0
+pytest-cov>=5.0
