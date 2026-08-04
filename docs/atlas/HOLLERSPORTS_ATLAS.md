@@ -119,7 +119,7 @@ Hollersports/
 └── README.md
 ```
 
-## Pipeline (target)
+## Pipeline
 
 ```text
 fixtures | free sources
@@ -128,8 +128,8 @@ fixtures | free sources
     → strategy competition (SHADOW_ONLY candidates)
     → execution_guard (PAPER_ONLY)
     → paper ledger
-    → settle → performance → promotion   [PLANNED]
-    → operator projection / dashboard    [PLANNED]
+    → settle → performance → promotion → dashboard projection  [library OBSERVED]
+    → FastAPI + Workbench UI                                   [PLANNED]
 ```
 
 ## Governance seals
