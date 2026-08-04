@@ -40,3 +40,88 @@ def test_full_day_and_candidates(tmp_path):
     assert rel.status_code == 200
     assert rel.json()["capital_authority"] is False
     assert rel.json()["mode"] == "ADVISORY_ONLY"
+
+
+def test_safe_packet_live_ux_returns_403(tmp_path):
+    """Authority / live-UX lock from _safe_packet is HTTP 403 (fail-closed).
+
+    Store allows a PROJECTION_ONLY dashboard whose string payload would leak
+    live betting UX; GET must not 500 — it must 403 with a clear detail.
+    """
+    app = create_app(data_root=str(tmp_path))
+    # Bypass response path only: put does not scan for live UX strings.
+    app.state.store.put(
+        "dashboard",
+        {
+            "schema_version": "OperatorDashboard.v1",
+            "authority": "PROJECTION_ONLY",
+            "capital_authority": False,
+            "execution_authority": False,
+            "status": "OK",
+            "cta": "Place bet",  # forbidden live UX label
+        },
+    )
+    client = TestClient(app)
+    r = client.get("/v1/dashboard")
+    assert r.status_code == 403
+    detail = r.json().get("detail", "")
+    assert "authority lock" in detail.lower() or "live betting" in detail.lower()
+
+
+def test_paper_rejects_when_source_health_fail(tmp_path):
+    """After FAIL source_health ingest, /runs/paper must not force gates open."""
+    app = create_app(data_root=str(tmp_path))
+    client = TestClient(app)
+    # Payload that fails source health (missing required fields / provenance).
+    bad_payload = {
+        "run_id": "R-FAIL-HEALTH",
+        "source_id": "TEST",
+        "source_type": "MANUAL",
+        "fetched_at": "2026-08-04T12:00:00+00:00",
+        "current_time": "2026-08-04T12:01:00+00:00",
+        "required_fields": ["event_id", "markets"],
+        "source_refs": None,
+        "payload": {"event_id": "E1", "markets": []},
+    }
+    ing = client.post("/v1/runs/ingest", json={"payload": bad_payload})
+    assert ing.status_code == 200
+    body = ing.json()
+    assert body.get("status") == "REJECTED"
+    assert (body.get("source_health") or {}).get("status") == "FAIL"
+
+    # Seed a candidate so paper exercises execution_guard gates (not empty loop).
+    app.state.store.put(
+        "competition",
+        {
+            "schema_version": "StrategyCompetitionPacket.v1",
+            "status": "COMPUTED",
+            "run_id": "R-FAIL-HEALTH",
+            "candidates": [
+                {
+                    "status": "CANDIDATE",
+                    "strategy_id": "MARKET_CONSENSUS_EDGE",
+                    "event_id": "E1",
+                    "market_id": "M1",
+                    "selection": "HOME_ML",
+                    "score": 0.9,
+                    "price": 1.91,
+                    "packet_refs": {"x": "1"},
+                }
+            ],
+            "candidate_count": 1,
+            "authority": "SHADOW_ONLY",
+            "capital_authority": False,
+            "execution_authority": False,
+        },
+    )
+    paper = client.post("/v1/runs/paper", json={})
+    assert paper.status_code == 200
+    paper_body = paper.json()
+    assert paper_body.get("capital_authority") is False
+    assert paper_body.get("execution_authority") is False
+    assert paper_body.get("approved_count", 0) == 0
+    assert paper_body.get("rejected_count", 0) >= 1
+    executions = paper_body.get("executions") or []
+    assert executions
+    assert executions[0].get("status") == "REJECTED"
+    assert "source_health_gate" in (executions[0].get("failed_gates") or [])

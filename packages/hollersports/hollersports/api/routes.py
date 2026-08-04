@@ -69,13 +69,22 @@ def _store(request: Request) -> RunStore:
 
 
 def _safe_packet(packet: dict[str, Any]) -> dict[str, Any]:
-    """Enforce v1 authority locks before returning any packet."""
-    assert_no_live_capital(packet)
-    if packet.get("mode") == "LIVE_APPROVED":
-        raise ValueError("LIVE_APPROVED mode forbidden in v1")
-    # Never leak live UX labels.
-    if "Place bet" in str(packet):
-        raise ValueError("live betting UX forbidden in packet")
+    """Enforce v1 authority locks before returning any packet.
+
+    Authority / live-mode violations fail closed as HTTP 403 (not 500).
+    """
+    try:
+        assert_no_live_capital(packet)
+        if packet.get("mode") == "LIVE_APPROVED":
+            raise ValueError("LIVE_APPROVED mode forbidden in v1")
+        # Never leak live UX labels.
+        if "Place bet" in str(packet):
+            raise ValueError("live betting UX forbidden in packet")
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=403,
+            detail=f"authority lock: {exc}",
+        ) from exc
     return packet
 
 
@@ -388,12 +397,26 @@ def runs_paper(
     if isinstance(competition, dict) and competition.get("run_id"):
         run_id = str(competition.get("run_id") or run_id)
 
+    # Default open gates for healthy fixture-style paper; fail-closed on
+    # source_health FAIL so subsequent /runs/paper rejects rather than simming.
+    # Full-day fixture path still opens gates only inside operator_day.
+    gates = dict(_FIXTURE_GATES)
+    if isinstance(ingest, dict):
+        source_health = ingest.get("source_health") or {}
+        health_status = (
+            str(source_health.get("status") or "")
+            if isinstance(source_health, dict)
+            else ""
+        )
+        if health_status == "FAIL":
+            gates["source_health_gate"] = False
+
     paper_context: dict[str, Any] = {
         "run_id": run_id,
         "portfolio_id": portfolio_id,
         "bankroll": _DEFAULT_BANKROLL,
         "human_max_stake": _DEFAULT_HUMAN_MAX_STAKE,
-        "gates": dict(_FIXTURE_GATES),
+        "gates": gates,
         "ledger_path": store.ledger_path(portfolio_id),
     }
     paper = run_paper_loop(paper_candidates, paper_context)
