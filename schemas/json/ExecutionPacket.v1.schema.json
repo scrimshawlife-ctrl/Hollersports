@@ -19,7 +19,6 @@
         "REJECTED",
         "BLOCKED",
         "MANUAL_REVIEW",
-        "LIVE_APPROVED",
         "NOT_COMPUTABLE"
       ]
     },

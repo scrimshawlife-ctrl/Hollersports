@@ -79,7 +79,6 @@ class ExecutionPacket(PacketBase):
         "REJECTED",
         "BLOCKED",
         "MANUAL_REVIEW",
-        "LIVE_APPROVED",
         "NOT_COMPUTABLE",
     ]
     run_id: str
