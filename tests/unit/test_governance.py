@@ -14,6 +14,18 @@ def test_assert_no_live_capital_raises():
         assert_no_live_capital({"capital_authority": True})
 
 
+def test_assert_no_live_capital_forbids_live_approved_mode():
+    """Defense-in-depth: LIVE_APPROVED mode is still rejected if present."""
+    with pytest.raises(ValueError, match="LIVE_APPROVED"):
+        assert_no_live_capital(
+            {
+                "capital_authority": False,
+                "execution_authority": False,
+                "mode": "LIVE_APPROVED",
+            }
+        )
+
+
 def test_not_computable_shape():
     p = not_computable("SourceHealthPacket.v1", "missing_provenance")
     assert p["status"] == "NOT_COMPUTABLE"

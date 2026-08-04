@@ -22,7 +22,7 @@ def create_app(data_root: str | Path | None = None) -> FastAPI:
 
     app = FastAPI(
         title="HollerSports Operator API",
-        version="0.2.0",
+        version="0.3.0",
         description="Paper-only sports market intelligence packets. No live capital.",
     )
     app.state.store = store

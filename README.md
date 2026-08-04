@@ -8,7 +8,7 @@
 > Free-first / fixture ingest → market-first candidates → paper simulation for ranking advice — fail-closed and deterministic.
 
 [![Python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
-[![Package](https://img.shields.io/badge/hollersports-0.2.0-0B3D91)](packages/hollersports/pyproject.toml)
+[![Package](https://img.shields.io/badge/hollersports-0.3.0-0B3D91)](packages/hollersports/pyproject.toml)
 [![Purpose](https://img.shields.io/badge/purpose-advise%20only-0B3D91)](docs/SYSTEM_CONTRACT.md)
 [![Money](https://img.shields.io/badge/real%20money-never-success)](docs/SYSTEM_CONTRACT.md)
 [![Mode](https://img.shields.io/badge/mode-PAPER%20SIM-blue)](docs/SYSTEM_CONTRACT.md)
@@ -124,7 +124,7 @@ Use `hollersports.runes.execution_guard.run_execution_guard` with all gates `Tru
 
 | Path | Role |
 |------|------|
-| `packages/hollersports/` | Primary Python package (`hollersports` 0.2.0) |
+| `packages/hollersports/` | Primary Python package (`hollersports` 0.3.0) |
 | `schemas/json/` | Canonical `*.v1.schema.json` packet contracts |
 | `fixtures/day001/` | Offline multi-league operator day |
 | `tests/unit/` | TDD suite for the primary package |

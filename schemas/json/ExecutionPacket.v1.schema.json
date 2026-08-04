@@ -33,7 +33,7 @@
     "sportsbook": { "type": "string" },
     "stake": { "type": "number", "minimum": 0 },
     "mode": {
-      "enum": ["PAPER_ONLY", "MANUAL_REVIEW", "LIVE_DISABLED", "LIVE_APPROVED"]
+      "enum": ["PAPER_ONLY", "MANUAL_REVIEW", "LIVE_DISABLED"]
     },
     "passed_gates": {
       "type": "array",

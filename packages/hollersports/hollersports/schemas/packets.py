@@ -91,9 +91,8 @@ class ExecutionPacket(PacketBase):
     point: float | None = None
     sportsbook: str = ""
     stake: float = 0.0
-    mode: Literal["PAPER_ONLY", "MANUAL_REVIEW", "LIVE_DISABLED", "LIVE_APPROVED"] = (
-        "PAPER_ONLY"
-    )
+    # v1: LIVE_APPROVED is not constructible; assert_no_live_capital is defense-in-depth.
+    mode: Literal["PAPER_ONLY", "MANUAL_REVIEW", "LIVE_DISABLED"] = "PAPER_ONLY"
     passed_gates: list[str] = Field(default_factory=list)
     failed_gates: list[str] = Field(default_factory=list)
     packet_refs: dict[str, Any] = Field(default_factory=dict)

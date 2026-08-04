@@ -1,4 +1,11 @@
-from hollersports.schemas.packets import SourceHealthPacket, StrategyCandidatePacket
+import pytest
+from pydantic import ValidationError
+
+from hollersports.schemas.packets import (
+    ExecutionPacket,
+    SourceHealthPacket,
+    StrategyCandidatePacket,
+)
 from hollersports.schemas.validate import validate_packet
 
 
@@ -33,3 +40,27 @@ def test_candidate_always_shadow():
         packet_refs={"market_ingestion": "R1"},
     )
     assert c.authority == "SHADOW_ONLY"
+
+
+def test_execution_mode_forbids_live_approved():
+    """LIVE_APPROVED is not a constructible v1 execution mode."""
+    with pytest.raises(ValidationError):
+        ExecutionPacket(status="APPROVED_FOR_PAPER", run_id="R1", mode="LIVE_APPROVED")
+
+    paper = ExecutionPacket(
+        status="APPROVED_FOR_PAPER",
+        run_id="R1",
+        mode="PAPER_ONLY",
+        capital_authority=False,
+        execution_authority=False,
+    )
+    d = paper.model_dump()
+    assert d["mode"] == "PAPER_ONLY"
+    validate_packet(d, "ExecutionPacket.v1")
+
+    live_mode_dict = {
+        **d,
+        "mode": "LIVE_APPROVED",
+    }
+    with pytest.raises(Exception):
+        validate_packet(live_mode_dict, "ExecutionPacket.v1")
