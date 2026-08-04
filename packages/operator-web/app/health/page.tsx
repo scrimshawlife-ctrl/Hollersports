@@ -10,6 +10,7 @@ import {
   getHealth,
   getPortfolio,
   getPromotion,
+  getCalibration,
   getReliability,
   getReliabilityHistory,
   type Json,
@@ -57,6 +58,7 @@ export default function HealthPage() {
   const [reliabilityHistory, setReliabilityHistory] = useState<Json | null>(
     null,
   );
+  const [calibration, setCalibration] = useState<Json | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,13 +66,14 @@ export default function HealthPage() {
     setError(null);
     setLoading(true);
     try {
-      const [h, d, p, promo, rel, hist] = await Promise.all([
+      const [h, d, p, promo, rel, hist, cal] = await Promise.all([
         getHealth(),
         getDashboard(),
         getPortfolio(),
         getPromotion(),
         getReliability(),
         getReliabilityHistory(20),
+        getCalibration(true),
       ]);
       setHealth(h);
       setDashboard(d);
@@ -78,6 +81,7 @@ export default function HealthPage() {
       setPromotion(promo);
       setReliability(rel);
       setReliabilityHistory(hist);
+      setCalibration(cal);
     } catch (e) {
       const msg =
         e instanceof ApiError
@@ -373,6 +377,53 @@ export default function HealthPage() {
             </ul>
           </div>
         </div>
+      </section>
+
+      <section className="section" aria-label="Calibration">
+        <h2 className="section-title">Calibration</h2>
+        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
+          Evidence ladder from settled paper outcomes. Model edge unlocks only
+          when status is RELIABLE and forecast weighting is allowed — still
+          SHADOW_ONLY, no money.
+        </p>
+        <div className="actions-row" style={{ marginBottom: 12 }}>
+          <AuthorityChip
+            label={String(calibration?.status ?? (loading ? "…" : "EMPTY"))}
+            tone={toneForStatus(calibration?.status)}
+          />
+          <span className="muted mono" style={{ fontSize: 12 }}>
+            sample={String(calibration?.sample_size ?? "—")} · hit=
+            {String(calibration?.hit_rate ?? "—")} · sim_roi=
+            {String(calibration?.sim_roi ?? "—")} · model_edge=
+            {String(calibration?.model_edge_allowed ?? "—")}
+          </span>
+        </div>
+        <dl className="kv-list">
+          {(
+            [
+              "reliability_status",
+              "allow_forecast_weighting",
+              "model_edge_allowed",
+              "sample_size",
+              "hit_rate",
+              "sim_roi",
+            ] as const
+          ).map((k) => {
+            const f = fieldOrDash(calibration?.[k], `missing ${k}`);
+            return (
+              <div key={k} style={{ display: "contents" }}>
+                <dt>{k}</dt>
+                <dd className="tabular">{f.text}</dd>
+              </div>
+            );
+          })}
+        </dl>
+        {asList(calibration?.failed_gates).length > 0 && (
+          <p className="status-line">
+            failed_gates:{" "}
+            {asList(calibration?.failed_gates).map(String).join(", ")}
+          </p>
+        )}
       </section>
 
       <section className="section" aria-label="Advice reliability">

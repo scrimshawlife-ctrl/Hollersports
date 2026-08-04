@@ -178,7 +178,7 @@ export default function TodayPage() {
           <label
             className="muted"
             style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-            title="Loads MODEL_PROBABILITY_EDGE when markets carry model_probability (e.g. day002). Still SHADOW_ONLY — no money."
+            title="Requests forecast weighting; model edge unlocks only when evidence calibration is RELIABLE (see Health → Calibration). Markets need model_probability (day002). Still SHADOW_ONLY — no money."
           >
             <input
               type="checkbox"
@@ -186,7 +186,7 @@ export default function TodayPage() {
               disabled={disabled}
               onChange={(e) => setAllowModelEdge(e.target.checked)}
             />
-            Allow model edge (calibration RELIABLE)
+            Allow model edge (evidence calibration)
           </label>
         </div>
         <div className="actions-row">

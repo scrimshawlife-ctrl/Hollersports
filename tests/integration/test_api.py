@@ -56,6 +56,15 @@ def test_day002_full_day_and_calibrated_model_edge(tmp_path):
         assert r.status_code == 200
         assert r.json()["capital_authority"] is False
 
+        cal = client.get("/v1/calibration", params={"allow_forecast_weighting": 1})
+        assert cal.status_code == 200
+        cal_body = cal.json()
+        assert cal_body["schema_version"] == "CalibrationPacket.v1"
+        assert cal_body["capital_authority"] is False
+        # Fixture day sample is below reliable floor
+        assert cal_body["status"] in {"EMPTY", "UNRELIABLE", "WATCH"}
+        assert cal_body["model_edge_allowed"] is False
+
         off = client.post("/v1/runs/compete", json={})
         assert off.status_code == 200
         off_body = off.json()
@@ -63,11 +72,24 @@ def test_day002_full_day_and_calibrated_model_edge(tmp_path):
         off_ids = [c.get("strategy_id") for c in off_body.get("candidates") or []]
         assert "MODEL_PROBABILITY_EDGE" not in off_ids
 
+        # Auto-calibration with allow=true still blocked on small fixture sample
+        auto = client.post(
+            "/v1/runs/compete",
+            json={
+                "allow_forecast_weighting": True,
+                "use_auto_calibration": True,
+            },
+        )
+        assert auto.status_code == 200
+        assert auto.json().get("model_edge_enabled") is False
+
+        # Manual RELIABLE override (tests / operator override path)
         on = client.post(
             "/v1/runs/compete",
             json={
                 "allow_forecast_weighting": True,
                 "reliability_status": "RELIABLE",
+                "use_auto_calibration": False,
             },
         )
         assert on.status_code == 200

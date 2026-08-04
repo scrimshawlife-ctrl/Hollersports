@@ -51,7 +51,8 @@ make web   # :3000 — Today → Run full fixture day (or Free-first live observ
 Today actions:
 
 - **Fixture** select — `day001` (default) or `day002` (includes model fields)  
-- **Allow model edge** — optional; sets calibration `RELIABLE` + `allow_forecast_weighting` on Compete only (default off; still SHADOW_ONLY)  
+- **Allow model edge** — optional opt-in for forecast weighting; **evidence auto-calibration** must be `RELIABLE` before model edge loads (fixture days stay UNRELIABLE; still SHADOW_ONLY)  
+- **Health → Calibration** — ladder status, sample, hit_rate, sim_roi, model_edge_allowed
 - **Run full fixture day** — offline-safe closed loop  
 - **Free-first live observe** — optional network (ESPN; Odds if `THE_ODDS_API_KEY`); fail-closed if offline  
 

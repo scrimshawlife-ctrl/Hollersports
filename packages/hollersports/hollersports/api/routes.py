@@ -23,6 +23,10 @@ from hollersports.paper.reliability_ledger import (
     record_reliability_from_settlements,
     reliability_ledger_path,
 )
+from hollersports.runes.calibration_evaluator import (
+    calibration_gate_from_packet,
+    evaluate_calibration,
+)
 from hollersports.runes.reliability_bucket import compute_reliability_buckets
 from hollersports.runes.settlement_engine import settle_entry
 from hollersports.sources.fixture_adapter import load_fixture_day
@@ -59,8 +63,11 @@ class EmptyRunRequest(BaseModel):
 class CompeteRequest(BaseModel):
     """Strategy competition options (advisory; no money).
 
-    Model edge stays offline unless both allow_forecast_weighting and
+    Model edge stays offline unless allow_forecast_weighting and
     reliability_status == RELIABLE (see calibration_allows_model_edge).
+
+    When use_auto_calibration is true, reliability_status is derived from
+    settled paper outcomes via evaluate_calibration (evidence ladder).
     """
 
     portfolio_id: str | None = "default"
@@ -70,7 +77,11 @@ class CompeteRequest(BaseModel):
     )
     reliability_status: str = Field(
         default="UNRELIABLE",
-        description="RELIABLE unlocks model edge when allow_forecast_weighting",
+        description="Manual status when use_auto_calibration is false",
+    )
+    use_auto_calibration: bool = Field(
+        default=False,
+        description="Derive reliability_status from last settlements (evidence)",
     )
 
 
@@ -320,6 +331,14 @@ def runs_ingest(body: IngestRequest, request: Request) -> dict[str, Any]:
     return _safe_packet(ingest)
 
 
+def _settlement_entries(store: RunStore) -> list[dict[str, Any]]:
+    settlements = store.get("settlements")
+    if not isinstance(settlements, dict):
+        return []
+    raw = settlements.get("entries") or []
+    return [e for e in raw if isinstance(e, dict)]
+
+
 @router.post("/runs/compete")
 def runs_compete(
     request: Request,
@@ -334,11 +353,20 @@ def runs_compete(
     ingest = store.get("ingest")
     calibration: dict[str, Any] | None = None
     if isinstance(body, CompeteRequest):
-        calibration = {
-            "allow_forecast_weighting": bool(body.allow_forecast_weighting),
-            "reliability_status": str(body.reliability_status or "UNRELIABLE"),
-        }
-        store.put("calibration", calibration)
+        allow = bool(body.allow_forecast_weighting)
+        if body.use_auto_calibration:
+            cal_packet = evaluate_calibration(
+                _settlement_entries(store),
+                allow_forecast_weighting=allow,
+            )
+            store.put("calibration", cal_packet)
+            calibration = calibration_gate_from_packet(cal_packet)
+        else:
+            calibration = {
+                "allow_forecast_weighting": allow,
+                "reliability_status": str(body.reliability_status or "UNRELIABLE"),
+            }
+            store.put("calibration", calibration)
     competition = run_strategy_competition(
         ingest if isinstance(ingest, dict) else None,
         calibration=calibration,
@@ -682,6 +710,24 @@ def get_promotion(request: Request) -> dict[str, Any]:
         "provenance": {"mode": "PAPER_ONLY"},
     }
     return _safe_packet(body)
+
+
+@router.get("/calibration")
+def get_calibration(
+    request: Request,
+    allow_forecast_weighting: int = 0,
+) -> dict[str, Any]:
+    """Advice-quality calibration ladder from last settlements (sim only).
+
+    Query ``allow_forecast_weighting=1`` to evaluate whether model edge would
+    unlock given current evidence (still requires RELIABLE sample).
+    """
+    store = _store(request)
+    packet = evaluate_calibration(
+        _settlement_entries(store),
+        allow_forecast_weighting=bool(allow_forecast_weighting),
+    )
+    return _safe_packet(packet)
 
 
 @router.get("/reliability")

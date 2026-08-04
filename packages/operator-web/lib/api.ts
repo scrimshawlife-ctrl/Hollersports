@@ -90,18 +90,30 @@ export function postIngest(fixture = "day001") {
 export function postCompete(opts?: {
   allow_forecast_weighting?: boolean;
   reliability_status?: string;
+  /** Derive reliability from settlements (evidence ladder). Default true when allowing model edge. */
+  use_auto_calibration?: boolean;
 }) {
   const allow = Boolean(opts?.allow_forecast_weighting);
+  const useAuto =
+    opts?.use_auto_calibration ?? allow; /* auto when enabling model edge */
   return request<Json>("/v1/runs/compete", {
     method: "POST",
     body: JSON.stringify({
       allow_forecast_weighting: allow,
-      // Model edge requires RELIABLE + allow_forecast_weighting
+      use_auto_calibration: useAuto,
+      // Manual override path when auto is off
       reliability_status: allow
         ? opts?.reliability_status ?? "RELIABLE"
         : opts?.reliability_status ?? "UNRELIABLE",
     }),
   });
+}
+
+export function getCalibration(allowForecastWeighting = false) {
+  const q = new URLSearchParams({
+    allow_forecast_weighting: allowForecastWeighting ? "1" : "0",
+  });
+  return request<Json>(`/v1/calibration?${q.toString()}`);
 }
 
 export function postPaper(portfolioId = "default", candidateIds?: string[]) {

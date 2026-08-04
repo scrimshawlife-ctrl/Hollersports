@@ -1,0 +1,76 @@
+{
+  "capital_authority": false,
+  "execution_authority": false,
+  "fixture_count": 2,
+  "fixtures": [
+    {
+      "calibration": {
+        "failed_gates": [
+          "sample_watch",
+          "sample_reliable"
+        ],
+        "hit_rate": 1.0,
+        "model_edge_allowed": false,
+        "packet_hash": "ce48006138085d1745799555b681f1593d52b420c7a4607c39e69ec56a5bad5a",
+        "reliability_status": "UNRELIABLE",
+        "sample_size": 3,
+        "sim_roi": 0.6897,
+        "status": "UNRELIABLE"
+      },
+      "capital_authority": false,
+      "core": {
+        "calibration_sample": 3,
+        "calibration_status": "UNRELIABLE",
+        "candidate_count": 3,
+        "ingest_status": "INGESTED",
+        "model_edge_allowed": false,
+        "model_edge_enabled": false,
+        "promotion_status": "BLOCKED"
+      },
+      "core_hash": "f5e81420983723087915d8aadf53fcc9510bb7ceb87de02a861de075ea2faf79",
+      "execution_authority": false,
+      "fixture": "day001",
+      "invariance_pass": true,
+      "invariance_runs": 3
+    },
+    {
+      "calibration": {
+        "failed_gates": [
+          "sample_watch",
+          "sample_reliable"
+        ],
+        "hit_rate": 1.0,
+        "model_edge_allowed": false,
+        "packet_hash": "415e590f80b7e00578b77be9edaf9a6565dfe9256282e8cf29dffd131ac98901",
+        "reliability_status": "UNRELIABLE",
+        "sample_size": 2,
+        "sim_roi": 0.7407,
+        "status": "UNRELIABLE"
+      },
+      "capital_authority": false,
+      "core": {
+        "calibration_sample": 2,
+        "calibration_status": "UNRELIABLE",
+        "candidate_count": 2,
+        "ingest_status": "INGESTED",
+        "model_edge_allowed": false,
+        "model_edge_enabled": false,
+        "promotion_status": "BLOCKED"
+      },
+      "core_hash": "f5e234657ead042d616c917378c274845b22a88e025853bf578c2bc376504575",
+      "execution_authority": false,
+      "fixture": "day002",
+      "invariance_pass": true,
+      "invariance_runs": 3
+    }
+  ],
+  "mode": "PAPER_ONLY",
+  "receipt_hash": "06b57de2b6ab9cbb1dbe147b20397b7e3497aa3f925165cd2e16474c7a71bf23",
+  "schema_version": "HollerCalibrationSuiteReceipt.v1",
+  "seals": {
+    "CAPITAL_AUTHORITY": false,
+    "EXECUTION_AUTHORITY": false,
+    "LIVE_BOOKS": false,
+    "MODE": "PAPER_ONLY"
+  }
+}

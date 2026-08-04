@@ -14,6 +14,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 - Multi-sport ESPN day-one surface (NBA / NFL / MLB / NHL / EPL / MLS)
 - Advice reliability buckets on Health; append-only reliability history ledger + Workbench history table
 - Gated `MODEL_PROBABILITY_EDGE` (deterministic market fields; off unless calibration allows)
+- Calibration ladder (`CalibrationPacket.v1`) + testing framework (markers, multi-fixture suite, CI)
 
 ### Authority
 

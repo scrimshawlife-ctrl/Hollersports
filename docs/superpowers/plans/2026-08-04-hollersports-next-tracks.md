@@ -44,6 +44,9 @@ Original local-first path (no hosted SaaS). Continue here:
 
 - [x] Second fixture day for multi-day / model-edge demos
 - [x] Operator-visible model-edge calibration gate (default off)
+- [x] Calibration evaluator ladder (EMPTY→UNRELIABLE→WATCH→RELIABLE)
+- [x] Testing framework: markers, conftest, `make test-*`, calibration suite + CI
+- [x] `GET /v1/calibration` + Health Calibration panel + auto-cal compete
 - [ ] Optional: more fixture days / free-first sport coverage as needed
 
 ## Track D — Packaging / release
