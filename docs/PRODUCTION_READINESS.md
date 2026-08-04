@@ -13,14 +13,16 @@ Readiness states:
 
 **Critical authority, capital, integrity, or security blockers cannot be waived** for a paper-operator production-supported release.
 
-## Two-class product (non-negotiable)
+## Product class (non-negotiable)
+
+HollerSports is **betting advice only**. It does **not** handle real money.
 
 | Class | Meaning | Allowed? |
 |-------|---------|----------|
-| **PAPER_OPERATOR_READY** | Reproducible paper day (fixture and/or free sources), settle, measure, project dashboard, CI/goldens, documented ops | **Target** |
-| **LIVE_CAPITAL_READY** | Live book placement or capital movement via this product | **Forbidden** unless system contract is explicitly rewritten by human review outside the model |
+| **ADVISORY_OPERATOR_READY** (aka paper operator ready) | Reproducible advisory day: ingest → candidates → paper simulation of advice quality → settle/score → dashboard; CI/goldens; documented ops | **Target** |
+| **MONEY_OR_LIVE_BOOK_READY** | Wallets, payments, book placement, capital custody or movement | **Forbidden** — not a readiness goal |
 
-Hard rule: `capital_authority=false`, `execution_authority=false`, execution `mode=PAPER_ONLY`. No live book integration.
+Hard rule: no real money, no live book placement. Packet flags stay `capital_authority=false`, `execution_authority=false`, `mode=PAPER_ONLY` (simulation of advised tickets).
 
 See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 

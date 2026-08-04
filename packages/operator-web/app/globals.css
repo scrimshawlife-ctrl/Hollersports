@@ -87,12 +87,25 @@ button:disabled {
 }
 
 .shell-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-muted);
+}
+
+.shell-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--color-muted);
+  opacity: 0.85;
 }
 
 .shell-nav {

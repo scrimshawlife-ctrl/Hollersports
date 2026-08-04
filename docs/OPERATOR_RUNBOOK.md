@@ -1,6 +1,7 @@
 # Operator runbook
 
-Paper-only operator day using fixtures. No live book placement.
+Advisory operator day using fixtures. **No real money. No live book placement.**  
+Paper stakes/settlement measure **advice quality**, not payouts.
 
 ## Prerequisites
 

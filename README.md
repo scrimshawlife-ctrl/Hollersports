@@ -4,17 +4,17 @@
 
 # HollerSports
 
-> **Paper-only** sports market intelligence operator.\
-> Free-first / fixture ingest → market-first strategies → paper portfolio — fail-closed, deterministic, no live capital.
+> **Betting advisory only** — no wallets, no book placement, **no real money**.\
+> Free-first / fixture ingest → market-first candidates → paper simulation for ranking advice — fail-closed and deterministic.
 
 [![Python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Package](https://img.shields.io/badge/hollersports-0.2.0-0B3D91)](packages/hollersports/pyproject.toml)
-[![Mode](https://img.shields.io/badge/mode-PAPER%20ONLY-blue)](docs/SYSTEM_CONTRACT.md)
-[![Capital](https://img.shields.io/badge/capital%20authority-false-success)](docs/SYSTEM_CONTRACT.md)
-[![Execution](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
+[![Purpose](https://img.shields.io/badge/purpose-advise%20only-0B3D91)](docs/SYSTEM_CONTRACT.md)
+[![Money](https://img.shields.io/badge/real%20money-never-success)](docs/SYSTEM_CONTRACT.md)
+[![Mode](https://img.shields.io/badge/mode-PAPER%20SIM-blue)](docs/SYSTEM_CONTRACT.md)
+[![Books](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
 [![Abraxas](https://img.shields.io/badge/Abraxas-concept%20lineage%20only-lightgrey)](docs/ABRAXAS_LINEAGE.md)
 [![Production](https://img.shields.io/badge/production-NOT%20READY-red)](docs/PRODUCTION_READINESS.md)
-[![Paper operator](https://img.shields.io/badge/paper%20operator-alpha-orange)](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
 [Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
@@ -25,18 +25,21 @@
 
 ## Why
 
-Sports market tools often either invent certainty or quietly couple analysis to execution. HollerSports separates the two:
+Most “betting tools” either invent certainty or quietly become money rails. HollerSports does neither:
 
 1. **Observe** markets with provenance and source health.  
-2. **Propose** strategy candidates (`SHADOW_ONLY`).  
-3. **Paper** only after an execution guard — never live books.  
+2. **Advise** with scored candidates (`SHADOW_ONLY`) — what you *might* consider betting.  
+3. **Simulate** advised tickets on paper to measure advice quality — **not** to move money.  
 4. **Fail closed** when odds, lines, or provenance are missing.
 
-> Strategies propose. Guards gate. Ledgers remember. Dashboards project. Humans decide.
+> Strategies advise. Guards keep it paper. Ledgers score the advice. Humans decide — and bet elsewhere, if at all.
+
+**No actual money is handled.** Bankroll / stake / ROI fields are simulation metrics for ranking and calibration.
 
 ## Status
 
-**Production:** [NOT READY](docs/PRODUCTION_READINESS.md) for `PAPER_OPERATOR_READY` (see [assessment 2026-08-04](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md)). Live capital is **forbidden**, not a readiness goal.
+**Production:** [NOT READY](docs/PRODUCTION_READINESS.md) for advisory-operator GA (see [assessment](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) + [Phase B delta](docs/evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md)).  
+**Money / live books:** **never a product goal** — contract-forbidden.
 
 | Track | State | Notes |
 |-------|--------|--------|
@@ -50,8 +53,8 @@ Sports market tools often either invent certainty or quietly couple analysis to 
 | FastAPI `/v1` | **shipped** | `create_app` factory |
 | Next.js Workbench (Cobalt) | **shipped** | Today · Book · Health |
 | CI | **shipped** | `.github/workflows/ci.yml` |
-| Live capital / books | **forbidden** | System contract |
-| PAPER_OPERATOR_READY | **not yet** | See production readiness board |
+| Real money / book placement | **never** | Advisory only |
+| Advisory-operator GA | **not yet** | See production readiness (G0 freeze) |
 
 Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.
 
@@ -175,4 +178,4 @@ Apache License 2.0 — see [LICENSE](LICENSE).
 
 ## Disclaimer
 
-HollerSports is an **analysis and paper-simulation** tool. It does not place wagers, move capital, or guarantee predictive accuracy. Sports wagering may be restricted or illegal in your jurisdiction; you are responsible for compliance.
+HollerSports is an **advisory and paper-simulation** tool. It does **not** handle real money, place wagers, custody funds, or connect to sportsbooks for execution. It does not guarantee predictive accuracy. Any real-world betting you do is outside this system and your responsibility; sports wagering may be restricted or illegal in your jurisdiction.

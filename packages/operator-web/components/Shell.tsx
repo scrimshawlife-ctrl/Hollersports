@@ -24,18 +24,22 @@ export function Shell({ children, runId }: ShellProps) {
   }
 
   const colophon = [
-    "PAPER_ONLY",
+    "ADVISORY_ONLY",
+    "no real money",
+    "PAPER_SIM",
     "capital_authority=false",
     "schema v1",
     "api :8000",
     runId ? `run_id=${runId}` : "run_id=—",
-    "build workbench",
   ].join(" · ");
 
   return (
     <div className="shell">
       <aside className="shell-rail" aria-label="Primary">
-        <div className="shell-brand">HollerSports</div>
+        <div className="shell-brand">
+          HollerSports
+          <span className="shell-brand-sub">advise · never fund</span>
+        </div>
         <nav className="shell-nav" aria-label="Workbench">
           {NAV.map((item) => (
             <Link

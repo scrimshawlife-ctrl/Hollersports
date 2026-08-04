@@ -7,10 +7,10 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 
 | | |
 |--|--|
-| **What it is** | Paper-only sports market intelligence operator: free-first / fixture ingest → market-first strategies → paper ledger, with fail-closed authority. |
-| **What it is not** | Live book executor, Abraxas runtime dependency, or autonomous capital system. |
+| **What it is** | Sports **betting advisory** operator: free-first / fixture ingest → market-first candidates → paper simulation to rank advice — fail-closed. |
+| **What it is not** | Money handler, sportsbook, payment rail, live bet placer, or Abraxas runtime dependency. |
 | **Package** | `hollersports` **0.2.0** (`packages/hollersports`) |
-| **Mode** | `PAPER_ONLY` · `capital_authority=false` · `execution_authority=false` |
+| **Mode** | `ADVISORY_ONLY` / `PAPER_ONLY` (sim) · `capital_authority=false` · `execution_authority=false` · **no real money** |
 | **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/unit/` |
 
 ## Surfaces
@@ -136,11 +136,13 @@ fixtures | free sources
 ## Governance seals
 
 ```text
+REAL_MONEY=false
 CAPITAL_AUTHORITY=false
 EXECUTION_AUTHORITY=false
 LIVE_BOOKS=false
 ABRAXAS_RUNTIME_REQUIRED=false
-MODE=PAPER_ONLY
+MODE=PAPER_ONLY   # simulation of advice quality, not funds
+PURPOSE=ADVISORY_ONLY
 ```
 
 ## Related docs
