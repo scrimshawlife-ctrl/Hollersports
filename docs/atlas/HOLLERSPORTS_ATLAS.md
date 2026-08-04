@@ -69,27 +69,28 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 | **Paths** | `runes/settlement_engine.py`, `performance_tracker.py`, `promotion_evaluator.py`, `operator_project.py`, `pipelines/operator_day.py`, `fixtures/day001/results.json` |
 | **Tests** | `tests/unit/test_settlement.py`, `test_performance_promotion.py`, `tests/integration/test_operator_day_fixture.py` |
 
-### Golden invariance / authority locks — PLANNED
+### Golden invariance / authority locks — OBSERVED
 
 | | |
 |--|--|
-| **What it is** | Plan Task 8: 12-run invariance + live-flag locks. |
-| **Paths** | [plan Task 8](../superpowers/plans/2026-08-04-hollersports-standalone-operator.md) |
+| **What it is** | 12-run fixture invariance + authority lock goldens. |
+| **Paths** | `tests/golden/` |
 
-### FastAPI packet API — PLANNED
+### FastAPI packet API — OBSERVED
 
 | | |
 |--|--|
 | **What it is** | `/v1/runs/*`, `/v1/dashboard`, `/v1/portfolio`, `/v1/promotion` |
-| **Paths** | plan Task 7 |
+| **Paths** | `hollersports/api/` |
+| **Tests** | `tests/integration/test_api.py` |
 
-### Operator web (Workbench / Cobalt) — PLANNED
+### Operator web (Workbench / Cobalt) — OBSERVED
 
 | | |
 |--|--|
 | **What it is** | Next.js local dashboard: Today · Book · Health; Hallmark Workbench + Cobalt + N3 + Ft4. |
 | **What it is not** | Place-bet UI. |
-| **Paths** | plan Task 9 · design §6 |
+| **Paths** | `packages/operator-web/` |
 
 ### Legacy engine / feedback core — OBSERVED (legacy)
 
@@ -129,7 +130,7 @@ fixtures | free sources
     → execution_guard (PAPER_ONLY)
     → paper ledger
     → settle → performance → promotion → dashboard projection  [library OBSERVED]
-    → FastAPI + Workbench UI                                   [PLANNED]
+    → FastAPI /v1 + Workbench UI                               [OBSERVED local]
 ```
 
 ## Governance seals

@@ -46,9 +46,12 @@ Sports market tools often either invent certainty or quietly couple analysis to 
 | Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated off |
 | Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL |
 | Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
-| Golden 12-run + authority locks | **planned** | Plan Task 8 |
-| FastAPI + Next.js operator | **planned** | Plan Tasks 7–9 (Workbench / Cobalt) |
+| Golden 12-run + authority locks | **shipped** | `tests/golden/` |
+| FastAPI `/v1` | **shipped** | `create_app` factory |
+| Next.js Workbench (Cobalt) | **shipped** | Today · Book · Health |
+| CI | **shipped** | `.github/workflows/ci.yml` |
 | Live capital / books | **forbidden** | System contract |
+| PAPER_OPERATOR_READY | **not yet** | See production readiness board |
 
 Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.
 
@@ -80,10 +83,17 @@ git clone https://github.com/scrimshawlife-ctrl/Hollersports.git
 cd Hollersports
 
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e "packages/hollersports[dev]"
+make validate   # install + pytest + fixture smoke receipt
+```
 
-# unit suite (primary package)
-pytest tests/ --ignore=hollersports-core -q
+### Operator UI (local)
+
+```bash
+# terminal 1 — API
+make api    # http://127.0.0.1:8000
+
+# terminal 2 — Workbench
+make web    # http://127.0.0.1:3000  (proxies /v1 → :8000)
 ```
 
 ### Ingest + compete on the fixture day

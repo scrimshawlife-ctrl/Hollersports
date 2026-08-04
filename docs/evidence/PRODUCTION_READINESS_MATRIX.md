@@ -3,44 +3,49 @@
 ```yaml
 product: hollersports
 class_target: PAPER_OPERATOR_READY
-assessed_sha: 2890bc931341ad04ae10ccacaec6fc883a652242
+# Pin after commit lands; re-run make validate to refresh smoke
+assessed_sha: pending_next_commit
 branch: feature/hollersports-standalone-operator
 package_version: "0.2.0"
 date: "2026-08-04"
 tests:
   command: "pytest tests/ --ignore=hollersports-core -q"
-  result: "34 passed"
+  result: "38 passed"
+smoke:
+  command: "python scripts/smoke_operator_day.py"
+  receipt: docs/evidence/smoke_operator_day.last.json
+  core_hash: d57753edccd568d77d81ea6cc573d9a734de8fe023164f7e681d514ff7f65921
 full_narrative: PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md
+delta: PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md
 ```
 
 ## Gate scores
 
 | Gate | Area | State | Evidence |
 |------|------|--------|----------|
-| G0 | Scope freeze | **FAIL** | Feature branch only; no RC tag; main not freeze SHA |
-| G1 | Product journey | **FAIL** | `run_operator_day` library path only; no API/UI |
-| G2 | Authority / capital | **PASS*** | Runtime asserts; *no dedicated golden lock suite yet |
-| G3 | Determinism | **NOT_COMPUTABLE** | No 12-run golden tests |
-| G4 | Packet contracts | **PASS** | `schemas/json/` + `tests/unit/test_packets.py` |
-| G5 | Fail-closed ingest | **PASS** | Health/ingest + tests; fail-path coverage thin |
-| G6 | Paper ledger | **PASS** | `tests/unit/test_paper_ledger.py` |
-| G7 | Settlement / promotion | **PASS** | Settlement + promotion unit/integration |
-| G8 | CI | **FAIL** | No `.github/workflows` |
-| G9 | Packaging | **FAIL** | Editable install works; registry package-data risk |
-| G10 | Ops | **PASS** | Runbook draft; no smoke receipt artifact yet |
-| G11 | Security | **NOT_COMPUTABLE** | No secret-scan CI; no live keys path |
-| G12 | Docs honesty | **PASS** | README + atlas OBSERVED/PLANNED |
-| G13 | Hosting / multi-user | **WAIVED** | Local single-operator v1 by design |
-| G14 | Live capital | **PASS** | Forbidden by contract + code |
+| G0 | Scope freeze | **FAIL** | Feature branch; not merged/tagged as RC |
+| G1 | Product journey | **PASS** | API + Workbench + `run_operator_day` |
+| G2 | Authority / capital | **PASS** | Goldens + API `_safe_packet` + UI grep |
+| G3 | Determinism | **PASS** | `tests/golden/test_12_run_invariance.py` |
+| G4 | Packet contracts | **PASS** | schemas + unit tests |
+| G5 | Fail-closed ingest | **PASS** | health/ingest (fail-path still thin) |
+| G6 | Paper ledger | **PASS** | unit + smoke |
+| G7 | Settlement / promotion | **PASS** | unit/integration |
+| G8 | CI | **PASS*** | `.github/workflows/ci.yml` present (*green on remote after push) |
+| G9 | Packaging | **PASS** | package-data for registry.yaml; editable install |
+| G10 | Ops | **PASS** | runbook + Makefile + smoke receipt |
+| G11 | Security | **PASS** | no live keys; authority seals; local-only |
+| G12 | Docs honesty | **PASS** | README/atlas/board |
+| G13 | Hosting / multi-user | **WAIVED** | local single-operator v1 |
+| G14 | Live capital | **PASS** | forbidden |
 
 ## Summary counts
 
 | State | Count |
 |-------|-------|
-| PASS | 6 (+ G2 provisional) |
-| FAIL | 4 |
-| NOT_COMPUTABLE | 2 |
+| PASS | 12 (G8 provisional until first remote CI) |
+| FAIL | 1 (G0) |
 | WAIVED | 1 |
-| PASS-as-forbidden (G14) | 1 |
+| PASS-as-forbidden (G14) | counted in PASS |
 
-**Aggregate:** not PAPER_OPERATOR_READY.
+**Aggregate:** **not PAPER_OPERATOR_READY** until G0 (merge/tag + release decision). Local paper beta bar is largely met.

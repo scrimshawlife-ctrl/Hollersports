@@ -26,15 +26,17 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 
 ## Current posture
 
-**Classification:** early alpha / pre–paper-operator GA.  
-**Verdict:** **Not PAPER_OPERATOR_READY.**
+**Classification:** paper **beta** candidate on feature branch (library + API + Workbench + goldens + CI).  
+**Verdict:** **Not PAPER_OPERATOR_READY** — **G0** (scope freeze / merge / release decision) still FAIL.
 
-Feature completion of Tasks 1–6 and green unit tests **do not** establish paper-operator production readiness. FastAPI, operator UI, golden invariance suite, and CI are required for the declared operator product surface.
+Local operator surface is substantially complete. Production-supported release still requires merge to `main` (or RC tag), remote CI green, and an explicit freeze-SHA assessment.
 
 | Document | Role |
 |----------|------|
 | [evidence/PRODUCTION_READINESS_MATRIX.md](evidence/PRODUCTION_READINESS_MATRIX.md) | SHA-pinned area scores |
-| [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) | Dated narrative assessment |
+| [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) | Baseline narrative (pre Phase B) |
+| [evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md](evidence/PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md) | Phase B delta |
+| [evidence/smoke_operator_day.last.json](evidence/smoke_operator_day.last.json) | Latest fixture smoke receipt |
 | [atlas/HOLLERSPORTS_ATLAS.md](atlas/HOLLERSPORTS_ATLAS.md) | OBSERVED vs PLANNED topology |
 | [OPERATOR_RUNBOOK.md](OPERATOR_RUNBOOK.md) | Fixture operator day |
 

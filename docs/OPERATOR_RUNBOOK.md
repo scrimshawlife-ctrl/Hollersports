@@ -6,18 +6,24 @@ Paper-only operator day using fixtures. No live book placement.
 
 - Python ≥ 3.11  
 - Repo root as cwd for fixtures + schemas  
+- Optional: Node 22+ for Workbench UI  
 
 ```bash
 cd Hollersports
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e "packages/hollersports[dev]"
-pytest tests/ --ignore=hollersports-core -q
+make validate   # install, pytest, smoke receipt → docs/evidence/smoke_operator_day.last.json
 ```
 
 ## Fixture day (current path)
 
 Closed loop available via **`run_operator_day`**: ingest → compete → paper → settle → performance → promotion → dashboard projection.  
 FastAPI + Next.js operator UI remain planned.
+
+### One-command smoke
+
+```bash
+python scripts/smoke_operator_day.py --out docs/evidence/smoke_operator_day.last.json
+```
 
 ### Programmatic full day
 
@@ -32,6 +38,13 @@ assert out["dashboard"]["authority"] == "PROJECTION_ONLY"
 assert out["promotion"]["status"] in ("BLOCKED", "WATCH", "REVIEW_ELIGIBLE", "PROMOTION_RECOMMENDED")
 # small fixture sample normally yields BLOCKED
 print(out.keys())  # ingest, competition, paper, settlements, performance, promotion, dashboard
+```
+
+### API + Workbench
+
+```bash
+make api   # :8000
+make web   # :3000 — Today → Ingest fixture → Compete → Paper → Settle
 ```
 
 ### Fixture location
