@@ -32,7 +32,21 @@ make test-cov
 # Smoke + multi-fixture calibration receipt
 make smoke
 make calibration-suite
+
+# Grow cumulative settlement bank (offline fixtures)
+make backfill
+# → data/backfill/ledgers/settlements_history.jsonl
+# → docs/evidence/backfill_calibration.last.json
 ```
+
+## Cumulative settlement bank
+
+| Path | Role |
+|------|------|
+| `{data_root}/ledgers/settlements_history.jsonl` | Append-only settled paper outcomes |
+| `{data_root}/ledgers/reliability.jsonl` | Bucket snapshots after each settle |
+
+`GET /v1/calibration` and auto-cal compete prefer the cumulative bank over the last batch only.
 
 ## Calibration ladder
 

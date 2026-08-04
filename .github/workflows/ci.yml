@@ -24,6 +24,13 @@ jobs:
         run: python scripts/smoke_operator_day.py --out docs/evidence/smoke_operator_day.last.json
       - name: Multi-fixture calibration suite
         run: python scripts/run_calibration_suite.py --out docs/evidence/calibration_suite.last.json
+      - name: Fixture backfill accumulation
+        run: |
+          python scripts/backfill_fixtures.py \
+            --repeats 2 \
+            --paper-top-n 50 \
+            --data-root /tmp/holler-ci-backfill \
+            --out docs/evidence/backfill_calibration.last.json
 
   operator-web:
     runs-on: ubuntu-latest

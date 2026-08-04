@@ -114,6 +114,9 @@ def settle_entry(
         return out
 
     pnl = _compute_pnl(raw_status, stake, price)
+    strategy_id = str(ent.get("strategy_id") or "")
+    league = str(ent.get("league") or "")
+    market_type = str(ent.get("market_type") or "")
     packet = SettlementPacket(
         status=raw_status,  # type: ignore[arg-type]
         entry_id=entry_id,
@@ -131,8 +134,19 @@ def settle_entry(
         authority=Authority.SHADOW_ONLY.value,
         capital_authority=False,
         execution_authority=False,
-        provenance={"source": source or None, "result": raw_status},
+        provenance={
+            "source": source or None,
+            "result": raw_status,
+            "strategy_id": strategy_id or None,
+        },
     )
     out = packet.model_dump()
+    # Extra dims for reliability / calibration bank (schema allows extra).
+    if strategy_id:
+        out["strategy_id"] = strategy_id
+    if league:
+        out["league"] = league
+    if market_type:
+        out["market_type"] = market_type
     assert_no_live_capital(out)
     return out

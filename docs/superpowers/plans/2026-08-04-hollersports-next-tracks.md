@@ -47,6 +47,7 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Calibration evaluator ladder (EMPTY→UNRELIABLE→WATCH→RELIABLE)
 - [x] Testing framework: markers, conftest, `make test-*`, calibration suite + CI
 - [x] `GET /v1/calibration` + Health Calibration panel + auto-cal compete
+- [x] Cumulative settlement history bank + `make backfill` multi-fixture accumulation
 - [ ] Optional: more fixture days / free-first sport coverage as needed
 
 ## Track D — Packaging / release

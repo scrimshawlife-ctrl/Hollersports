@@ -23,6 +23,11 @@ from hollersports.paper.reliability_ledger import (
     record_reliability_from_settlements,
     reliability_ledger_path,
 )
+from hollersports.paper.settlement_history import (
+    append_settlement_history,
+    calibration_entries_for_store,
+    read_settlement_history,
+)
 from hollersports.runes.calibration_evaluator import (
     calibration_gate_from_packet,
     evaluate_calibration,
@@ -332,11 +337,12 @@ def runs_ingest(body: IngestRequest, request: Request) -> dict[str, Any]:
 
 
 def _settlement_entries(store: RunStore) -> list[dict[str, Any]]:
+    """Cumulative settlement bank when present; else last batch only."""
+    last: list[dict[str, Any]] = []
     settlements = store.get("settlements")
-    if not isinstance(settlements, dict):
-        return []
-    raw = settlements.get("entries") or []
-    return [e for e in raw if isinstance(e, dict)]
+    if isinstance(settlements, dict):
+        last = [e for e in (settlements.get("entries") or []) if isinstance(e, dict)]
+    return calibration_entries_for_store(store.data_root, last)
 
 
 @router.post("/runs/compete")
@@ -637,8 +643,15 @@ def runs_settle(
     promotion = evaluate_promotion(performance, evidence)
     store.put("promotion", promotion)
 
-    # Append-only reliability history (advice quality; no money).
+    # Append-only reliability + cumulative settlement bank (advice quality).
     record_reliability_from_settlements(store.data_root, settlement_entries)
+    fixture_name = Path(str(fixture_raw)).name if fixture_raw else None
+    append_settlement_history(
+        store.data_root,
+        settlement_entries,
+        run_id=run_id,
+        fixture=fixture_name,
+    )
 
     _rebuild_dashboard(store)
     return _safe_packet(settlements)
@@ -766,6 +779,12 @@ def get_reliability(
         return _safe_packet(body)
 
     settlements = store.get("settlements") if isinstance(store.get("settlements"), dict) else {}
-    entries = list((settlements or {}).get("entries") or [])
+    last = list((settlements or {}).get("entries") or [])
+    hist = read_settlement_history(data_root=store.data_root, settled_only=True)
+    entries = hist if hist else last
     packet = compute_reliability_buckets(entries)
+    packet["provenance"] = {
+        **(packet.get("provenance") or {}),
+        "source": "cumulative_settlement_history" if hist else "last_settlement_batch",
+    }
     return _safe_packet(packet)

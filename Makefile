@@ -1,5 +1,5 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
-	install smoke calibration-suite api web free-first
+	install smoke calibration-suite backfill api web free-first
 
 install:
 	python -m pip install -U pip
@@ -18,7 +18,7 @@ test-golden:
 	pytest tests/golden tests/calibration -q -m "golden or calibration"
 
 test-calibration:
-	pytest tests/unit/test_calibration_evaluator.py tests/calibration -q -m calibration
+	pytest tests/unit/test_calibration_evaluator.py tests/unit/test_settlement_history.py tests/calibration -q -m calibration
 
 test-cov:
 	pytest tests/ --ignore=hollersports-core -q \
@@ -30,6 +30,10 @@ smoke:
 
 calibration-suite:
 	python scripts/run_calibration_suite.py --out docs/evidence/calibration_suite.last.json
+
+# Multi-fixture accumulation into data/backfill (grows calibration sample).
+backfill:
+	python scripts/backfill_fixtures.py --out docs/evidence/backfill_calibration.last.json
 
 validate: install test smoke calibration-suite
 	@echo "validate OK"

@@ -8,6 +8,7 @@ from typing import Any, Mapping
 
 from hollersports.governance.authority import assert_no_live_capital
 from hollersports.paper.reliability_ledger import record_reliability_from_settlements
+from hollersports.paper.settlement_history import append_settlement_history
 from hollersports.pipelines.market_ingestion import run_market_ingestion
 from hollersports.pipelines.paper_loop import run_paper_loop
 from hollersports.pipelines.strategy_competition import run_strategy_competition
@@ -127,6 +128,8 @@ def run_operator_day(
     fixture_dir: Path | str | None,
     *,
     data_root: Path | str,
+    paper_top_n: int | None = None,
+    accumulate_settlements: bool = True,
 ) -> dict[str, Any]:
     """Run a full closed-loop operator day against a fixture directory.
 
@@ -137,6 +140,11 @@ def run_operator_day(
       4. settle via results.json
       5. performance + promotion
       6. dashboard projection
+
+    Args:
+      paper_top_n: Cap papered candidates (default 5). Use a large value in
+        backfill to grow calibration sample.
+      accumulate_settlements: Append to cumulative settlement history bank.
 
     Return keys (stable for API/UI):
       ingest, competition, paper, settlements, performance, promotion, dashboard
@@ -160,8 +168,14 @@ def run_operator_day(
         for c in (competition.get("candidates") or [])
         if isinstance(c, Mapping) and c.get("status") == "CANDIDATE"
     ]
+    # Enrich candidates with league from ingest for calibration dims.
+    league = str(ingest.get("league") or "")
+    for c in cand_list:
+        if isinstance(c, dict) and not c.get("league") and league:
+            c["league"] = league
     prices = _market_price_map(ingest)
-    n = min(_TOP_N, len(cand_list))
+    top_n = _TOP_N if paper_top_n is None else max(0, int(paper_top_n))
+    n = min(top_n, len(cand_list)) if top_n else 0
     paper_candidates = _top_candidates(cand_list, n, prices)
 
     ledger_file = root / "ledgers" / f"{portfolio_id}.jsonl"
@@ -227,6 +241,13 @@ def run_operator_day(
     # Append reliability snapshot once per operator-day settle (no double-append
     # with /runs/settle unless that route is called again on the same day).
     record_reliability_from_settlements(root, settlement_entries)
+    if accumulate_settlements:
+        append_settlement_history(
+            root,
+            settlement_entries,
+            run_id=run_id,
+            fixture=day_path.name,
+        )
 
     dashboard = project_dashboard(
         {

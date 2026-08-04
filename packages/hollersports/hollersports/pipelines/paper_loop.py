@@ -53,6 +53,14 @@ def run_paper_loop(
             portfolio = simulate_paper_entry(execution, ctx)
             portfolio_entries.append(portfolio)
             if portfolio.get("status") == "RECORDED":
+                prov = execution.get("provenance") if isinstance(
+                    execution.get("provenance"), Mapping
+                ) else {}
+                strategy_id = str(
+                    cand.get("strategy_id")
+                    or (prov or {}).get("strategy_id")
+                    or ""
+                )
                 ledger_entry = {
                     "entry_id": portfolio.get("entry_id"),
                     "run_id": portfolio.get("run_id"),
@@ -66,6 +74,9 @@ def run_paper_loop(
                     "expected_value": portfolio.get("expected_value"),
                     "packet_refs": portfolio.get("packet_refs") or {},
                     "status": portfolio.get("status"),
+                    "strategy_id": strategy_id,
+                    "league": str(cand.get("league") or ""),
+                    "market_type": str(cand.get("market_type") or ""),
                 }
                 recorded = append_paper_entry(ledger_file, ledger_entry)
                 ledger_rows.append(recorded)

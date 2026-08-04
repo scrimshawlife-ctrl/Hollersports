@@ -17,9 +17,20 @@ pip install -e "packages/hollersports[dev]"
 # Repeatable operator day → smoke receipt
 python scripts/smoke_operator_day.py --out docs/evidence/smoke_operator_day.last.json
 
-# Or API
+# Multi-fixture accumulation into shared calibration bank
+make backfill
+# or: python scripts/backfill_fixtures.py --repeats 4 --paper-top-n 50 \
+#        --data-root data/backfill --out docs/evidence/backfill_calibration.last.json
+
+# Or API (single day; appends to HOLLER_DATA_ROOT ledgers)
 # make api  then: curl -X POST localhost:8000/v1/runs/full-day -H 'content-type: application/json' -d '{"fixture":"day001"}'
 ```
+
+Backfill writes:
+
+- `data/backfill/ledgers/settlements_history.jsonl` — cumulative settled outcomes  
+- `data/backfill/ledgers/reliability.jsonl` — reliability snapshots  
+- calibration ladder receipt with `sample_size` / `status` / `model_edge_allowed`
 
 ## Optional live free-first observation
 
