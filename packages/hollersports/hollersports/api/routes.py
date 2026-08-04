@@ -21,6 +21,7 @@ from hollersports.runes.promotion_evaluator import evaluate_promotion
 from hollersports.runes.reliability_bucket import compute_reliability_buckets
 from hollersports.runes.settlement_engine import settle_entry
 from hollersports.sources.fixture_adapter import load_fixture_day
+from hollersports.sources.free_first_ingest import build_live_observation_pack
 from hollersports.sources.registry import list_sources, load_registry
 
 router = APIRouter(prefix="/v1")
@@ -62,6 +63,21 @@ class PaperRunRequest(BaseModel):
 
 class FullDayRequest(BaseModel):
     fixture: str = Field(default="day001", description="Fixture day name")
+
+
+class FreeFirstRequest(BaseModel):
+    """Optional live observation (advisory). Prefer injected raw in tests."""
+
+    espn_only: bool = False
+    odds_only: bool = False
+    run_id: str | None = None
+    # Test/offline injection — never required for CI
+    espn_raw: dict[str, Any] | None = None
+    odds_raw: list[dict[str, Any]] | None = None
+    auto_compete: bool = Field(
+        default=True,
+        description="If ingest succeeds, run strategy competition on primary ingest",
+    )
 
 
 def _store(request: Request) -> RunStore:
@@ -317,6 +333,56 @@ def get_candidates(request: Request) -> dict[str, Any]:
         "mode": "ADVISORY_ONLY",
     }
     return _safe_packet(body)
+
+
+@router.post("/runs/free-first")
+def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
+    """Optional live free-first observation pack (advisory only; no money).
+
+    Network is used only when espn_raw/odds_raw are omitted. Without keys/network,
+    returns NOT_COMPUTABLE / PARTIAL with errors — never invents odds.
+    """
+    store = _store(request)
+    pack = build_live_observation_pack(
+        run_id=body.run_id,
+        fetch_espn=not body.odds_only,
+        fetch_odds=not body.espn_only,
+        espn_raw=body.espn_raw,
+        odds_raw=body.odds_raw,
+    )
+    # Store primary ingest if present so compete/paper can continue.
+    ingest = pack.get("ingest")
+    if isinstance(ingest, dict):
+        store.put("ingest", ingest)
+        store.update(
+            competition=None,
+            paper=None,
+            settlements=None,
+            performance=None,
+            promotion=None,
+            meta={"path": "free-first", "run_id": pack.get("run_id")},
+        )
+        if body.auto_compete and ingest.get("status") == "INGESTED":
+            competition = run_strategy_competition(ingest)
+            store.put("competition", competition)
+            pack["competition"] = competition
+        _rebuild_dashboard(store)
+    summary = {
+        "schema_version": "FreeFirstSummary.v1",
+        "status": pack.get("status"),
+        "run_id": pack.get("run_id"),
+        "espn_event_count": pack.get("espn_event_count"),
+        "odds_event_count": pack.get("odds_event_count"),
+        "conflict_status": (pack.get("conflict") or {}).get("status"),
+        "ingest_status": (ingest or {}).get("status") if isinstance(ingest, dict) else None,
+        "errors": pack.get("errors") or [],
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+        "note": "observation_only_no_money",
+    }
+    return _safe_packet(summary)
 
 
 @router.post("/runs/full-day")

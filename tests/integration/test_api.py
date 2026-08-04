@@ -42,6 +42,64 @@ def test_full_day_and_candidates(tmp_path):
     assert rel.json()["mode"] == "ADVISORY_ONLY"
 
 
+def test_free_first_injected_no_network(tmp_path):
+    client = TestClient(create_app(data_root=str(tmp_path)))
+    espn_raw = {
+        "sport": "BASKETBALL",
+        "events": [
+            {
+                "id": "401",
+                "date": "2026-04-24T23:00:00Z",
+                "competitions": [
+                    {
+                        "competitors": [
+                            {"team": {"abbreviation": "BOS"}},
+                            {"team": {"abbreviation": "LAL"}},
+                        ]
+                    }
+                ],
+            }
+        ],
+    }
+    odds_raw = [
+        {
+            "id": "401",
+            "home_team": "BOS",
+            "away_team": "LAL",
+            "commence_time": "2026-04-24T23:00:00Z",
+            "bookmakers": [
+                {
+                    "key": "book_a",
+                    "markets": [
+                        {
+                            "key": "h2h",
+                            "outcomes": [
+                                {"name": "BOS", "price": -120},
+                                {"name": "LAL", "price": 100},
+                            ],
+                        }
+                    ],
+                }
+            ],
+        }
+    ]
+    r = client.post(
+        "/v1/runs/free-first",
+        json={
+            "espn_raw": espn_raw,
+            "odds_raw": odds_raw,
+            "auto_compete": True,
+            "run_id": "T-API-FF",
+        },
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["capital_authority"] is False
+    assert body["mode"] == "ADVISORY_ONLY"
+    assert body["status"] == "OBSERVED"
+    assert body.get("espn_event_count", 0) >= 1
+
+
 def test_safe_packet_live_ux_returns_403(tmp_path):
     """Authority / live-UX lock from _safe_packet is HTTP 403 (fail-closed).
 

@@ -109,6 +109,22 @@ export function postFullDay(fixture = "day001") {
   });
 }
 
+/** Live free-first observation (may hit network; no money). Prefer fixture day for demos. */
+export function postFreeFirst(opts?: {
+  espn_only?: boolean;
+  odds_only?: boolean;
+  auto_compete?: boolean;
+}) {
+  return request<Json>("/v1/runs/free-first", {
+    method: "POST",
+    body: JSON.stringify({
+      espn_only: opts?.espn_only ?? false,
+      odds_only: opts?.odds_only ?? false,
+      auto_compete: opts?.auto_compete ?? true,
+    }),
+  });
+}
+
 export function getCandidates() {
   return request<Json>("/v1/candidates");
 }

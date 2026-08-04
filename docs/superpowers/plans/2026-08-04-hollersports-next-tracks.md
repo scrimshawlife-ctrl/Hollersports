@@ -16,8 +16,8 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 - [x] Source conflict packet (`SourceConflictPacket.v1`)
 - [x] `build_live_observation_pack` + `scripts/holler_free_first_ingest.py` + `make free-first`
 - [x] Tests: injected raw / monkeypatch; never require keys in CI
-- [ ] Optional: HTTP response cache / backoff polish
-- [ ] Optional: API route `POST /v1/runs/free-first` (Workbench button)
+- [x] HTTP response cache (file TTL) for ESPN/Odds fetches
+- [x] API route `POST /v1/runs/free-first` + Workbench button
 
 ## Track B — Workbench polish
 
@@ -25,13 +25,13 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 - [x] Paper accepts optional `candidate_ids` (UI selection → sim)
 - [x] Today: one-click “Run full fixture day”
 - [x] Health loading/error/empty copy + advisory banner
-- [ ] Optional free-first live button (needs network + keys)
+- [x] Free-first live observe button (network optional; fail-closed)
 
 ## Track C — Advice quality loop
 
 - [x] Reliability buckets by strategy / league / market_type
 - [x] `GET /v1/reliability` + Health “Advice reliability” table
-- [ ] Nightly fixture/backfill job docs
+- [x] Nightly fixture/backfill job docs (`docs/BACKFILL_AND_NIGHTLY.md`)
 - Keep promotion **advisory review only** (never money)
 
 ## Track D — Packaging / release

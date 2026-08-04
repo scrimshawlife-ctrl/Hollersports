@@ -89,21 +89,34 @@ def normalize_espn_scoreboard(raw: Mapping[str, Any], *, league: str = "NBA") ->
     return events_out
 
 
-def fetch_espn_scoreboard(*, league: str = "NBA", timeout_s: float = 15.0) -> dict[str, Any]:
+def fetch_espn_scoreboard(
+    *,
+    league: str = "NBA",
+    timeout_s: float = 15.0,
+    use_cache: bool = True,
+    cache_ttl_seconds: float = 300.0,
+) -> dict[str, Any]:
     """Fetch live ESPN scoreboard for a day-one league. Network optional — not used in CI.
 
     Returns raw JSON dict or raises OSError/URLError/HTTPError/ValueError.
     """
     league_key = _normalize_league_key(league)
     url = espn_scoreboard_url(league_key)
-    req = Request(
-        url,
-        headers={"User-Agent": _USER_AGENT},
-    )
-    with urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — fixed HTTPS public API
-        import json
+    if use_cache:
+        from hollersports.sources.http_cache import cached_get_json
 
-        data = json.loads(resp.read().decode("utf-8"))
+        data = cached_get_json(
+            url,
+            ttl_seconds=cache_ttl_seconds,
+            timeout_s=timeout_s,
+            headers={"User-Agent": _USER_AGENT},
+        )
+    else:
+        req = Request(url, headers={"User-Agent": _USER_AGENT})
+        with urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — fixed HTTPS public API
+            import json
+
+            data = json.loads(resp.read().decode("utf-8"))
     if not isinstance(data, dict):
         raise ValueError("espn_scoreboard_not_object")
     data.setdefault("sport", _LEAGUE_SPORT[league_key])

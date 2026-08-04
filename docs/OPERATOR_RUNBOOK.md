@@ -45,8 +45,13 @@ print(out.keys())  # ingest, competition, paper, settlements, performance, promo
 
 ```bash
 make api   # :8000
-make web   # :3000 — Today → Ingest fixture → Compete → Paper → Settle
+make web   # :3000 — Today → Run full fixture day (or Free-first live observe)
 ```
+
+Today actions:
+
+- **Run full fixture day** — offline-safe closed loop  
+- **Free-first live observe** — optional network (ESPN; Odds if `THE_ODDS_API_KEY`); fail-closed if offline  
 
 ### Fixture location
 

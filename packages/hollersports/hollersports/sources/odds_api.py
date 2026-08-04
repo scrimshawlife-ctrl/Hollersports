@@ -149,12 +149,15 @@ def fetch_odds_api_odds(
         }
     )
     url = f"{_ODDS_BASE}/{sport_key}/odds?{qs}"
-    req = Request(
+    from hollersports.sources.http_cache import cached_get_json
+
+    # Cache key includes full URL (api key present) — store under data/http_cache only.
+    data = cached_get_json(
         url,
-        headers={"User-Agent": "HollerSports-advisory/0.2 (no-money; research)"},
+        ttl_seconds=120.0,
+        timeout_s=timeout_s,
+        headers={"User-Agent": "HollerSports-advisory/0.3 (no-money; research)"},
     )
-    with urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — fixed HTTPS API
-        data = json.loads(resp.read().decode("utf-8"))
     if not isinstance(data, list):
         raise ValueError("odds_api_response_not_list")
     return [e for e in data if isinstance(e, dict)]

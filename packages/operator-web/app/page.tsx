@@ -8,6 +8,7 @@ import {
   fieldOrDash,
   getDashboard,
   postCompete,
+  postFreeFirst,
   postFullDay,
   postIngest,
   postPaper,
@@ -15,7 +16,14 @@ import {
   type Json,
 } from "@/lib/api";
 
-type ActionId = "ingest" | "compete" | "paper" | "settle" | "refresh" | "fullday";
+type ActionId =
+  | "ingest"
+  | "compete"
+  | "paper"
+  | "settle"
+  | "refresh"
+  | "fullday"
+  | "freefirst";
 
 function panelField(
   dashboard: Json | null,
@@ -153,6 +161,19 @@ export default function TodayPage() {
             onClick={() => void runAction("fullday", () => postFullDay("day001"))}
           >
             {busy === "fullday" ? "Running day…" : "Run full fixture day"}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={disabled}
+            title="Optional network observation (ESPN; Odds API if key set). No money."
+            onClick={() =>
+              void runAction("freefirst", () =>
+                postFreeFirst({ espn_only: false, auto_compete: true }),
+              )
+            }
+          >
+            {busy === "freefirst" ? "Observing…" : "Free-first live observe"}
           </button>
           <button
             type="button"
