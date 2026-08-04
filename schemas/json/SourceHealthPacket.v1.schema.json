@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SourceHealthPacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "source_id",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "SourceHealthPacket.v1" },
+    "status": {
+      "enum": ["PASS", "WARN", "FAIL", "NOT_COMPUTABLE"]
+    },
+    "source_id": { "type": "string" },
+    "freshness_seconds": { "type": "number" },
+    "missing_required_fields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "stale": { "type": "boolean" },
+    "provenance_present": { "type": "boolean" },
+    "health_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

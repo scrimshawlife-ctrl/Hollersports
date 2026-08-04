@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PromotionPacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "PromotionPacket.v1" },
+    "status": {
+      "enum": [
+        "BLOCKED",
+        "WATCH",
+        "REVIEW_ELIGIBLE",
+        "PROMOTION_RECOMMENDED",
+        "NOT_COMPUTABLE"
+      ]
+    },
+    "target_id": { "type": "string" },
+    "target_type": {
+      "enum": ["STRATEGY", "EDGE_FAMILY", "EXECUTION_POLICY", "PORTFOLIO"]
+    },
+    "passed_gates": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "failed_gates": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence_refs": { "type": "object" },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

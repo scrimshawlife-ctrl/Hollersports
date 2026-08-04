@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "MarketIngestionPacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "run_id",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "MarketIngestionPacket.v1" },
+    "status": {
+      "enum": ["INGESTED", "REJECTED", "NOT_COMPUTABLE"]
+    },
+    "run_id": { "type": "string" },
+    "source_id": { "type": "string" },
+    "source_type": {
+      "enum": ["ESPN", "ODDS_FEED", "MANUAL", "FIXTURE", "UNKNOWN"]
+    },
+    "fetched_at": { "type": "string" },
+    "event_id": { "type": "string" },
+    "sport": { "type": "string" },
+    "league": { "type": "string" },
+    "teams": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "markets": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "source_refs": { "type": "object" },
+    "source_health": { "type": "object" },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}
