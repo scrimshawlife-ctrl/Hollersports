@@ -6,7 +6,8 @@ class: ADVISORY_OPERATOR_READY   # local advisory beta only
 foundation_pr: 3
 foundation_merge_sha: 838ea88d0aa85b1c85f810bb080c590f5c8a7804
 foundation_merged_at: "2026-08-04T21:25:36Z"
-tip_sha: 4a9172849a3f11e36b873f4511d534c646174f84
+tip_sha: 3feb5e4
+feature_tip_before_docs_pin: 4a9172849a3f11e36b873f4511d534c646174f84
 branch: main
 package_version: "0.3.0"
 tag: v0.3.0-advisory-beta

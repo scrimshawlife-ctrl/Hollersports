@@ -7,7 +7,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 | PR | State | Notes |
 |----|--------|--------|
 | **#3** — standalone advisory operator | **MERGED** `838ea88` | Foundation local advisory beta |
-| Subsequent continuum | on `main` (no open PR) | Calibration, backfill, Hermes docs — tip `4a91728` |
+| Subsequent continuum | on `main` (no open PR) | Calibration, backfill, Hermes docs — tip `3feb5e4` |
 
 ---
 

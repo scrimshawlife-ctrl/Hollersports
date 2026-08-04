@@ -38,7 +38,7 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 
 ## Status
 
-**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `4a91728` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
+**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `3feb5e4` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
 **Open PRs:** none (all continuum work is on `main`).  
 **Money / live books:** **never** — contract-forbidden.
 
@@ -79,7 +79,7 @@ fixtures/day001 ──► source_health ──► MarketIngestionPacket
                               promotion (review only) → dashboard projection
 ```
 
-API + Next.js Workbench UI remain planned (Tasks 7–9).
+API + Next.js Workbench are **shipped** (local). Hosted SaaS / Vercel remains out of scope.
 
 ## Quick start
 

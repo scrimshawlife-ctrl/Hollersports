@@ -11,7 +11,7 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 | **What it is not** | Money handler, sportsbook, payment rail, live bet placer, or Abraxas runtime dependency. |
 | **Package** | `hollersports` **0.3.0** (`packages/hollersports`) |
 | **Mode** | `ADVISORY_ONLY` / `PAPER_ONLY` (sim) · `capital_authority=false` · `execution_authority=false` · **no real money** |
-| **Main tip (docs pin)** | `4a91728` · foundation PR **#3** MERGED `838ea88` |
+| **Main tip (docs pin)** | `3feb5e4` · foundation PR **#3** MERGED `838ea88` |
 | **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/`, `docs/agents/` |
 
 ## Surfaces

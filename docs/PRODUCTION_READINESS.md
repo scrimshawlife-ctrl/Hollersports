@@ -30,7 +30,7 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 
 **Classification:** **local advisory beta** on `main`.  
 **Foundation merge:** PR **#3** → `838ea88` (2026-08-04) — **MERGED** (no open PR remains).  
-**Tip SHA:** `4a91728` (continuum on `main`; package **0.3.0**, tag `v0.3.0-advisory-beta`).  
+**Tip SHA:** `3feb5e4` (continuum on `main`; package **0.3.0**, tag `v0.3.0-advisory-beta`).  
 **Verdict:** **PASS** for local **ADVISORY_OPERATOR_READY** (no real money, no book placement).  
 **Not claimed:** multi-tenant SaaS GA, hosted multi-user production, any money rail.
 
@@ -98,4 +98,6 @@ release_decision:
 
 ## Continuity
 
-To advance readiness: land Phase B (goldens → API → Workbench → CI → packaging → smoke), then rewrite assessment at the freeze SHA.
+Phase B and PR #3 foundation are **done** (merged). Continuum after merge (model edge, calibration bank, Hermes backfill, day002, testing framework) is on `main` @ tip — see [evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).
+
+To re-pin a formal freeze: cut a tag at tip, refresh smoke + calibration suite receipts, update continuum `tip_sha`.
