@@ -13,9 +13,11 @@
 [![Capital](https://img.shields.io/badge/capital%20authority-false-success)](docs/SYSTEM_CONTRACT.md)
 [![Execution](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
 [![Abraxas](https://img.shields.io/badge/Abraxas-concept%20lineage%20only-lightgrey)](docs/ABRAXAS_LINEAGE.md)
+[![Production](https://img.shields.io/badge/production-NOT%20READY-red)](docs/PRODUCTION_READINESS.md)
+[![Paper operator](https://img.shields.io/badge/paper%20operator-alpha-orange)](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
-[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
+[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
 
 </div>
 
@@ -33,6 +35,8 @@ Sports market tools often either invent certainty or quietly couple analysis to 
 > Strategies propose. Guards gate. Ledgers remember. Dashboards project. Humans decide.
 
 ## Status
+
+**Production:** [NOT READY](docs/PRODUCTION_READINESS.md) for `PAPER_OPERATOR_READY` (see [assessment 2026-08-04](docs/evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md)). Live capital is **forbidden**, not a readiness goal.
 
 | Track | State | Notes |
 |-------|--------|--------|
