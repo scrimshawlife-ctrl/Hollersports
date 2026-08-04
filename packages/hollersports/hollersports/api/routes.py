@@ -18,6 +18,11 @@ from hollersports.pipelines.strategy_competition import run_strategy_competition
 from hollersports.runes.operator_project import project_dashboard
 from hollersports.runes.performance_tracker import compute_performance
 from hollersports.runes.promotion_evaluator import evaluate_promotion
+from hollersports.paper.reliability_ledger import (
+    read_reliability_history,
+    record_reliability_from_settlements,
+    reliability_ledger_path,
+)
 from hollersports.runes.reliability_bucket import compute_reliability_buckets
 from hollersports.runes.settlement_engine import settle_entry
 from hollersports.sources.fixture_adapter import load_fixture_day
@@ -572,6 +577,9 @@ def runs_settle(
     promotion = evaluate_promotion(performance, evidence)
     store.put("promotion", promotion)
 
+    # Append-only reliability history (advice quality; no money).
+    record_reliability_from_settlements(store.data_root, settlement_entries)
+
     _rebuild_dashboard(store)
     return _safe_packet(settlements)
 
@@ -645,9 +653,40 @@ def get_promotion(request: Request) -> dict[str, Any]:
 
 
 @router.get("/reliability")
-def get_reliability(request: Request) -> dict[str, Any]:
-    """Advice-quality reliability buckets from last settlements (sim metrics only)."""
+def get_reliability(
+    request: Request,
+    history: int = 0,
+    limit: int = 20,
+) -> dict[str, Any]:
+    """Advice-quality reliability buckets (sim metrics only).
+
+    Default: buckets from last settlements in store.
+    ``history=1``: last-N append-only ledger snapshots (oldest-first within window).
+    """
     store = _store(request)
+    if history:
+        lim = max(0, min(int(limit or 20), 200))
+        rows = read_reliability_history(
+            reliability_ledger_path(store.data_root),
+            limit=lim,
+        )
+        body: dict[str, Any] = {
+            "schema_version": "ReliabilityHistoryPacket.v1",
+            "status": "COMPUTED" if rows else "EMPTY",
+            "entries": rows,
+            "count": len(rows),
+            "authority": "SHADOW_ONLY",
+            "capital_authority": False,
+            "execution_authority": False,
+            "mode": "ADVISORY_ONLY",
+            "provenance": {
+                "purpose": "advice_quality_history",
+                "real_money": False,
+                "order": "oldest_first_within_window",
+            },
+        }
+        return _safe_packet(body)
+
     settlements = store.get("settlements") if isinstance(store.get("settlements"), dict) else {}
     entries = list((settlements or {}).get("entries") or [])
     packet = compute_reliability_buckets(entries)

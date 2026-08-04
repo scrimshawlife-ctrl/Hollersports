@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from hollersports.governance.authority import assert_no_live_capital
+from hollersports.paper.reliability_ledger import record_reliability_from_settlements
 from hollersports.pipelines.market_ingestion import run_market_ingestion
 from hollersports.pipelines.paper_loop import run_paper_loop
 from hollersports.pipelines.strategy_competition import run_strategy_competition
@@ -222,6 +223,10 @@ def run_operator_day(
         "unresolved_blockers": 0,
     }
     promotion = evaluate_promotion(performance, evidence)
+
+    # Append reliability snapshot once per operator-day settle (no double-append
+    # with /runs/settle unless that route is called again on the same day).
+    record_reliability_from_settlements(root, settlement_entries)
 
     dashboard = project_dashboard(
         {

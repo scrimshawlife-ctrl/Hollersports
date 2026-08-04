@@ -9,7 +9,7 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 |--|--|
 | **What it is** | Sports **betting advisory** operator: free-first / fixture ingest → market-first candidates → paper simulation to rank advice — fail-closed. |
 | **What it is not** | Money handler, sportsbook, payment rail, live bet placer, or Abraxas runtime dependency. |
-| **Package** | `hollersports` **0.2.0** (`packages/hollersports`) |
+| **Package** | `hollersports` **0.3.0** (`packages/hollersports`) |
 | **Mode** | `ADVISORY_ONLY` / `PAPER_ONLY` (sim) · `capital_authority=false` · `execution_authority=false` · **no real money** |
 | **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/unit/` |
 

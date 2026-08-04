@@ -32,6 +32,8 @@ Primary package, FastAPI, Cobalt Workbench, goldens, advisory contract.
 - [x] Reliability buckets by strategy / league / market_type
 - [x] `GET /v1/reliability` + Health “Advice reliability” table
 - [x] Nightly fixture/backfill job docs (`docs/BACKFILL_AND_NIGHTLY.md`)
+- [x] Gated `MODEL_PROBABILITY_EDGE` (deterministic package-native; calibration on)
+- [x] Append-only reliability history ledger + `GET /v1/reliability?history=1`
 - Keep promotion **advisory review only** (never money)
 
 ## Track D — Packaging / release
