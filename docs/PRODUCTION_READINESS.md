@@ -30,9 +30,9 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 
 **Classification:** **local advisory beta** on `main`.  
 **Foundation merge:** PR **#3** → `838ea88` (2026-08-04) — **MERGED** (no open PR remains).  
-**Tip SHA:** `aa89903` (continuum on `main`; package **0.3.0**, tag `v0.3.0-advisory-beta`).  
+**Tip SHA:** `a10468d` (Track F complete on `main`; package **0.4.0**, tag `v0.4.0-advisory-beta`).  
 **Verdict:** **PASS** for local **ADVISORY_OPERATOR_READY** (no real money, no book placement).  
-**Not claimed:** multi-tenant SaaS GA, hosted multi-user production, any money rail.
+**Not claimed:** multi-tenant SaaS GA, hosted multi-user production, any money rail, production-scale transformers as advice quality floor.
 
 | Document | Role |
 |----------|------|
