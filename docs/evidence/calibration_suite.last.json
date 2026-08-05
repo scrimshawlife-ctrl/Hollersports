@@ -1,0 +1,106 @@
+{
+  "capital_authority": false,
+  "execution_authority": false,
+  "fixture_count": 3,
+  "fixtures": [
+    {
+      "calibration": {
+        "failed_gates": [
+          "sample_reliable"
+        ],
+        "hit_rate": 0.8,
+        "model_edge_allowed": false,
+        "packet_hash": "3c93af6c6b75f72438125fc23db92d783f68c6bb782c875559b6225d5e3b5f31",
+        "reliability_status": "WATCH",
+        "sample_size": 5,
+        "sim_roi": 0.6011,
+        "status": "WATCH"
+      },
+      "capital_authority": false,
+      "core": {
+        "calibration_sample": 5,
+        "calibration_status": "WATCH",
+        "candidate_count": 6,
+        "ingest_status": "INGESTED",
+        "model_edge_allowed": false,
+        "model_edge_enabled": false,
+        "promotion_status": "BLOCKED"
+      },
+      "core_hash": "ed810c014567cadf6550296fae9d7a6dba77c26794d5e2f376c8a9f611630373",
+      "execution_authority": false,
+      "fixture": "day001",
+      "invariance_pass": true,
+      "invariance_runs": 3
+    },
+    {
+      "calibration": {
+        "failed_gates": [
+          "sample_watch",
+          "sample_reliable"
+        ],
+        "hit_rate": 0.75,
+        "model_edge_allowed": false,
+        "packet_hash": "f536065c15a6ab6c409ca5d5b0c388c208bee93da2edc72c4c5d146f2e315ffb",
+        "reliability_status": "UNRELIABLE",
+        "sample_size": 4,
+        "sim_roi": 0.1682,
+        "status": "UNRELIABLE"
+      },
+      "capital_authority": false,
+      "core": {
+        "calibration_sample": 4,
+        "calibration_status": "UNRELIABLE",
+        "candidate_count": 4,
+        "ingest_status": "INGESTED",
+        "model_edge_allowed": false,
+        "model_edge_enabled": false,
+        "promotion_status": "BLOCKED"
+      },
+      "core_hash": "cf804f984f2b28222f54254b1c31b40580b30fc454e8906766a35639e59c906a",
+      "execution_authority": false,
+      "fixture": "day002",
+      "invariance_pass": true,
+      "invariance_runs": 3
+    },
+    {
+      "calibration": {
+        "failed_gates": [
+          "sample_reliable",
+          "hit_rate_reliable",
+          "sim_roi_floor"
+        ],
+        "hit_rate": 0.4,
+        "model_edge_allowed": false,
+        "packet_hash": "50129340ee01bd3da86accae977d6430fef4dc49e05462d1b3966acc21f23ac6",
+        "reliability_status": "WATCH",
+        "sample_size": 5,
+        "sim_roi": -0.1818,
+        "status": "WATCH"
+      },
+      "capital_authority": false,
+      "core": {
+        "calibration_sample": 5,
+        "calibration_status": "WATCH",
+        "candidate_count": 6,
+        "ingest_status": "INGESTED",
+        "model_edge_allowed": false,
+        "model_edge_enabled": false,
+        "promotion_status": "BLOCKED"
+      },
+      "core_hash": "ed810c014567cadf6550296fae9d7a6dba77c26794d5e2f376c8a9f611630373",
+      "execution_authority": false,
+      "fixture": "day003",
+      "invariance_pass": true,
+      "invariance_runs": 3
+    }
+  ],
+  "mode": "PAPER_ONLY",
+  "receipt_hash": "3659f006cff69135a46c47088a0bf3319dbcea17d8685702dc72bb5636a6f734",
+  "schema_version": "HollerCalibrationSuiteReceipt.v1",
+  "seals": {
+    "CAPITAL_AUTHORITY": false,
+    "EXECUTION_AUTHORITY": false,
+    "LIVE_BOOKS": false,
+    "MODE": "PAPER_ONLY"
+  }
+}

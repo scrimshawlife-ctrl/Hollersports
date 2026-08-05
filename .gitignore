@@ -1,0 +1,15 @@
+data/
+__pycache__/
+.venv/
+node_modules/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.worktrees/

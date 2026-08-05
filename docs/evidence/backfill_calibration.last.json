@@ -1,0 +1,105 @@
+{
+  "calibration": {
+    "failed_gates": [],
+    "hit_rate": 0.625,
+    "model_edge_allowed": true,
+    "packet_hash": "37bb4929dc2673dfc53e9a55399ebc63da65e0bb524dbf3e018ed36a652d002d",
+    "reliability_status": "RELIABLE",
+    "sample_size": 64,
+    "sim_roi": 0.1955,
+    "status": "RELIABLE"
+  },
+  "capital_authority": false,
+  "cumulative_sample": 64,
+  "data_root": "/workspace/data/backfill",
+  "execution_authority": false,
+  "fixtures": [
+    "day001",
+    "day002",
+    "day003"
+  ],
+  "mode": "PAPER_ONLY",
+  "paper_top_n": 50,
+  "receipt_hash": "9437349e99c4a8afd2770b3d0dbe76b91ebc61bb9e2842f6d943acaa70326499",
+  "repeats": 4,
+  "runs": [
+    {
+      "candidate_count": 6,
+      "fixture": "day001",
+      "repeat": 0,
+      "settled": 6
+    },
+    {
+      "candidate_count": 4,
+      "fixture": "day002",
+      "repeat": 0,
+      "settled": 4
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day003",
+      "repeat": 0,
+      "settled": 6
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day001",
+      "repeat": 1,
+      "settled": 6
+    },
+    {
+      "candidate_count": 4,
+      "fixture": "day002",
+      "repeat": 1,
+      "settled": 4
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day003",
+      "repeat": 1,
+      "settled": 6
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day001",
+      "repeat": 2,
+      "settled": 6
+    },
+    {
+      "candidate_count": 4,
+      "fixture": "day002",
+      "repeat": 2,
+      "settled": 4
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day003",
+      "repeat": 2,
+      "settled": 6
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day001",
+      "repeat": 3,
+      "settled": 6
+    },
+    {
+      "candidate_count": 4,
+      "fixture": "day002",
+      "repeat": 3,
+      "settled": 4
+    },
+    {
+      "candidate_count": 6,
+      "fixture": "day003",
+      "repeat": 3,
+      "settled": 6
+    }
+  ],
+  "schema_version": "HollerBackfillReceipt.v1",
+  "seals": {
+    "CAPITAL_AUTHORITY": false,
+    "EXECUTION_AUTHORITY": false,
+    "LIVE_BOOKS": false
+  }
+}

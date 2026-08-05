@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "StrategyCandidatePacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "run_id",
+    "strategy_id",
+    "event_id",
+    "market_id",
+    "selection",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "StrategyCandidatePacket.v1" },
+    "status": {
+      "enum": ["CANDIDATE", "REJECTED", "NOT_COMPUTABLE"]
+    },
+    "run_id": { "type": "string" },
+    "strategy_id": { "type": "string" },
+    "strategy_family": { "type": "string" },
+    "event_id": { "type": "string" },
+    "market_id": { "type": "string" },
+    "selection": { "type": "string" },
+    "score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "features": { "type": "object" },
+    "packet_refs": { "type": "object" },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": "string" }
+  },
+  "additionalProperties": true
+}

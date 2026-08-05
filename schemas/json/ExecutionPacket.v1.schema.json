@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ExecutionPacket.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "run_id",
+    "mode",
+    "authority",
+    "capital_authority",
+    "execution_authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "ExecutionPacket.v1" },
+    "status": {
+      "enum": [
+        "APPROVED_FOR_PAPER",
+        "REJECTED",
+        "BLOCKED",
+        "MANUAL_REVIEW",
+        "NOT_COMPUTABLE"
+      ]
+    },
+    "run_id": { "type": "string" },
+    "candidate_id": { "type": "string" },
+    "event_id": { "type": "string" },
+    "market_id": { "type": "string" },
+    "selection": { "type": "string" },
+    "price": { "type": "number" },
+    "point": { "type": ["number", "null"] },
+    "sportsbook": { "type": "string" },
+    "stake": { "type": "number", "minimum": 0 },
+    "mode": {
+      "enum": ["PAPER_ONLY", "MANUAL_REVIEW", "LIVE_DISABLED"]
+    },
+    "passed_gates": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "failed_gates": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "packet_refs": { "type": "object" },
+    "expected_value": { "type": "number" },
+    "authority": { "type": "string" },
+    "capital_authority": { "const": false },
+    "execution_authority": { "const": false },
+    "provenance": { "type": "object" },
+    "reason": { "type": ["string", "null"] }
+  },
+  "additionalProperties": true
+}

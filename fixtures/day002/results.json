@@ -1,0 +1,67 @@
+{
+  "results": [
+    {
+      "event_id": "NBA-20260425-MIA-DEN",
+      "market_id": "NBA-20260425-MIA-DEN-ML-HOME",
+      "selection": "HOME_ML",
+      "result": "WIN",
+      "source": "FIXTURE",
+      "final_score": "112-105",
+      "settled_at": "2026-04-26T02:00:00+00:00"
+    },
+    {
+      "event_id": "NBA-20260425-MIA-DEN",
+      "market_id": "NBA-20260425-MIA-DEN-ML-AWAY",
+      "selection": "AWAY_ML",
+      "result": "LOSS",
+      "source": "FIXTURE",
+      "final_score": "112-105",
+      "settled_at": "2026-04-26T02:00:00+00:00"
+    },
+    {
+      "event_id": "NFL-20260425-SF-PHI",
+      "market_id": "NFL-20260425-SF-PHI-ML-HOME",
+      "selection": "HOME_ML",
+      "result": "LOSS",
+      "source": "FIXTURE",
+      "final_score": "17-24",
+      "settled_at": "2026-04-26T03:00:00+00:00"
+    },
+    {
+      "event_id": "MLB-20260425-LAD-ATL",
+      "market_id": "MLB-20260425-LAD-ATL-ML-HOME",
+      "selection": "HOME_ML",
+      "result": "WIN",
+      "source": "FIXTURE",
+      "final_score": "5-2",
+      "settled_at": "2026-04-26T04:00:00+00:00"
+    },
+    {
+      "event_id": "NHL-20260425-EDM-VGK",
+      "market_id": "NHL-20260425-EDM-VGK-ML-HOME",
+      "selection": "HOME_ML",
+      "result": "WIN",
+      "source": "FIXTURE",
+      "final_score": "4-2",
+      "settled_at": "2026-04-26T04:30:00+00:00"
+    },
+    {
+      "event_id": "EPL-20260425-MCI-LIV",
+      "market_id": "EPL-20260425-MCI-LIV-ML-HOME",
+      "selection": "HOME_ML",
+      "result": "PUSH",
+      "source": "FIXTURE",
+      "final_score": "1-1",
+      "settled_at": "2026-04-26T17:00:00+00:00"
+    },
+    {
+      "event_id": "MLS-20260425-ATL-CLB",
+      "market_id": "MLS-20260425-ATL-CLB-ML-HOME",
+      "selection": "HOME_ML",
+      "result": "LOSS",
+      "source": "FIXTURE",
+      "final_score": "0-2",
+      "settled_at": "2026-04-26T05:00:00+00:00"
+    }
+  ]
+}

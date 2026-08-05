@@ -1,273 +1,189 @@
-# Hollersports
+<div align="center">
 
-A Sports Wagering assistant that uses Abraxas Symbolic intelligence engine and utilizes ABX-Core.
+<img src="docs/images/hollersports-hero.jpg" alt="HollerSports — paper-only sports market intelligence operator hero" width="100%" />
 
-## Overview
+# HollerSports
 
-HollerSports is a deterministic, provenance-tracked betting engine that prevents slate leakage and ensures reproducible analysis. Built with ABX-Core compliance, it provides:
+> **Betting advisory only** — no wallets, no book placement, **no real money**.\
+> Free-first / fixture ingest → market-first candidates → paper simulation for ranking advice — fail-closed and deterministic.
 
-- **State Isolation**: Each slate gets fresh state with no carryover from prior runs
-- **Provenance Tracking**: Complete audit trail of all inputs and transformations
-- **Deterministic Processing**: Same inputs always produce same outputs
-- **Controlled Calibration**: Explicit opt-in for cross-slate adjustments
+[![Python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Package](https://img.shields.io/badge/hollersports-0.3.0-0B3D91)](packages/hollersports/pyproject.toml)
+[![Purpose](https://img.shields.io/badge/purpose-advise%20only-0B3D91)](docs/SYSTEM_CONTRACT.md)
+[![Money](https://img.shields.io/badge/real%20money-never-success)](docs/SYSTEM_CONTRACT.md)
+[![Mode](https://img.shields.io/badge/mode-PAPER%20SIM-blue)](docs/SYSTEM_CONTRACT.md)
+[![Books](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
+[![Abraxas](https://img.shields.io/badge/Abraxas-concept%20lineage%20only-lightgrey)](docs/ABRAXAS_LINEAGE.md)
+[![Advisory beta](https://img.shields.io/badge/advisory%20beta-local%20PASS-blue)](docs/PRODUCTION_READINESS.md)
+[![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
-## Architecture
+[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Testing & calibration](docs/TESTING_AND_CALIBRATION.md) · [Hermes backfill](docs/agents/HERMES_BACKFILL.md) · [Agents](AGENTS.md) · [Release notes](docs/RELEASE_NOTES.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
 
+</div>
+
+---
+
+## Why
+
+Most “betting tools” either invent certainty or quietly become money rails. HollerSports does neither:
+
+1. **Observe** markets with provenance and source health.  
+2. **Advise** with scored candidates (`SHADOW_ONLY`) — what you *might* consider betting.  
+3. **Simulate** advised tickets on paper to measure advice quality — **not** to move money.  
+4. **Fail closed** when odds, lines, or provenance are missing.
+
+> Strategies advise. Guards keep it paper. Ledgers score the advice. Humans decide — and bet elsewhere, if at all.
+
+**No actual money is handled.** Bankroll / stake / ROI fields are simulation metrics for ranking and calibration.
+
+## Status
+
+**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `42ca274` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
+**Open PRs:** none (all continuum work is on `main`).  
+**Money / live books:** **never** — contract-forbidden.
+
+| Track | State | Notes |
+|-------|--------|--------|
+| Governance + hashing | **shipped** | Authority locks, fail-closed helpers |
+| Packet contracts v1 | **shipped** | Nine JSON Schemas + Pydantic |
+| Fixture ingest + source health | **shipped** | `fixtures/day001`–`day003` (model fields on day002+) |
+| Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated (calibration) |
+| Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL + settlement bank |
+| Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
+| Calibration ladder + backfill | **shipped** | `GET /v1/calibration`, `make backfill`, Hermes playbook |
+| Golden 12-run + authority locks | **shipped** | `tests/golden/` + calibration suite |
+| FastAPI `/v1` | **shipped** | `create_app` factory |
+| Next.js Workbench (Cobalt) | **shipped** | Today · Book · Health |
+| CI | **shipped** | `.github/workflows/ci.yml` |
+| Real money / book placement | **never** | Advisory only |
+| Local advisory beta | **PASS** | PR #3 merge + continuum on main |
+| SaaS multi-tenant GA | **not claimed** | Local single-operator |
+Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.
+
+## Architecture (current)
+
+```text
+fixtures/day001 ──► source_health ──► MarketIngestionPacket
+                                          │
+                                          ▼
+                              strategy competition
+                              (SHADOW_ONLY candidates)
+                                          │
+                                          ▼
+                              execution_guard (PAPER_ONLY)
+                                          │
+                                          ▼
+                              paper ledger → settle → performance
+                                          │
+                                          ▼
+                              promotion (review only) → dashboard projection
 ```
-engine/
-├── reset_state.py       # Core state management (prevents slate leakage)
-├── slate_runner.py      # Main orchestrator
-├── simulation.py        # Monte Carlo simulation engine
-└── picks_generator.py   # Pick selection and optimization
 
-tests/
-└── test_state_isolation.py   # State isolation verification
+API + Next.js Workbench are **shipped** (local). Hosted SaaS / Vercel remains out of scope.
 
-examples/
-└── basic_usage.py       # Usage examples
-```
-
-## Quick Start
-
-### Installation
+## Quick start
 
 ```bash
-# Clone the repository
 git clone https://github.com/scrimshawlife-ctrl/Hollersports.git
 cd Hollersports
 
-# Install dependencies
-pip install -r requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+make validate   # install + pytest + smoke + multi-fixture calibration suite
+make test-calibration
+make calibration-suite
+make backfill-status   # Hermes: what needs paper backfill?
+make backfill          # grow calibration sample (offline fixtures)
 ```
 
-### Basic Usage
-
-```python
-from engine.slate_runner import SlateRunner
-from engine.reset_state import make_market_key
-
-# Define slate inputs
-games_payload = {
-    "games": [
-        {
-            "game_id": "NBA_20251217_LAL_BOS",
-            "home_team": "BOS",
-            "away_team": "LAL",
-            "venue": "home",
-        }
-    ]
-}
-
-lines_payload = {
-    make_market_key("NBA", "NBA_20251217_LAL_BOS", "player_123", "PTS", 25.5, "OVER"): {
-        "sport": "NBA",
-        "game_id": "NBA_20251217_LAL_BOS",
-        "player_id": "player_123",
-        "player_name": "LeBron James",
-        "market": "PTS",
-        "line": 25.5,
-    }
-}
-
-# Initialize runner
-runner = SlateRunner(
-    slate_id="NBA_2025-12-17_EVENING",
-    sport="NBA",
-    provider="PrizePicks",
-    games_payload=games_payload,
-    lines_payload=lines_payload,
-)
-
-# Run full pipeline
-results = runner.run_full_pipeline(
-    sim_iterations=10000,
-    pick_strategy="edge",
-    min_edge=0.05,
-)
-
-print(f"Generated {len(results['picks'])} picks")
-```
-
-### Run Example
+### Operator UI (local)
 
 ```bash
-python examples/basic_usage.py
+# terminal 1 — API
+make api    # http://127.0.0.1:8000
+
+# terminal 2 — Workbench
+make web    # http://127.0.0.1:3000  (proxies /v1 → :8000)
 ```
 
-## Key Features
-
-### 1. State Isolation
-
-Every slate gets a fresh `RunState` with no artifacts from previous slates:
+### Ingest + compete on the fixture day
 
 ```python
-state = init_new_slate_state(
-    slate_id="NBA_2025-12-17_EVENING",
-    sport="NBA",
-    provider="PrizePicks",
-    games_payload=games,
-    lines_payload=lines,
-)
+from pathlib import Path
+from hollersports.sources.fixture_adapter import load_fixture_day
+from hollersports.pipelines.market_ingestion import run_market_ingestion
+from hollersports.pipelines.strategy_competition import run_strategy_competition
+
+day = load_fixture_day(Path("fixtures/day001"))
+ingest = run_market_ingestion(day["ingest_payload"])
+print(ingest["status"], ingest["authority"])  # INGESTED SHADOW_ONLY
+
+comp = run_strategy_competition(ingest)
+print(comp["status"], comp["candidate_count"])
 ```
 
-### 2. Input Validation
+### Paper a candidate
 
-Prevent accidental reuse of stale state:
+Use `hollersports.runes.execution_guard.run_execution_guard` with all gates `True` and `mode` always `PAPER_ONLY`. Append via `hollersports.paper.ledger.append_paper_entry`. See [OPERATOR_RUNBOOK.md](docs/OPERATOR_RUNBOOK.md).
 
-```python
-# Raises RuntimeError if inputs don't match state
-assert_state_matches_inputs(
-    state,
-    games_payload=games,
-    lines_payload=lines,
-    provider="PrizePicks",
-)
-```
+## Package layout
 
-### 3. Provenance Tracking
+| Path | Role |
+|------|------|
+| `packages/hollersports/` | Primary Python package (`hollersports` 0.3.0) |
+| `schemas/json/` | Canonical `*.v1.schema.json` packet contracts |
+| `fixtures/day001/` | Offline multi-league operator day (full slate markets) |
+| `fixtures/day002/` | Second day + `model_probability` for gated model edge |
+| `fixtures/day003/` | Third day for multi-day backfill / calibration sample |
+| `tests/unit/` | TDD suite for the primary package |
+| `docs/atlas/` | Repository atlas |
+| `engine/` | Legacy slate isolation engine (migration reference) |
+| `hollersports-core/` | Legacy feedback loop package |
 
-Complete audit trail of all processing:
+## Day-one leagues
 
-```python
-print(state.provenance["reset_policy"])
-# {
-#   "no_slate_bleed": True,
-#   "keep_calibration_memory": False,
-#   "calibration_merge_mode": "discard"
-# }
-```
+Architecture is multi-sport. Fixture pack and design day-one set:
 
-### 4. Controlled Calibration
+**NBA · NFL · MLB · NHL · EPL · MLS** — markets v1: moneyline, spread, total.
 
-Opt-in calibration memory with explicit control:
+## Documentation atlas
 
-```python
-runner = SlateRunner(
-    ...,
-    keep_calibration_memory=True,  # Must be explicit
-    prior_calibration=previous_calibration,
-)
-```
+| Doc | Contents |
+|-----|----------|
+| **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)** | Topology, surfaces, OBSERVED vs PLANNED |
+| **[docs/SYSTEM_CONTRACT.md](docs/SYSTEM_CONTRACT.md)** | Ten non-negotiable laws |
+| **[docs/ABRAXAS_LINEAGE.md](docs/ABRAXAS_LINEAGE.md)** | Concept-only lineage — no Abraxas install |
+| **[docs/OPERATOR_RUNBOOK.md](docs/OPERATOR_RUNBOOK.md)** | Fixture operator day |
+| **[docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)** | Approved product design |
+| **[docs/superpowers/plans/2026-08-04-hollersports-standalone-operator.md](docs/superpowers/plans/2026-08-04-hollersports-standalone-operator.md)** | Implementation plan (Tasks 1–10) |
+| **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** | Legacy slate-engine integration notes |
 
-## Documentation
+## Governance seals
 
-- **[Integration Guide](INTEGRATION_GUIDE.md)**: Comprehensive integration documentation
-- **[API Reference](engine/)**: Inline documentation in each module
-- **[Examples](examples/)**: Working code examples
-
-## Testing
-
-Run the test suite to verify state isolation:
-
-```bash
-# Run all tests
-python -m pytest tests/ -v
-
-# Run specific test
-python -m pytest tests/test_state_isolation.py -v
-
-# Run with coverage
-python -m pytest tests/ --cov=engine --cov-report=html
+```text
+CAPITAL_AUTHORITY=false
+EXECUTION_AUTHORITY=false
+LIVE_BOOKS=false
+ABRAXAS_RUNTIME_REQUIRED=false
+MODE=PAPER_ONLY
 ```
 
 ## Development
 
-### Project Structure
+```bash
+# focused tests
+pytest tests/unit/test_governance.py -v
+pytest tests/unit/ -q --ignore=hollersports-core
 
-```
-Hollersports/
-├── engine/                  # Core engine modules
-│   ├── __init__.py
-│   ├── reset_state.py      # State management
-│   ├── slate_runner.py     # Main orchestrator
-│   ├── simulation.py       # Monte Carlo engine
-│   └── picks_generator.py  # Pick selection
-├── tests/                   # Test suite
-│   ├── __init__.py
-│   └── test_state_isolation.py
-├── examples/                # Usage examples
-│   ├── __init__.py
-│   └── basic_usage.py
-├── INTEGRATION_GUIDE.md    # Integration documentation
-├── requirements.txt        # Python dependencies
-├── LICENSE
-└── README.md
+# editable install from packages/
+pip install -e "packages/hollersports[dev]"
 ```
 
-### Core Principles
-
-1. **No Slate Leakage**: Each slate is processed independently
-2. **Determinism**: Same inputs → same outputs
-3. **Provenance**: Full audit trail of all transformations
-4. **ABX-Core Compliance**: No mock placeholders, explicit semantics
-
-## Integration Points
-
-### Custom Simulation Engine
-
-Replace placeholder simulation logic in `engine/simulation.py`:
-
-```python
-def _get_player_base_stats(sport, player_id, market_type, sim_engine):
-    if sim_engine and hasattr(sim_engine, "get_player_stats"):
-        return sim_engine.get_player_stats(sport, player_id, market_type)
-
-    # Your custom logic here
-    return {"mean": 20.0, "std": 6.0}
-```
-
-### Custom Pick Selection
-
-Extend pick selection in `engine/picks_generator.py`:
-
-```python
-def select_optimal_picks(state, strategy="edge", min_edge=0.05):
-    # Your custom pick selection logic
-    for market_key, sim_result in state.simulations.items():
-        # Calculate edges, apply filters, etc.
-        pass
-```
-
-### Custom Game Context
-
-Implement game context computation in `engine/slate_runner.py`:
-
-```python
-def compute_game_context(self):
-    for game in self._games_payload.get("games", []):
-        context = {
-            # Your custom context factors
-            "venue": game.get("venue"),
-            "pace_factor": compute_pace_factor(game),
-            "defensive_rating": get_defensive_rating(game),
-        }
-        self.state.game_context.by_game_id[game["game_id"]] = context
-```
+Implementation workstream: feature branch / plan Tasks 6–10 (settlement loop, API, Cobalt workbench UI, docs polish).
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
+Apache License 2.0 — see [LICENSE](LICENSE).
 
-## Contributing
+## Disclaimer
 
-Contributions are welcome! Please ensure:
-
-1. All tests pass: `python -m pytest tests/`
-2. State isolation is maintained
-3. Provenance tracking is preserved
-4. Documentation is updated
-
-## Support
-
-For issues, questions, or feature requests, please open an issue on GitHub.
-
-## Roadmap
-
-- [ ] Integration with real player databases
-- [ ] ABX-Core symbolic engine connection
-- [ ] Advanced calibration strategies
-- [ ] Backtest framework with result tracking
-- [ ] Real-time line monitoring
-- [ ] Multi-provider support
-- [ ] Bankroll management optimization
-- [ ] Web UI dashboard
+HollerSports is an **advisory and paper-simulation** tool. It does **not** handle real money, place wagers, custody funds, or connect to sportsbooks for execution. It does not guarantee predictive accuracy. Any real-world betting you do is outside this system and your responsibility; sports wagering may be restricted or illegal in your jurisdiction.

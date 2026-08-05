@@ -1,0 +1,22 @@
+{
+  "capital_authority": false,
+  "core": {
+    "candidate_count": 6,
+    "capital_authority": false,
+    "dashboard_authority": "PROJECTION_ONLY",
+    "execution_authority": false,
+    "ingest_status": "INGESTED",
+    "promotion_status": "BLOCKED"
+  },
+  "core_hash": "0a793598d6fcdd608bc1d369e5ce7b5f0dd89e2b78f40cf7d88f8f8b36d4ec14",
+  "execution_authority": false,
+  "fixture": "fixtures/day001",
+  "mode": "PAPER_ONLY",
+  "schema_version": "HollerSmokeReceipt.v1",
+  "seals": {
+    "CAPITAL_AUTHORITY": false,
+    "EXECUTION_AUTHORITY": false,
+    "LIVE_BOOKS": false,
+    "MODE": "PAPER_ONLY"
+  }
+}

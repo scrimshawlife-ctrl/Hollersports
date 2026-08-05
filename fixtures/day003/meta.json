@@ -1,0 +1,14 @@
+{
+  "run_id": "FIX-DAY003",
+  "fetched_at": "2026-04-26T18:00:00+00:00",
+  "current_time": "2026-04-26T18:00:30+00:00",
+  "leagues": [
+    "NBA",
+    "NFL",
+    "MLB",
+    "NHL",
+    "EPL",
+    "MLS"
+  ],
+  "note": "day003 third slate for multi-day backfill sample growth"
+}
