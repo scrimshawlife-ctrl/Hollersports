@@ -126,10 +126,20 @@ export function postPaper(portfolioId = "default", candidateIds?: string[]) {
   });
 }
 
-export function postSettle() {
+export function postSettle(opts?: {
+  espn_raw?: Json;
+  leagues?: string[];
+  results?: Json[];
+  fetch_espn?: boolean;
+}) {
+  const body: Record<string, unknown> = {};
+  if (opts?.espn_raw) body.espn_raw = opts.espn_raw;
+  if (opts?.leagues?.length) body.leagues = opts.leagues;
+  if (opts?.results?.length) body.results = opts.results;
+  if (opts?.fetch_espn) body.fetch_espn = true;
   return request<Json>("/v1/runs/settle", {
     method: "POST",
-    body: JSON.stringify({}),
+    body: JSON.stringify(body),
   });
 }
 
