@@ -12,6 +12,7 @@ from hollersports.governance.authority import assert_no_live_capital
 # Packet keys persisted under data_root/runs/
 _STATE_KEYS = (
     "ingest",
+    "ingests",
     "competition",
     "paper",
     "settlements",

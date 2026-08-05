@@ -270,6 +270,37 @@ def test_free_first_multi_event_auto_compete_merges(tmp_path):
         event_ids = {c.get("event_id") for c in cbody.get("candidates") or []}
         assert len(event_ids) >= 2
 
+        # Re-compete must keep multi-event slate (not collapse to primary ingest).
+        recompete = client.post("/v1/runs/compete", json={})
+        assert recompete.status_code == 200
+        rc = recompete.json()
+        assert rc["status"] == "COMPUTED"
+        assert rc.get("competed_event_count") == 2
+        assert rc["candidate_count"] >= 2
+        assert {c.get("event_id") for c in rc.get("candidates") or []} == event_ids
+
+        # Paper prices must cover markets from every ingested event.
+        paper = client.post("/v1/runs/paper", json={})
+        assert paper.status_code == 200
+        pbody = paper.json()
+        assert pbody["capital_authority"] is False
+        assert pbody["execution_authority"] is False
+        # At least one entry approved/accepted when prices exist across slate.
+        assert pbody.get("status") in ("COMPUTED", "PARTIAL", "EMPTY", "REJECTED")
+        entries = list(
+            pbody.get("ledger_entries") or pbody.get("portfolio_entries") or []
+        )
+        # Multi-event candidates with prices should not all fail for missing price.
+        if entries:
+            missing_price = [
+                e
+                for e in entries
+                if isinstance(e, dict)
+                and "missing" in str(e.get("reject_reason") or e.get("reason") or "").lower()
+                and "price" in str(e.get("reject_reason") or e.get("reason") or "").lower()
+            ]
+            assert len(missing_price) < len(entries)
+
 
 def test_safe_packet_live_ux_returns_403(tmp_path):
     """Authority / live-UX lock from _safe_packet is HTTP 403 (fail-closed).

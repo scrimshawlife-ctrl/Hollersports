@@ -54,6 +54,7 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Fixture `day003` + Book model-edge chip / strategy family
 - [x] Free-first live sport coverage expansion (day-one leagues via API/CLI/Workbench)
 - [x] Free-first multi-ingest auto-compete (merge candidates across INGESTED events)
+- [x] Persist free-first ingest slate for paper prices + re-compete
 
 ## Track D — Packaging / release
 
