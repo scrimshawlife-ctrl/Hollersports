@@ -1,6 +1,8 @@
 # HollerSports Track F — Research ML pipeline (CLI-only)
 
-> Advisory only. No capital/execution authority. Fail closed on missing models.
+> Advisory only. No capital/execution authority. Fail closed on missing models.  
+> **Shipped and frozen for field test** at `v0.4.0-advisory-beta`.  
+> Future capacity: [TRACK_F_FUTURE_TRANSFORMERS.md](../../TRACK_F_FUTURE_TRANSFORMERS.md).
 
 ## Goal
 

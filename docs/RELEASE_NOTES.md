@@ -15,8 +15,12 @@ Advisory-only product. No real money, no book placement, no capital custody.
 ## v0.4.0-advisory-beta (package 0.4.0)
 
 **Tag:** `v0.4.0-advisory-beta`  
-**Tip:** `a10468d` on `main` (PR #17 merge)  
-**Theme:** Track F research ML pipeline on top of the v0.3 advisory operator.
+**Tip:** tag on `main` (release PR #18; Track F through #17)  
+**Theme:** Track F research ML pipeline on top of the v0.3 advisory operator.  
+**Freeze:** This tag is the **field-test freeze** for the small-scale ML stack.  
+Do not expand to production-scale transformers until unfreeze criteria are met  
+([TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md),  
+[TRACK_F_FUTURE_TRANSFORMERS.md](TRACK_F_FUTURE_TRANSFORMERS.md)).
 
 ### Highlights
 
@@ -58,14 +62,28 @@ make ml-e2e          # offline ML path; asserts model-edge candidates
 make api && make web
 ```
 
+### Field test (freeze)
+
+Prefer this tag for demos and operator walks:
+
+```bash
+git checkout v0.4.0-advisory-beta
+pip install -e "packages/hollersports[dev]"
+make smoke && make ml-e2e
+make api   # + make web
+```
+
+Full checklist: [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).
+
 ### Not in this release
 
 - Real-money execution or sportsbook placement
 - Multi-tenant SaaS / auth
 - PyPI publish
-- Production-scale transformers (see research notes below)
+- Production-scale transformers (deferred — [TRACK_F_FUTURE_TRANSFORMERS.md](TRACK_F_FUTURE_TRANSFORMERS.md))
 - Twitter/X or paid social firehose (RSS only for live text)
 - Full Monte Carlo / legacy `engine/` as operator default
+- Silent auto-retrain (confirm gate stays)
 
 ### PRs in this tag (Track F)
 
