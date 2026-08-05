@@ -13,7 +13,8 @@
       "fade_selection": "AWAY_ML",
       "clv_retention": 0.025,
       "model_probability": 0.61,
-      "market_implied_probability": 0.53
+      "market_implied_probability": 0.53,
+      "headline": "Warriors ride hot winning momentum into home favorite spot"
     },
     {
       "event_id": "NBA-20260426-GSW-PHX",
@@ -28,7 +29,8 @@
       "fade_selection": "HOME_ML",
       "clv_retention": -0.01,
       "model_probability": 0.39,
-      "market_implied_probability": 0.47
+      "market_implied_probability": 0.47,
+      "headline": "Suns injury report: star questionable, fading road underdog"
     },
     {
       "event_id": "NFL-20260426-DAL-NYG",

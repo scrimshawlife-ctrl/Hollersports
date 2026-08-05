@@ -220,6 +220,21 @@ class MlAnnotateRequest(BaseModel):
     use_auto_calibration: bool = False
 
 
+class MlRetrainCheckRequest(BaseModel):
+    """Advisory retrain proposal from ensemble + labeled fixtures (never auto-trains)."""
+
+    ensemble_path: str | None = Field(
+        default=None,
+        description="Optional ensemble.json; default last train / data_root/ml/ensemble.json",
+    )
+    eval_fixtures: list[str] = Field(
+        default_factory=lambda: ["day001", "day002", "day003"],
+        description="Fixture days with results for Brier evaluation",
+    )
+    brier_degrade: float = Field(default=0.01, ge=0.0, le=1.0)
+    min_labeled: int = Field(default=8, ge=1, le=10_000)
+
+
 def _store(request: Request) -> RunStore:
     return request.app.state.store  # type: ignore[no-any-return]
 
@@ -1223,6 +1238,7 @@ def ml_status(request: Request) -> dict[str, Any]:
     train = store.get("ml_train") if isinstance(store.get("ml_train"), dict) else {}
     ens = store.get("ml_ensemble") if isinstance(store.get("ml_ensemble"), dict) else {}
     annotate = store.get("ml_annotate") if isinstance(store.get("ml_annotate"), dict) else {}
+    retrain = store.get("ml_retrain") if isinstance(store.get("ml_retrain"), dict) else {}
     path = ens.get("ensemble_path") or (store.data_root / "ml" / "ensemble.json")
     path_s = str(path)
     exists = Path(path_s).is_file()
@@ -1233,12 +1249,48 @@ def ml_status(request: Request) -> dict[str, Any]:
         "ensemble_present": exists,
         "last_train": train or None,
         "last_annotate": annotate or None,
+        "last_retrain_proposal": retrain or None,
         "authority": "SHADOW_ONLY",
         "capital_authority": False,
         "execution_authority": False,
         "mode": "ADVISORY_ONLY",
     }
     return _safe_packet(body)
+
+
+@router.post("/ml/retrain-check")
+def ml_retrain_check(
+    request: Request,
+    body: MlRetrainCheckRequest | None = None,
+) -> dict[str, Any]:
+    """Evaluate ensemble on labeled fixtures; emit advisory retrain proposal.
+
+    Never trains. Never grants capital/execution authority.
+    """
+    from hollersports.ml.retrain import propose_retrain
+
+    store = _store(request)
+    req = body or MlRetrainCheckRequest()
+    try:
+        ensemble_path = _resolve_ensemble_path(store, req.ensemble_path)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    eval_dirs: list[Path] = []
+    for name in req.eval_fixtures:
+        try:
+            eval_dirs.append(resolve_fixture_dir(name))
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    proposal = propose_retrain(
+        ensemble_path=ensemble_path,
+        eval_fixture_days=eval_dirs,
+        brier_degrade=float(req.brier_degrade),
+        min_labeled=int(req.min_labeled),
+    )
+    store.put("ml_retrain", proposal)
+    return _safe_packet(proposal)
 
 
 @router.post("/ml/train")

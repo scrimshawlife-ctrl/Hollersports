@@ -250,6 +250,24 @@ export function postMlAnnotate(opts?: {
   });
 }
 
+/** Advisory retrain proposal (never auto-trains). */
+export function postMlRetrainCheck(opts?: {
+  ensemble_path?: string;
+  eval_fixtures?: string[];
+  brier_degrade?: number;
+  min_labeled?: number;
+}) {
+  return request<Json>("/v1/ml/retrain-check", {
+    method: "POST",
+    body: JSON.stringify({
+      ensemble_path: opts?.ensemble_path,
+      eval_fixtures: opts?.eval_fixtures ?? ["day001", "day002", "day003"],
+      brier_degrade: opts?.brier_degrade ?? 0.01,
+      min_labeled: opts?.min_labeled ?? 8,
+    }),
+  });
+}
+
 /** Session-backed last competition packet (fallback if GET /candidates empty). */
 const COMPETE_KEY = "holler.operator.lastCompetition";
 
