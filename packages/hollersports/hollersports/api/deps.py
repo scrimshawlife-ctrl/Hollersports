@@ -27,6 +27,7 @@ _STATE_KEYS = (
     "ml_annotate",
     "ml_retrain",
     "ml_axial",
+    "ml_retrain_apply",
 )
 
 

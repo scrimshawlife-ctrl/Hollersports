@@ -213,6 +213,28 @@ def test_ml_train_annotate_compete(tmp_path):
         assert ax.json()["kind"] == "axial_temporal_stub"
         assert ax.json()["execution_authority"] is False
 
+        # Gated retrain-apply: refuse without confirm
+        no = client.post("/v1/ml/retrain-apply", json={"confirm": False})
+        assert no.status_code == 400
+        last_status = str(rbody.get("status") or "")
+        if last_status != "RETRAIN_SUGGESTED":
+            # Default require_suggestion blocks non-suggested retrains
+            gate = client.post("/v1/ml/retrain-apply", json={"confirm": True})
+            assert gate.status_code == 400
+        # Explicit override for operator/Hermes after review (always allowed path)
+        applied = client.post(
+            "/v1/ml/retrain-apply",
+            json={
+                "confirm": True,
+                "require_suggestion": False,
+                "train_fixtures": ["day001", "day002"],
+            },
+        )
+        assert applied.status_code == 200, applied.text
+        assert applied.json()["status"] == "TRAINED"
+        assert applied.json().get("source") == "retrain_apply"
+        assert applied.json()["capital_authority"] is False
+
 
 def test_free_first_injected_no_network(tmp_path):
     with TestClient(create_app(data_root=str(tmp_path))) as client:
