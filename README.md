@@ -38,7 +38,7 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 
 ## Status
 
-**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `96ffd8a` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
+**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `42ca274` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
 **Open PRs:** none (all continuum work is on `main`).  
 **Money / live books:** **never** — contract-forbidden.
 

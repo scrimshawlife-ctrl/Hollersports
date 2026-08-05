@@ -1,4 +1,7 @@
-from hollersports.pipelines.strategy_competition import run_strategy_competition
+from hollersports.pipelines.strategy_competition import (
+    run_strategy_competition,
+    run_strategy_competition_multi,
+)
 
 def _ingest(extra_market_fields: dict | None = None):
     market = {
@@ -69,3 +72,42 @@ def test_model_edge_present_with_reliable_gate():
     assert "MODEL_PROBABILITY_EDGE" in (out.get("provenance") or {}).get(
         "strategy_ids", []
     )
+
+
+def test_competition_multi_merges_ingested_events():
+    a = _ingest()
+    a["run_id"] = "R-MULTI"
+    a["event_id"] = "E-A"
+    a["markets"][0]["market_id"] = "M-A"
+    b = _ingest()
+    b["run_id"] = "R-MULTI:E-B"
+    b["event_id"] = "E-B"
+    b["markets"][0]["market_id"] = "M-B"
+    skipped = {"status": "REJECTED", "run_id": "R-MULTI", "event_id": "E-SKIP"}
+
+    out = run_strategy_competition_multi([a, skipped, b], run_id="R-MULTI")
+    assert out["status"] == "COMPUTED"
+    assert out["competed_event_count"] == 2
+    assert out["ingest_count"] == 3
+    assert out["event_id"] == "MULTI"
+    assert out["capital_authority"] is False
+    assert out["execution_authority"] is False
+    assert set(out["provenance"]["event_ids"]) == {"E-A", "E-B"}
+    assert out["candidate_count"] >= 2
+    event_ids = {c["event_id"] for c in out["candidates"]}
+    assert "E-A" in event_ids and "E-B" in event_ids
+    assert all(c.get("provenance", {}).get("multi_event_compete") for c in out["candidates"])
+    # Sorted by descending score
+    scores = [float(c.get("score") or 0.0) for c in out["candidates"]]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_competition_multi_fail_closed_without_ingested():
+    out = run_strategy_competition_multi(
+        [{"status": "REJECTED", "run_id": "R0"}, {"status": "NOT_COMPUTABLE"}],
+        run_id="R0",
+    )
+    assert out["status"] == "NOT_COMPUTABLE"
+    assert out["competed_event_count"] == 0
+    assert out["candidate_count"] == 0
+    assert out["capital_authority"] is False

@@ -6,9 +6,9 @@ class: ADVISORY_OPERATOR_READY   # local advisory beta only
 foundation_pr: 3
 foundation_merge_sha: 838ea88d0aa85b1c85f810bb080c590f5c8a7804
 foundation_merged_at: "2026-08-04T21:25:36Z"
-tip_sha: 96ffd8a
-feature_tip_before_docs_pin: 96ffd8a
-prior_docs_pin: 3feb5e4
+tip_sha: 42ca274
+feature_tip_before_docs_pin: 42ca274
+prior_docs_pin: 96ffd8a
 branch: main
 package_version: "0.3.0"
 tag: v0.3.0-advisory-beta
@@ -19,29 +19,31 @@ capital_authority: false
 execution_authority: false
 real_money: false
 live_books: false
-open_prs: []   # none — all continuum work landed on main after PR #3 merge
+open_prs: []   # none — continuum work lands on main after PR #3 merge
 ```
 
 ## Merge status
 
 | PR | Title | State |
 |----|--------|--------|
+| **#5** | free-first multi-league observe + CI web lint | **MERGED** |
+| **#4** | re-pin continuum tip after day003 | **MERGED** |
 | **#3** | HollerSports standalone advisory operator (paper sim, no money) | **MERGED** → `838ea88` |
 | #2 | Add HollerSports core feedback loop module | MERGED (historical) |
 | #1 | Integrate reset_state.py with HollerSports engine | MERGED (historical) |
 
-There is **no open PR** to merge. Continuum commits after #3 were pushed directly to `origin/main`.
+There is **no open PR** to merge. Continuum commits after #3 land on `origin/main`.
 
 ## Tip vs foundation
 
-| | Foundation (PR #3) | Tip (`main` @ `96ffd8a`) |
+| | Foundation (PR #3) | Tip (`main` @ `42ca274`) |
 |--|--------------------|---------------------------|
 | Package | 0.2 → 0.3 path | **0.3.0** |
-| Tests | ~43–71 | **101+** (`pytest tests/ --ignore=hollersports-core`) |
+| Tests | ~43–71 | **109+** (`pytest tests/ --ignore=hollersports-core`) |
 | Fixtures | day001 | day001 + day002 + day003 |
 | Calibration | gate stub | Ladder + cumulative bank + Hermes playbook |
-| Workbench | Today/Book/Health | + reliability history + calibration panel + Book model-edge cue |
-| CI | pytest + smoke | + calibration suite + backfill step |
+| Workbench | Today/Book/Health | + reliability history + calibration panel + Book model-edge cue + free-first league select |
+| CI | pytest + smoke | + calibration suite + backfill + `next lint` |
 
 ## Continuum features (on `main` after #3)
 
@@ -53,6 +55,7 @@ There is **no open PR** to merge. Continuum commits after #3 were pushed directl
 6. Cumulative settlement bank + `make backfill`  
 7. Hermes backfill playbook (`AGENTS.md`, `docs/agents/HERMES_BACKFILL.md`, `backfill_status.py`)  
 8. Multi-event fixture slate + day003 + Book model-edge strategy cue  
+9. Free-first multi-league observe (day-one leagues) + CI web lint  
 
 
 ## Evidence at tip

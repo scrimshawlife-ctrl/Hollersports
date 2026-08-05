@@ -14,7 +14,10 @@ from hollersports.governance.authority import assert_no_live_capital
 from hollersports.pipelines.market_ingestion import run_market_ingestion
 from hollersports.pipelines.operator_day import run_operator_day
 from hollersports.pipelines.paper_loop import run_paper_loop
-from hollersports.pipelines.strategy_competition import run_strategy_competition
+from hollersports.pipelines.strategy_competition import (
+    run_strategy_competition,
+    run_strategy_competition_multi,
+)
 from hollersports.runes.operator_project import project_dashboard
 from hollersports.runes.performance_tracker import compute_performance
 from hollersports.runes.promotion_evaluator import evaluate_promotion
@@ -431,18 +434,29 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
     )
     # Store primary ingest if present so compete/paper can continue.
     ingest = pack.get("ingest")
-    if isinstance(ingest, dict):
-        store.put("ingest", ingest)
+    ingests = [i for i in (pack.get("ingests") or []) if isinstance(i, dict)]
+    competition: dict[str, Any] | None = None
+    if isinstance(ingest, dict) or ingests:
+        if isinstance(ingest, dict):
+            store.put("ingest", ingest)
         store.update(
             competition=None,
             paper=None,
             settlements=None,
             performance=None,
             promotion=None,
-            meta={"path": "free-first", "run_id": pack.get("run_id")},
+            meta={
+                "path": "free-first",
+                "run_id": pack.get("run_id"),
+                "ingest_count": pack.get("ingest_count") or len(ingests),
+            },
         )
-        if body.auto_compete and ingest.get("status") == "INGESTED":
-            competition = run_strategy_competition(ingest)
+        if body.auto_compete:
+            compete_packets = ingests or ([ingest] if isinstance(ingest, dict) else [])
+            competition = run_strategy_competition_multi(
+                compete_packets,
+                run_id=str(pack.get("run_id") or "") or None,
+            )
             store.put("competition", competition)
             pack["competition"] = competition
         _rebuild_dashboard(store)
@@ -452,6 +466,10 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
         "run_id": pack.get("run_id"),
         "espn_event_count": pack.get("espn_event_count"),
         "odds_event_count": pack.get("odds_event_count"),
+        "ingest_count": pack.get("ingest_count") or len(ingests),
+        "competed_event_count": (competition or {}).get("competed_event_count"),
+        "candidate_count": (competition or {}).get("candidate_count"),
+        "competition_status": (competition or {}).get("status"),
         "conflict_status": (pack.get("conflict") or {}).get("status"),
         "ingest_status": (ingest or {}).get("status") if isinstance(ingest, dict) else None,
         "errors": pack.get("errors") or [],
