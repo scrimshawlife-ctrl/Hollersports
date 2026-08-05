@@ -1,7 +1,7 @@
 # Operator runbook
 
 Advisory operator day using fixtures. **No real money. No live book placement.**  
-**Release freeze for testing:** package **0.4.0** · tag **`v0.4.0-advisory-beta`**  
+**Release freeze for testing:** package **0.5.0** · tag **`v0.5.0-advisory-beta`**  
 (see [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md),  
 [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md)).  
 Paper stakes/settlement measure **advice quality**, not payouts.
@@ -9,11 +9,12 @@ Paper stakes/settlement measure **advice quality**, not payouts.
 ### Recommended field-test pin
 
 ```bash
-git checkout v0.4.0-advisory-beta
+git checkout v0.5.0-advisory-beta
 pip install -e "packages/hollersports[dev]"
 make smoke
-make ml-e2e    # small-scale ML path
+make ml-e2e    # logistic ML path
 make api       # + make web for Workbench
+# optional torch: make ml-axial-train-transformer
 ```
 
 ## Prerequisites

@@ -1,7 +1,7 @@
 # HollerSports — next tracks (post advisory beta)
 
 > After PR #3 merge to `main` (**MERGED** `838ea88`).  
-> **Freeze for field test:** tag **`v0.4.0-advisory-beta`** (package 0.4.0) — Track F complete.  
+> **Freeze for field test:** tag **`v0.5.0-advisory-beta`** (package 0.5.0) — Track F + G complete.  
 > See [TRACK_F_FREEZE_AND_FIELD_TEST.md](../../TRACK_F_FREEZE_AND_FIELD_TEST.md).  
 > Advisory only — no real money.
 
@@ -74,6 +74,7 @@ Original local-first path (no hosted SaaS). Continue here:
 
 - [x] Tag `v0.3.0-advisory-beta` (when cut)
 - [x] Tag `v0.4.0-advisory-beta` (Track F research ML on main)
+- [x] Tag `v0.5.0-advisory-beta` (Track F + G freeze for field test)
 - Optional PyPI private publish later
 - Legacy `engine/` relocation only if consumers need it ([MIGRATION_ENGINE.md](../../MIGRATION_ENGINE.md))
 
@@ -102,17 +103,17 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] Gated retrain apply (`POST /v1/ml/retrain-apply` requires `confirm=true`; optional suggestion gate)
 - [x] **Freeze** at `v0.4.0-advisory-beta` for small-scale field testing
 
-## Track G — Larger transformers (deferred until unfreeze)
+## Track G — Temporal capacity (research scale — before freeze)
 
-> Not started. Prerequisites and phases: [TRACK_F_FUTURE_TRANSFORMERS.md](../../TRACK_F_FUTURE_TRANSFORMERS.md).
+> Implemented for freeze **v0.5.0**. Details: [TRACK_F_FUTURE_TRANSFORMERS.md](../../TRACK_F_FUTURE_TRANSFORMERS.md).
 
-- [ ] G0: multi-poll / minute-level sequence plumbing + larger settled bank  
-- [ ] G1: larger axial/Transformer behind existing `HollerAxialTorch.v1` interface  
-- [ ] G2: distributional heads (CRPS) for totals/spreads EV  
-- [ ] G3: richer text/social only after RSS field lessons  
-- [ ] G4: ops — model card + tip pin when a demo torch model is promoted (still advisory)
+- [x] G0: multi-poll sequence store + fixture sequences JSON  
+- [x] G1: `axial_large` + `transformer` presets behind same train/score interface  
+- [x] G2: `transformer_dist` total bins + CRPS metrics  
+- [x] G3: RSS remains live text path (social firehose still out of scope)  
+- [x] G4: model cards written on axial/transformer train  
 
-**Unfreeze only when:** RELIABLE-capable bank, real sequential data, small stack stable, measured plateau on hand features.
+**Field freeze after v0.5.0 tag:** see [TRACK_F_FREEZE_AND_FIELD_TEST.md](../../TRACK_F_FREEZE_AND_FIELD_TEST.md).
 
 ## Hard constraints (all tracks)
 

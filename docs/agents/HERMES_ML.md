@@ -3,15 +3,17 @@
 Offline research ML path: features → train → temperature calibrate → EV annotate →
 `MODEL_PROBABILITY_EDGE`. **No real money. No book placement.**
 
-## Freeze (v0.4.0)
+## Freeze (v0.5.0 after Track G)
 
-**Field-test this small stack** at tag `v0.4.0-advisory-beta`.  
+Field-test at tag **`v0.5.0-advisory-beta`** once cut (Track F + G).  
 Checklist: [TRACK_F_FREEZE_AND_FIELD_TEST.md](../TRACK_F_FREEZE_AND_FIELD_TEST.md).  
-**Do not** start production-scale transformers until unfreeze:  
-[TRACK_F_FUTURE_TRANSFORMERS.md](../TRACK_F_FUTURE_TRANSFORMERS.md).
+Track G presets: [TRACK_F_FUTURE_TRANSFORMERS.md](../TRACK_F_FUTURE_TRANSFORMERS.md).
 
-Priority while frozen: grow settlement sample (`make backfill`), free-first closed days,  
-operator UX bugs — not larger nets.
+```bash
+# Larger / dist models (optional torch)
+make ml-axial-train-large
+make ml-axial-train-transformer   # includes distributional CRPS head
+```
 
 ## Commands
 

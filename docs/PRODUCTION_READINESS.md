@@ -30,12 +30,10 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 
 **Classification:** **local advisory beta** on `main`.  
 **Foundation merge:** PR **#3** → `838ea88` (2026-08-04) — **MERGED** (no open PR remains).  
-**Tip SHA:** tag `v0.4.0-advisory-beta` on `main` (package **0.4.0**).  
-**Freeze:** small-scale Track F ML is **frozen for field testing** —  
-see [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).  
+**Tip SHA:** tag `v0.5.0-advisory-beta` on `main` (package **0.5.0**, Track F+G).  
+**Freeze:** field-test this tag — see [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).  
 **Verdict:** **PASS** for local **ADVISORY_OPERATOR_READY** (no real money, no book placement).  
-**Not claimed:** multi-tenant SaaS GA, hosted multi-user production, any money rail,  
-production-scale transformers as advice quality floor  
+**Not claimed:** multi-tenant SaaS GA, money rails, or production betting alpha from transformers  
 ([TRACK_F_FUTURE_TRANSFORMERS.md](TRACK_F_FUTURE_TRANSFORMERS.md)).
 
 | Document | Role |
