@@ -169,6 +169,44 @@ def _market_price_map(ingest: dict[str, Any] | None) -> dict[str, float]:
     return prices
 
 
+def _merged_market_price_map(
+    ingest: dict[str, Any] | None,
+    ingests: list[dict[str, Any]] | None = None,
+) -> dict[str, float]:
+    """Union market prices across free-first multi-event ingests (primary first)."""
+    prices: dict[str, float] = {}
+    rows: list[dict[str, Any]] = []
+    if ingests:
+        rows.extend(i for i in ingests if isinstance(i, dict))
+    elif isinstance(ingest, dict):
+        rows.append(ingest)
+    # If both present, prefer full slate then fill gaps from primary.
+    if ingests and isinstance(ingest, dict) and ingest not in rows:
+        rows.append(ingest)
+    for row in rows:
+        for mid, price in _market_price_map(row).items():
+            prices.setdefault(mid, price)
+    return prices
+
+
+def _stored_ingests(store: RunStore) -> list[dict[str, Any]]:
+    raw = store.get("ingests")
+    if isinstance(raw, list):
+        return [i for i in raw if isinstance(i, dict)]
+    ingest = store.get("ingest")
+    if isinstance(ingest, dict):
+        return [ingest]
+    return []
+
+
+def _any_source_health_fail(ingests: list[dict[str, Any]]) -> bool:
+    for ingest in ingests:
+        source_health = ingest.get("source_health") or {}
+        if isinstance(source_health, dict) and str(source_health.get("status") or "") == "FAIL":
+            return True
+    return False
+
+
 def _top_candidates(
     candidates: list[dict[str, Any]],
     n: int,
@@ -336,6 +374,7 @@ def runs_ingest(body: IngestRequest, request: Request) -> dict[str, Any]:
     store.put("ingest", ingest)
     # Clear downstream packets so dashboard reflects current step.
     store.update(
+        ingests=None,
         competition=None,
         paper=None,
         settlements=None,
@@ -367,6 +406,7 @@ def runs_compete(
     """
     store = _store(request)
     ingest = store.get("ingest")
+    ingests = _stored_ingests(store)
     calibration: dict[str, Any] | None = None
     if isinstance(body, CompeteRequest):
         allow = bool(body.allow_forecast_weighting)
@@ -383,10 +423,19 @@ def runs_compete(
                 "reliability_status": str(body.reliability_status or "UNRELIABLE"),
             }
             store.put("calibration", calibration)
-    competition = run_strategy_competition(
-        ingest if isinstance(ingest, dict) else None,
-        calibration=calibration,
-    )
+    if len(ingests) > 1:
+        competition = run_strategy_competition_multi(
+            ingests,
+            calibration=calibration,
+            run_id=str((ingest or {}).get("run_id") or "") or None
+            if isinstance(ingest, dict)
+            else None,
+        )
+    else:
+        competition = run_strategy_competition(
+            ingest if isinstance(ingest, dict) else (ingests[0] if ingests else None),
+            calibration=calibration,
+        )
     store.put("competition", competition)
     _rebuild_dashboard(store)
     return _safe_packet(competition)
@@ -432,14 +481,18 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
         odds_raw=body.odds_raw,
         leagues=body.leagues,
     )
-    # Store primary ingest if present so compete/paper can continue.
+    # Store primary + full ingest slate so compete/paper cover all events.
     ingest = pack.get("ingest")
     ingests = [i for i in (pack.get("ingests") or []) if isinstance(i, dict)]
     competition: dict[str, Any] | None = None
     if isinstance(ingest, dict) or ingests:
+        for row in ingests:
+            assert_no_live_capital(row)
         if isinstance(ingest, dict):
-            store.put("ingest", ingest)
+            assert_no_live_capital(ingest)
         store.update(
+            ingest=ingest if isinstance(ingest, dict) else (ingests[0] if ingests else None),
+            ingests=ingests,
             competition=None,
             paper=None,
             settlements=None,
@@ -496,6 +549,7 @@ def runs_full_day(body: FullDayRequest, request: Request) -> dict[str, Any]:
         fixture=str(fixture_dir),
         meta={"fixture": body.fixture, "path": "full-day"},
         ingest=out.get("ingest"),
+        ingests=None,
         competition=out.get("competition"),
         paper=out.get("paper"),
         settlements=out.get("settlements"),
@@ -539,13 +593,17 @@ def runs_paper(
 
     competition = store.get("competition") or {}
     ingest = store.get("ingest") or {}
+    ingests = _stored_ingests(store)
     cand_list: list[dict[str, Any]] = []
     if isinstance(competition, dict):
         for c in competition.get("candidates") or []:
             if isinstance(c, dict) and c.get("status") == "CANDIDATE":
                 cand_list.append(c)
 
-    prices = _market_price_map(ingest if isinstance(ingest, dict) else None)
+    prices = _merged_market_price_map(
+        ingest if isinstance(ingest, dict) else None,
+        ingests,
+    )
     if candidate_ids:
         wanted = set(candidate_ids)
         selected = [c for c in cand_list if _candidate_key(c) in wanted]
@@ -564,15 +622,11 @@ def runs_paper(
     # source_health FAIL so subsequent /runs/paper rejects rather than simming.
     # Full-day fixture path still opens gates only inside operator_day.
     gates = dict(_FIXTURE_GATES)
-    if isinstance(ingest, dict):
-        source_health = ingest.get("source_health") or {}
-        health_status = (
-            str(source_health.get("status") or "")
-            if isinstance(source_health, dict)
-            else ""
-        )
-        if health_status == "FAIL":
-            gates["source_health_gate"] = False
+    health_rows = list(ingests)
+    if isinstance(ingest, dict) and ingest not in health_rows:
+        health_rows.append(ingest)
+    if _any_source_health_fail(health_rows):
+        gates["source_health_gate"] = False
 
     paper_context: dict[str, Any] = {
         "run_id": run_id,
