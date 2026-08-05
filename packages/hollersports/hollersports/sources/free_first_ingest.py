@@ -12,6 +12,11 @@ module:
 
 ``build_live_observation_pack`` keeps ``ingest`` as the first event for backward
 compatibility and adds ``ingests`` (full list). Never places bets or handles money.
+
+Multi-league note
+-----------------
+Live fetch defaults to all day-one leagues in :data:`ESPN_LEAGUE_PATHS`. Injected
+``espn_raw`` / ``odds_raw`` (tests) default to NBA-only unless ``leagues`` is set.
 """
 
 from __future__ import annotations
@@ -23,22 +28,62 @@ from typing import Any, Mapping, Sequence
 from hollersports.governance.authority import assert_no_live_capital
 from hollersports.pipelines.market_ingestion import run_market_ingestion
 from hollersports.sources.espn_scoreboard import (
-    fetch_espn_nba_scoreboard,
+    ESPN_LEAGUE_PATHS,
+    fetch_espn_scoreboard,
     normalize_espn_scoreboard,
 )
 from hollersports.sources.odds_api import (
+    ODDS_LEAGUE_SPORT_KEYS,
     fetch_odds_api_odds,
     normalize_odds_api_events,
     odds_api_key_configured,
+    odds_sport_key_for_league,
 )
 from hollersports.sources.source_conflict import (
     detect_event_conflicts,
     join_events_by_teams,
 )
 
+DAY_ONE_LEAGUES: tuple[str, ...] = tuple(ESPN_LEAGUE_PATHS.keys())
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def resolve_free_first_leagues(
+    leagues: Sequence[str] | None,
+    *,
+    injected: bool,
+) -> list[str]:
+    """Normalize league list for free-first observe.
+
+    * explicit ``leagues`` → validated day-one keys (order preserved, deduped)
+    * live fetch with no leagues → all day-one leagues
+    * injected raw with no leagues → NBA only (backward compatible tests)
+    """
+    if leagues is not None:
+        out: list[str] = []
+        seen: set[str] = set()
+        for raw in leagues:
+            key = str(raw or "").strip().upper()
+            if not key:
+                continue
+            if key not in ESPN_LEAGUE_PATHS:
+                supported = ", ".join(sorted(ESPN_LEAGUE_PATHS))
+                raise ValueError(f"unsupported_free_first_league:{raw!r}; supported={supported}")
+            if key not in ODDS_LEAGUE_SPORT_KEYS:
+                supported = ", ".join(sorted(ODDS_LEAGUE_SPORT_KEYS))
+                raise ValueError(f"unsupported_odds_league:{raw!r}; supported={supported}")
+            if key not in seen:
+                seen.add(key)
+                out.append(key)
+        if not out:
+            raise ValueError("free_first_leagues_empty")
+        return out
+    if injected:
+        return ["NBA"]
+    return list(DAY_ONE_LEAGUES)
 
 
 def _event_to_ingest_payload(
@@ -239,40 +284,97 @@ def build_live_observation_pack(
     fetch_odds: bool = True,
     espn_raw: dict[str, Any] | None = None,
     odds_raw: list[dict[str, Any]] | None = None,
+    leagues: Sequence[str] | None = None,
     max_start_delta_seconds: float = 12 * 3600,
 ) -> dict[str, Any]:
     """Build an observation pack from free-first sources.
 
     Prefer injecting ``espn_raw`` / ``odds_raw`` in tests. Network fetch is opt-in
-    and never required for CI. Multi-event days produce ``ingests`` (list) plus
-    ``ingest`` (first element, backward compatible). Does not place bets or
-    handle money.
+    and never required for CI. Live fetch defaults to all day-one leagues; injected
+    raw defaults to NBA unless ``leagues`` is set. Multi-event days produce
+    ``ingests`` (list) plus ``ingest`` (first element, backward compatible).
+    Does not place bets or handle money.
     """
     rid = run_id or f"LIVE-{_now_iso()}"
     errors: list[str] = []
     espn_events: list[dict[str, Any]] = []
     odds_events: list[dict[str, Any]] = []
+    injected = espn_raw is not None or odds_raw is not None
+    try:
+        league_list = resolve_free_first_leagues(leagues, injected=injected)
+    except ValueError as exc:
+        return {
+            "schema_version": "FreeFirstObservationPack.v1",
+            "status": "NOT_COMPUTABLE",
+            "run_id": rid,
+            "espn_event_count": 0,
+            "odds_event_count": 0,
+            "espn_events": [],
+            "odds_events": [],
+            "joins": [],
+            "join_count": 0,
+            "conflict": None,
+            "operator_inputs": [],
+            "ingest": None,
+            "ingests": [],
+            "ingest_count": 0,
+            "errors": [f"leagues:{exc}"],
+            "authority": "SHADOW_ONLY",
+            "capital_authority": False,
+            "execution_authority": False,
+            "mode": "ADVISORY_ONLY",
+            "provenance": {
+                "odds_key_configured": odds_api_key_configured(),
+                "env_has_odds_key": bool(os.environ.get("THE_ODDS_API_KEY")),
+                "multi_event": False,
+                "leagues": [],
+                "max_start_delta_seconds": max_start_delta_seconds,
+            },
+        }
 
     if fetch_espn:
-        try:
-            raw = espn_raw if espn_raw is not None else fetch_espn_nba_scoreboard()
-            espn_events = normalize_espn_scoreboard(raw, league="NBA")
-        except Exception as exc:  # noqa: BLE001 — surface as PARTIAL observation
-            errors.append(f"espn:{type(exc).__name__}:{exc}")
+        if espn_raw is not None:
+            # Single injected scoreboard payload → one league (first / NBA default).
+            league = league_list[0]
+            try:
+                espn_events.extend(normalize_espn_scoreboard(espn_raw, league=league))
+            except Exception as exc:  # noqa: BLE001 — surface as PARTIAL observation
+                errors.append(f"espn:{league}:{type(exc).__name__}:{exc}")
+        else:
+            for league in league_list:
+                try:
+                    raw = fetch_espn_scoreboard(league=league)
+                    espn_events.extend(normalize_espn_scoreboard(raw, league=league))
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"espn:{league}:{type(exc).__name__}:{exc}")
 
     if fetch_odds:
-        try:
-            if odds_raw is not None:
-                raw_odds = odds_raw
-            elif odds_api_key_configured():
-                raw_odds = fetch_odds_api_odds()
-            else:
-                raw_odds = []
-                errors.append("odds:THE_ODDS_API_KEY_not_set")
-            if raw_odds:
-                odds_events = normalize_odds_api_events(raw_odds, league="NBA")
-        except Exception as exc:  # noqa: BLE001
-            errors.append(f"odds:{type(exc).__name__}:{exc}")
+        if odds_raw is not None:
+            league = league_list[0]
+            try:
+                sport_key = odds_sport_key_for_league(league)
+                odds_events.extend(
+                    normalize_odds_api_events(
+                        odds_raw, sport_key=sport_key, league=league
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"odds:{league}:{type(exc).__name__}:{exc}")
+        elif not odds_api_key_configured():
+            errors.append("odds:THE_ODDS_API_KEY_not_set")
+        else:
+            for league in league_list:
+                try:
+                    sport_key = odds_sport_key_for_league(league)
+                    raw_odds = fetch_odds_api_odds(sport_key=sport_key)
+                    if raw_odds:
+                        odds_events.extend(
+                            normalize_odds_api_events(
+                                raw_odds, sport_key=sport_key, league=league
+                            )
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"odds:{league}:{type(exc).__name__}:{exc}")
 
     joins = join_events_by_teams(
         espn_events,
@@ -333,6 +435,7 @@ def build_live_observation_pack(
             "odds_key_configured": odds_api_key_configured(),
             "env_has_odds_key": bool(os.environ.get("THE_ODDS_API_KEY")),
             "multi_event": len(ingests) > 1,
+            "leagues": list(league_list),
             "max_start_delta_seconds": max_start_delta_seconds,
         },
     }

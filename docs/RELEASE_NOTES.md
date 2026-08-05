@@ -22,6 +22,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 - Standalone `packages/hollersports` operator + Cobalt Workbench (`packages/operator-web`)
 - Closed paper loop: fixture / free-first observe → candidates → paper sim → settle → performance / promotion review
 - Free-first ESPN + The Odds API observation (keys optional; CI uses injection)
+- Free-first **multi-league** observe (NBA / NFL / MLB / NHL / MLS / EPL) via API, CLI, and Workbench league select
 - Multi-sport ESPN day-one surface (NBA / NFL / MLB / NHL / EPL / MLS)
 - Fixtures `day001` + `day002` + `day003` (model fields on day002/day003; multi-event slate)
 - Advice reliability buckets + append-only reliability history + Workbench tables

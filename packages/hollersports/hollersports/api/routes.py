@@ -113,6 +113,13 @@ class FreeFirstRequest(BaseModel):
     # Test/offline injection — never required for CI
     espn_raw: dict[str, Any] | None = None
     odds_raw: list[dict[str, Any]] | None = None
+    leagues: list[str] | None = Field(
+        default=None,
+        description=(
+            "Day-one leagues to observe (NBA, NFL, MLB, NHL, MLS, EPL). "
+            "Omit for all leagues on live fetch; injected raw defaults to NBA."
+        ),
+    )
     auto_compete: bool = Field(
         default=True,
         description="If ingest succeeds, run strategy competition on primary ingest",
@@ -420,6 +427,7 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
         fetch_odds=not body.espn_only,
         espn_raw=body.espn_raw,
         odds_raw=body.odds_raw,
+        leagues=body.leagues,
     )
     # Store primary ingest if present so compete/paper can continue.
     ingest = pack.get("ingest")

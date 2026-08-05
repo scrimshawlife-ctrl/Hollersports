@@ -1,4 +1,5 @@
 from hollersports.sources.free_first_ingest import (
+    DAY_ONE_LEAGUES,
     build_live_observation_pack,
     free_first_to_operator_inputs,
     run_multi_event_ingest,
@@ -86,15 +87,110 @@ def test_free_first_not_computable_without_data(monkeypatch):
         raise RuntimeError("network_disabled")
 
     monkeypatch.setattr(
-        "hollersports.sources.free_first_ingest.fetch_espn_nba_scoreboard",
+        "hollersports.sources.free_first_ingest.fetch_espn_scoreboard",
         _boom,
     )
-    pack = build_live_observation_pack(run_id="T-EMPTY", fetch_odds=True, fetch_espn=True)
+    pack = build_live_observation_pack(
+        run_id="T-EMPTY",
+        fetch_odds=True,
+        fetch_espn=True,
+        leagues=["NBA"],
+    )
     assert pack["status"] == "NOT_COMPUTABLE"
     assert pack["espn_event_count"] == 0
     assert any("espn" in e for e in pack["errors"])
     assert pack["ingest"] is None
     assert pack["ingests"] == []
+    assert pack["provenance"]["leagues"] == ["NBA"]
+
+
+def test_free_first_injected_defaults_to_nba_league():
+    pack = build_live_observation_pack(
+        run_id="T-NBA-DEFAULT",
+        espn_raw={
+            "sport": "BASKETBALL",
+            "events": [_espn_event("401", ["BOS", "LAL"], "2026-04-24T23:00:00Z")],
+        },
+        odds_raw=[_odds_event("401", "BOS", "LAL", "2026-04-24T23:00:00Z")],
+    )
+    assert pack["provenance"]["leagues"] == ["NBA"]
+    assert pack["espn_events"][0]["league"] == "NBA"
+
+
+def test_free_first_single_league_filter_injected():
+    pack = build_live_observation_pack(
+        run_id="T-NFL-INJECT",
+        leagues=["NFL"],
+        espn_raw={
+            "sport": "FOOTBALL",
+            "events": [_espn_event("nfl-1", ["KC", "BUF"], "2026-09-14T17:00:00Z")],
+        },
+        odds_raw=[_odds_event("nfl-1", "KC", "BUF", "2026-09-14T17:00:00Z")],
+    )
+    assert pack["status"] == "OBSERVED"
+    assert pack["provenance"]["leagues"] == ["NFL"]
+    assert pack["espn_events"][0]["league"] == "NFL"
+    assert pack["odds_events"][0]["league"] == "NFL"
+    assert pack["odds_events"][0]["sport"] == "americanfootball_nfl"
+    assert pack["capital_authority"] is False
+
+
+def test_free_first_multi_league_live_fetch_monkeypatch(monkeypatch):
+    """Two leagues fetched via patched scoreboard — no network."""
+    monkeypatch.delenv("THE_ODDS_API_KEY", raising=False)
+
+    def fake_espn(*, league: str = "NBA", **_kwargs):
+        if league == "NBA":
+            return {
+                "sport": "BASKETBALL",
+                "events": [_espn_event("nba-1", ["BOS", "LAL"], "2026-04-24T23:00:00Z")],
+            }
+        if league == "NHL":
+            return {
+                "sport": "HOCKEY",
+                "events": [_espn_event("nhl-1", ["BOS", "NYR"], "2026-04-24T23:30:00Z")],
+            }
+        raise RuntimeError(f"unexpected_league:{league}")
+
+    monkeypatch.setattr(
+        "hollersports.sources.free_first_ingest.fetch_espn_scoreboard",
+        fake_espn,
+    )
+    pack = build_live_observation_pack(
+        run_id="T-MULTI-LG",
+        fetch_espn=True,
+        fetch_odds=True,
+        leagues=["NBA", "NHL"],
+    )
+    assert pack["status"] == "OBSERVED"
+    assert pack["provenance"]["leagues"] == ["NBA", "NHL"]
+    assert pack["espn_event_count"] == 2
+    leagues = {e["league"] for e in pack["espn_events"]}
+    assert leagues == {"NBA", "NHL"}
+    assert any("odds:THE_ODDS_API_KEY_not_set" in e for e in pack["errors"])
+    assert pack["capital_authority"] is False
+    assert pack["execution_authority"] is False
+
+
+def test_free_first_live_default_leagues_all_day_one(monkeypatch):
+    monkeypatch.delenv("THE_ODDS_API_KEY", raising=False)
+    called: list[str] = []
+
+    def fake_espn(*, league: str = "NBA", **_kwargs):
+        called.append(league)
+        return {"sport": "UNKNOWN", "events": []}
+
+    monkeypatch.setattr(
+        "hollersports.sources.free_first_ingest.fetch_espn_scoreboard",
+        fake_espn,
+    )
+    pack = build_live_observation_pack(
+        run_id="T-ALL",
+        fetch_espn=True,
+        fetch_odds=False,
+    )
+    assert set(called) == set(DAY_ONE_LEAGUES)
+    assert pack["provenance"]["leagues"] == list(DAY_ONE_LEAGUES)
 
 
 def test_multi_event_join_and_operator_inputs_no_network():

@@ -1,4 +1,8 @@
-from hollersports.sources.odds_api import normalize_odds_api_events, odds_api_key_configured
+from hollersports.sources.odds_api import (
+    normalize_odds_api_events,
+    odds_api_key_configured,
+    odds_sport_key_for_league,
+)
 
 
 def test_normalize_odds_api_moneyline():
@@ -49,3 +53,14 @@ def test_normalize_odds_api_moneyline():
 def test_odds_key_configured_false_by_default(monkeypatch):
     monkeypatch.delenv("THE_ODDS_API_KEY", raising=False)
     assert odds_api_key_configured() is False
+
+
+def test_odds_sport_key_for_day_one_leagues():
+    assert odds_sport_key_for_league("NBA") == "basketball_nba"
+    assert odds_sport_key_for_league("nfl") == "americanfootball_nfl"
+    assert odds_sport_key_for_league("EPL") == "soccer_epl"
+    try:
+        odds_sport_key_for_league("WNBA")
+        raise AssertionError("expected ValueError")
+    except ValueError as exc:
+        assert "unsupported_odds_league" in str(exc)

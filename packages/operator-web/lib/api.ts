@@ -145,14 +145,20 @@ export function postFreeFirst(opts?: {
   espn_only?: boolean;
   odds_only?: boolean;
   auto_compete?: boolean;
+  /** Day-one leagues; omit for all. Example: ["NBA","NFL"]. */
+  leagues?: string[];
 }) {
+  const body: Record<string, unknown> = {
+    espn_only: opts?.espn_only ?? false,
+    odds_only: opts?.odds_only ?? false,
+    auto_compete: opts?.auto_compete ?? true,
+  };
+  if (opts?.leagues && opts.leagues.length > 0) {
+    body.leagues = opts.leagues;
+  }
   return request<Json>("/v1/runs/free-first", {
     method: "POST",
-    body: JSON.stringify({
-      espn_only: opts?.espn_only ?? false,
-      odds_only: opts?.odds_only ?? false,
-      auto_compete: opts?.auto_compete ?? true,
-    }),
+    body: JSON.stringify(body),
   });
 }
 

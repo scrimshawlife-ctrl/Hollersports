@@ -19,7 +19,7 @@ make validate   # install, pytest, smoke receipt → docs/evidence/smoke_operato
 ## Fixture day (current path)
 
 Closed loop available via **`run_operator_day`**: ingest → compete → paper → settle → performance → promotion → dashboard projection.  
-FastAPI + Next.js operator UI remain planned.
+FastAPI (`make api`) and Cobalt Workbench (`make web`) are **shipped** — Today / Book / Health.
 
 ### One-command smoke
 
@@ -51,18 +51,19 @@ make web   # :3000 — Today → Run full fixture day (or Free-first live observ
 
 Today actions:
 
-- **Fixture** select — `day001` (default) or `day002` (includes model fields)  
+- **Fixture** select — `day001` (default), `day002`, or `day003` (model fields on day002+)  
 - **Allow model edge** — optional opt-in for forecast weighting; **evidence auto-calibration** must be `RELIABLE` before model edge loads (fixture days stay UNRELIABLE; still SHADOW_ONLY)  
 - **Health → Calibration** — ladder status, sample, hit_rate, sim_roi, model_edge_allowed
 - **Run full fixture day** — offline-safe closed loop  
-- **Free-first live observe** — optional network (ESPN; Odds if `THE_ODDS_API_KEY`); fail-closed if offline  
+- **Free-first live observe** — optional network (ESPN; Odds if `THE_ODDS_API_KEY`); league select defaults to all day-one; fail-closed if offline  
 
 ### Fixture location
 
 | Day | Notes |
 |-----|--------|
 | `fixtures/day001/` | Multi-league schedule + odds-shaped markets (NBA ML includes consensus / public / CLV) |
-| `fixtures/day002/` | Second slate; NBA/NFL markets may include `model_probability` for gated model-edge demos |
+| `fixtures/day002/` | Second slate; markets may include `model_probability` for gated model-edge demos |
+| `fixtures/day003/` | Third slate for multi-day backfill / calibration sample growth + model fields |
 
 Compete with model edge (API):
 
@@ -77,9 +78,12 @@ curl -s -X POST localhost:8000/v1/runs/compete \
 Fixture mode remains the **CI and default** path. Live observation is opt-in and still **advisory only** (no money, no book placement).
 
 ```bash
-# ESPN scoreboard only (no API key)
+# ESPN scoreboard only (no API key) — all day-one leagues
 make free-first
 # or: python scripts/holler_free_first_ingest.py --espn-only --out out/free_first_observation.json
+
+# Single / subset leagues
+python scripts/holler_free_first_ingest.py --espn-only --leagues NBA,NFL --out out/free_first_nba_nfl.json
 
 # ESPN + The Odds API when key present
 export THE_ODDS_API_KEY=your_key

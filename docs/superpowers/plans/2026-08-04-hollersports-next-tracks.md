@@ -52,7 +52,7 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Cumulative settlement history bank + `make backfill` multi-fixture accumulation
 - [x] Multi-event fixture markets (full slate, not primary-only)
 - [x] Fixture `day003` + Book model-edge chip / strategy family
-- [ ] Optional: free-first live sport coverage expansion as needed
+- [x] Free-first live sport coverage expansion (day-one leagues via API/CLI/Workbench)
 
 ## Track D — Packaging / release
 
