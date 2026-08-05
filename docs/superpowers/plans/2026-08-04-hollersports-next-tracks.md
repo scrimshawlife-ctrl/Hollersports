@@ -65,6 +65,7 @@ Original local-first path (no hosted SaaS). Continue here:
 ## Track D — Packaging / release
 
 - [x] Tag `v0.3.0-advisory-beta` (when cut)
+- [x] Tag `v0.4.0-advisory-beta` (Track F research ML on main)
 - Optional PyPI private publish later
 - Legacy `engine/` relocation only if consumers need it ([MIGRATION_ENGINE.md](../../MIGRATION_ENGINE.md))
 

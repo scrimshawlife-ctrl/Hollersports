@@ -6,12 +6,12 @@ class: ADVISORY_OPERATOR_READY   # local advisory beta only
 foundation_pr: 3
 foundation_merge_sha: 838ea88d0aa85b1c85f810bb080c590f5c8a7804
 foundation_merged_at: "2026-08-04T21:25:36Z"
-tip_sha: aa89903
-feature_tip_before_docs_pin: aa89903
-prior_docs_pin: 42ca274
+tip_sha: a10468d
+feature_tip_before_docs_pin: a10468d
+prior_docs_pin: 2c4bc7c
 branch: main
-package_version: "0.3.0"
-tag: v0.3.0-advisory-beta
+package_version: "0.4.0"
+tag: v0.4.0-advisory-beta
 date: "2026-08-05"
 verdict: PASS
 scope: local_single_operator_advisory
@@ -26,6 +26,12 @@ open_prs: []   # continuum lands on main after each merge
 
 | PR | Title | State |
 |----|--------|--------|
+| **#17** | RSS sentiment feeds | **MERGED** |
+| **#16** | PyTorch axial temporal model | **MERGED** |
+| **#15** | Gated ML retrain-apply | **MERGED** |
+| **#14** | Model cards + axial temporal stub | **MERGED** |
+| **#13** | ML retrain-check + offline sentiment | **MERGED** |
+| **#12** | Track F research ML pipeline | **MERGED** |
 | **#10** | re-settle-safe calibration bank + free-first closed day CLI | **MERGED** |
 | **#9** | free-first Settle UX on Today + Book settlement queue | **MERGED** |
 | **#8** | free-first ESPN finals settle + Workbench slate summary | **MERGED** |
