@@ -32,6 +32,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 - Cumulative settlement bank + `make backfill` / Hermes status CLI (calibration collapses latest per `entry_id`)
 - Free-first **closed day** CLI (`make free-first-day`) + `POST /v1/runs/free-first-day` + Workbench button
 - Testing framework: pytest markers, calibration suite, CI backfill step
+- **Track F ML pipeline:** features → L2 logistic (optional sklearn HGB) → temperature ensemble → EV annotate feeding `MODEL_PROBABILITY_EDGE` (`make ml-e2e` / `make ml-compete`; API `/v1/ml/*` + Health Workbench panel; stdlib default)
 
 ### Authority
 

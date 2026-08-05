@@ -179,6 +179,47 @@ class FreeFirstDayRequest(BaseModel):
     paper_top_n: int = Field(default=20, ge=0, le=200)
 
 
+class MlTrainRequest(BaseModel):
+    """Train + calibrate baseline ensemble from fixture days (advisory offline)."""
+
+    train_fixtures: list[str] = Field(
+        default_factory=lambda: ["day001", "day002"],
+        description="Fixture day names (e.g. day001, day002)",
+    )
+    val_fixtures: list[str] | None = Field(
+        default=None,
+        description="Optional validation fixture days; omit for auto split / identity T",
+    )
+    seed: int = 42
+    prefer_sklearn: bool = Field(
+        default=False,
+        description="Use sklearn HGB when [ml] extra installed; else logistic",
+    )
+
+
+class MlAnnotateRequest(BaseModel):
+    """Annotate last ingest markets with ensemble model_probability (fail closed)."""
+
+    ensemble_path: str | None = Field(
+        default=None,
+        description="Optional path to ensemble.json; default last train / data_root/ml/ensemble.json",
+    )
+    ev_threshold: float = Field(default=0.03, ge=0.0, le=1.0)
+    auto_compete: bool = Field(
+        default=False,
+        description="If true, run strategy competition after annotate",
+    )
+    allow_forecast_weighting: bool = Field(
+        default=False,
+        description="With RELIABLE (or override), load MODEL_PROBABILITY_EDGE on auto_compete",
+    )
+    reliability_status: str = Field(
+        default="UNRELIABLE",
+        description="Manual calibration status when auto_compete and not use_auto_calibration",
+    )
+    use_auto_calibration: bool = False
+
+
 def _store(request: Request) -> RunStore:
     return request.app.state.store  # type: ignore[no-any-return]
 
@@ -597,6 +638,8 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
         espn_raw=body.espn_raw,
         odds_raw=body.odds_raw,
         leagues=body.leagues,
+        data_root=str(store.data_root),
+        persist_odds_snapshot=True,
     )
     # Store primary + full ingest slate so compete/paper cover all events.
     ingest = pack.get("ingest")
@@ -1125,3 +1168,264 @@ def get_reliability(
         "source": "cumulative_settlement_history" if hist else "last_settlement_batch",
     }
     return _safe_packet(packet)
+
+
+def _resolve_ensemble_path(store: RunStore, explicit: str | None) -> Path:
+    """Resolve ensemble.json: explicit → store ml_ensemble → data_root/ml/ensemble.json."""
+    if explicit:
+        p = Path(explicit)
+        if p.is_file():
+            return p.resolve()
+        raise FileNotFoundError(f"ensemble not found: {explicit}")
+    stored = store.get("ml_ensemble")
+    if isinstance(stored, dict) and stored.get("ensemble_path"):
+        p = Path(str(stored["ensemble_path"]))
+        if p.is_file():
+            return p.resolve()
+    default = store.data_root / "ml" / "ensemble.json"
+    if default.is_file():
+        return default.resolve()
+    raise FileNotFoundError(
+        "no ensemble: POST /v1/ml/train first or pass ensemble_path"
+    )
+
+
+def _annotate_ingest_markets(
+    ingest: dict[str, Any],
+    ensemble_path: Path,
+    *,
+    ev_threshold: float,
+) -> tuple[dict[str, Any], int]:
+    """Return (updated ingest, annotated_count). Markets without features left as-is."""
+    from hollersports.ml.apply import apply_ensemble_to_markets
+
+    markets = [m for m in (ingest.get("markets") or []) if isinstance(m, dict)]
+    if not markets:
+        return ingest, 0
+    scored = apply_ensemble_to_markets(
+        markets, ensemble_path, ev_threshold=ev_threshold
+    )
+    by_id = {str(m.get("market_id")): m for m in scored}
+    merged = [by_id.get(str(m.get("market_id")) or "") or m for m in markets]
+    out = dict(ingest)
+    out["markets"] = merged
+    prov = dict(out.get("provenance") or {})
+    prov["ml_ensemble"] = str(ensemble_path)
+    prov["ml_annotated"] = True
+    out["provenance"] = prov
+    return out, len(scored)
+
+
+@router.get("/ml/status")
+def ml_status(request: Request) -> dict[str, Any]:
+    """Last ML train/ensemble path (advisory research tooling)."""
+    store = _store(request)
+    train = store.get("ml_train") if isinstance(store.get("ml_train"), dict) else {}
+    ens = store.get("ml_ensemble") if isinstance(store.get("ml_ensemble"), dict) else {}
+    annotate = store.get("ml_annotate") if isinstance(store.get("ml_annotate"), dict) else {}
+    path = ens.get("ensemble_path") or (store.data_root / "ml" / "ensemble.json")
+    path_s = str(path)
+    exists = Path(path_s).is_file()
+    body = {
+        "schema_version": "HollerMlStatus.v1",
+        "status": "READY" if exists else "EMPTY",
+        "ensemble_path": path_s if exists else None,
+        "ensemble_present": exists,
+        "last_train": train or None,
+        "last_annotate": annotate or None,
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+    }
+    return _safe_packet(body)
+
+
+@router.post("/ml/train")
+def ml_train(body: MlTrainRequest, request: Request) -> dict[str, Any]:
+    """Train baseline + temperature ensemble from fixture days (offline advisory)."""
+    from hollersports.ml.pipeline import run_train_calibrate
+
+    store = _store(request)
+    train_dirs: list[Path] = []
+    for name in body.train_fixtures:
+        try:
+            train_dirs.append(resolve_fixture_dir(name))
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+    val_dirs: list[Path] | None = None
+    if body.val_fixtures:
+        val_dirs = []
+        for name in body.val_fixtures:
+            try:
+                val_dirs.append(resolve_fixture_dir(name))
+            except FileNotFoundError as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    out_dir = store.data_root / "ml"
+    try:
+        result = run_train_calibrate(
+            train_dirs,
+            val_dirs,
+            out_dir=out_dir,
+            prefer_sklearn=bool(body.prefer_sklearn),
+            seed=int(body.seed),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    train_packet = {
+        "schema_version": "HollerMlTrainPacket.v1",
+        "status": "TRAINED",
+        **result,
+        "train_fixtures": list(body.train_fixtures),
+        "val_fixtures": list(body.val_fixtures or []),
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+    }
+    ensemble_packet = {
+        "ensemble_path": result["ensemble_path"],
+        "ensemble_id": result.get("ensemble_id"),
+        "model_id": result.get("model_id"),
+        "data_hash": result.get("data_hash"),
+        "metrics": result.get("metrics"),
+        "capital_authority": False,
+        "execution_authority": False,
+    }
+    store.put("ml_train", train_packet)
+    store.put("ml_ensemble", ensemble_packet)
+    return _safe_packet(train_packet)
+
+
+@router.post("/ml/annotate")
+def ml_annotate(body: MlAnnotateRequest, request: Request) -> dict[str, Any]:
+    """Attach model_probability to last ingest markets from ensemble (fail closed).
+
+    Does not invent probabilities when ensemble is missing (HTTP 404).
+    Optional auto_compete reuses compete calibration gates.
+    """
+    store = _store(request)
+    try:
+        ensemble_path = _resolve_ensemble_path(store, body.ensemble_path)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    ingest = store.get("ingest")
+    if not isinstance(ingest, dict) or ingest.get("status") != "INGESTED":
+        raise HTTPException(
+            status_code=400,
+            detail="no INGESTED run; POST /v1/runs/ingest or /runs/full-day first",
+        )
+
+    updated, n_scored = _annotate_ingest_markets(
+        ingest, ensemble_path, ev_threshold=float(body.ev_threshold)
+    )
+    if n_scored == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="no markets could be scored (missing prices/features)",
+        )
+
+    # Keep multi-ingest slate in sync when present
+    ingests = _stored_ingests(store)
+    annotated_ingests: list[dict[str, Any]] = []
+    if len(ingests) > 1:
+        total_scored = 0
+        for packet in ingests:
+            if not isinstance(packet, dict):
+                continue
+            ann, n = _annotate_ingest_markets(
+                packet, ensemble_path, ev_threshold=float(body.ev_threshold)
+            )
+            annotated_ingests.append(ann)
+            total_scored += n
+        n_scored = total_scored
+        store.put("ingests", annotated_ingests)
+        # Primary ingest: prefer same run_id match
+        primary = next(
+            (p for p in annotated_ingests if p.get("run_id") == updated.get("run_id")),
+            annotated_ingests[0],
+        )
+        updated = primary
+    else:
+        annotated_ingests = [updated]
+    store.put("ingest", updated)
+
+    competition = None
+    if body.auto_compete:
+        calibration: dict[str, Any] | None = None
+        allow = bool(body.allow_forecast_weighting)
+        if body.use_auto_calibration:
+            cal_packet = evaluate_calibration(
+                _settlement_entries(store),
+                allow_forecast_weighting=allow,
+            )
+            store.put("calibration", cal_packet)
+            calibration = calibration_gate_from_packet(cal_packet)
+        else:
+            calibration = {
+                "allow_forecast_weighting": allow,
+                "reliability_status": str(body.reliability_status or "UNRELIABLE"),
+            }
+            store.put("calibration", calibration)
+        # Multi-event free-first slates: compete the full annotated list (parity with /runs/compete).
+        if len(annotated_ingests) > 1:
+            competition = run_strategy_competition_multi(
+                annotated_ingests,
+                calibration=calibration,
+                run_id=str(updated.get("run_id") or "") or None,
+            )
+        else:
+            competition = run_strategy_competition(
+                updated, calibration=calibration
+            )
+        store.put("competition", competition)
+
+    _rebuild_dashboard(store)
+
+    model_cands = []
+    if isinstance(competition, dict):
+        model_cands = [
+            c
+            for c in (competition.get("candidates") or [])
+            if isinstance(c, dict)
+            and c.get("strategy_id") == "MODEL_PROBABILITY_EDGE"
+        ]
+
+    edges = [
+        float(m.get("model_edge") or 0)
+        for m in (updated.get("markets") or [])
+        if isinstance(m, dict) and m.get("model_edge") is not None
+    ]
+    annotate_packet = {
+        "schema_version": "HollerMlAnnotatePacket.v1",
+        "status": "ANNOTATED",
+        "ensemble_path": str(ensemble_path),
+        "annotated_markets": n_scored,
+        "run_id": updated.get("run_id"),
+        "event_id": updated.get("event_id"),
+        "ev_threshold": float(body.ev_threshold),
+        "ev_positive": sum(
+            1
+            for m in (updated.get("markets") or [])
+            if isinstance(m, dict) and m.get("ev_meets_threshold")
+        ),
+        "max_model_edge": max(edges) if edges else None,
+        "auto_compete": bool(body.auto_compete),
+        "model_edge_enabled": (
+            competition.get("model_edge_enabled") if isinstance(competition, dict) else None
+        ),
+        "model_edge_candidate_count": len(model_cands),
+        "competition_status": (
+            competition.get("status") if isinstance(competition, dict) else None
+        ),
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+        "note": "advisory_ml_annotate_no_money",
+    }
+    store.put("ml_annotate", annotate_packet)
+    return _safe_packet(annotate_packet)

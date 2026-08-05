@@ -1,0 +1,131 @@
+{
+  "apply": {
+    "edges": [
+      {
+        "edge": 0.14355545069738862,
+        "edge_raw": 0.14355545069738862,
+        "ev": 0.122592417828981,
+        "implied": 0.53,
+        "market_id": "NBA-20260426-GSW-PHX-ML-HOME",
+        "model_probability": 0.6735554506973886,
+        "model_probability_raw": 0.6735554506973886
+      },
+      {
+        "edge": -0.2749314630916716,
+        "edge_raw": -0.2749314630916716,
+        "ev": -0.5513423651108448,
+        "implied": 0.47,
+        "market_id": "NBA-20260426-GSW-PHX-ML-AWAY",
+        "model_probability": 0.19506853690832837,
+        "model_probability_raw": 0.19506853690832837
+      },
+      {
+        "edge": 0.10815399610145526,
+        "edge_raw": 0.10815399610145526,
+        "ev": 0.1306771929826196,
+        "implied": 0.52,
+        "market_id": "NFL-20260426-DAL-NYG-ML-HOME",
+        "model_probability": 0.6281539961014553,
+        "model_probability_raw": 0.6281539961014553
+      },
+      {
+        "edge": 0.08363979887986961,
+        "edge_raw": 0.08363979887986961,
+        "ev": 0.16108405710197116,
+        "implied": 0.5192307692307693,
+        "market_id": "MLB-20260426-CHC-STL-ML-HOME",
+        "model_probability": 0.6028705681106389,
+        "model_probability_raw": 0.6028705681106389
+      },
+      {
+        "edge": 0.08057565447365289,
+        "edge_raw": 0.08057565447365289,
+        "ev": 0.15064144097248122,
+        "implied": 0.5348837209302325,
+        "market_id": "NHL-20260426-BOS-NYR-ML-HOME",
+        "model_probability": 0.6154593754038854,
+        "model_probability_raw": 0.6154593754038854
+      },
+      {
+        "edge": 0.09195595511013033,
+        "edge_raw": 0.09195595511013033,
+        "ev": 0.18210885227692475,
+        "implied": 0.504950495049505,
+        "market_id": "EPL-20260426-TOT-NEW-ML-HOME",
+        "model_probability": 0.5969064501596353,
+        "model_probability_raw": 0.5969064501596353
+      },
+      {
+        "edge": 0.0822108198924889,
+        "edge_raw": 0.0822108198924889,
+        "ev": 0.15561333765363972,
+        "implied": 0.5283018867924528,
+        "market_id": "MLS-20260426-POR-SKC-ML-HOME",
+        "model_probability": 0.6105127066849417,
+        "model_probability_raw": 0.6105127066849417
+      }
+    ],
+    "ev_positive": 6,
+    "market_count": 7,
+    "packet_hash": "6e6d31c8d6bdac47df53da5b2103260348a9526eb1a0c0084ce2965b624bd639"
+  },
+  "candidates": {
+    "authority": "SHADOW_ONLY",
+    "count": 6,
+    "sample": [
+      {
+        "edge": 0.14355545069738862,
+        "market_id": "NBA-20260426-GSW-PHX-ML-HOME",
+        "score": 0.7177772534869431
+      },
+      {
+        "edge": 0.10815399610145526,
+        "market_id": "NFL-20260426-DAL-NYG-ML-HOME",
+        "score": 0.5407699805072763
+      },
+      {
+        "edge": 0.08363979887986961,
+        "market_id": "MLB-20260426-CHC-STL-ML-HOME",
+        "score": 0.41819899439934805
+      },
+      {
+        "edge": 0.08057565447365289,
+        "market_id": "NHL-20260426-BOS-NYR-ML-HOME",
+        "score": 0.40287827236826446
+      },
+      {
+        "edge": 0.09195595511013033,
+        "market_id": "EPL-20260426-TOT-NEW-ML-HOME",
+        "score": 0.45977977555065164
+      }
+    ],
+    "strategy_id": "MODEL_PROBABILITY_EDGE"
+  },
+  "capital_authority": false,
+  "execution_authority": false,
+  "schema_version": "HollerMlE2EEvidence.v1",
+  "status": "ADVISORY_ONLY",
+  "train": {
+    "capital_authority": false,
+    "data_hash": "2d4a1c2d9e8aa4713e247f7e811c653a6dc005f414c0d72b41dbd0888b69c6bf",
+    "ensemble_id": "ensemble_aa03321a5f09",
+    "ensemble_path": "/Users/appliedalchemylabs/Documents/Hollersports/data/ml/e2e/ensemble.json",
+    "execution_authority": false,
+    "features_path": "/Users/appliedalchemylabs/Documents/Hollersports/data/ml/e2e/features.jsonl",
+    "metrics": {
+      "split_mode": "full_train_identity_cal",
+      "temperature": 1.0,
+      "temperature_source": "identity_train_eq_val",
+      "train_brier": 0.18518951367325992,
+      "train_n": 11,
+      "val_brier": 0.18518951367325992,
+      "val_brier_raw": 0.18518951367325992,
+      "val_n": 11,
+      "val_nll": 0.5533062499955917
+    },
+    "model_id": "gbm_v2d4a1c2d9e",
+    "model_path": "/Users/appliedalchemylabs/Documents/Hollersports/data/ml/e2e/gbm_v2d4a1c2d9e.json",
+    "train_n": 11,
+    "val_n": 11
+  }
+}

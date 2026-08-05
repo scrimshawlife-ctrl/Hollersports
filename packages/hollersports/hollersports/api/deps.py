@@ -22,6 +22,9 @@ _STATE_KEYS = (
     "fixture",
     "meta",
     "calibration",
+    "ml_train",
+    "ml_ensemble",
+    "ml_annotate",
 )
 
 

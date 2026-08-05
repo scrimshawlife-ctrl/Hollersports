@@ -68,6 +68,26 @@ Original local-first path (no hosted SaaS). Continue here:
 - Optional PyPI private publish later
 - Legacy `engine/` relocation only if consumers need it ([MIGRATION_ENGINE.md](../../MIGRATION_ENGINE.md))
 
+## Track F — Research ML pipeline (CLI-only, arxiv slice)
+
+Design: [`docs/superpowers/specs/2026-08-05-hollersports-ml-pipeline-design.md`](../specs/2026-08-05-hollersports-ml-pipeline-design.md)  
+Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md)
+
+- [x] Feature builder from fixture markets (implied p, consensus, public, clv; odds-Δ/sentiment stubs)
+- [x] Baseline trainer (pure-Python L2 logistic; optional sklearn HGB via `[ml]`)
+- [x] Temperature calibration + ensemble artifact
+- [x] Small-n temperature guard (identity T until val bank ≥ 8; cap T ≤ 2.5)
+- [x] EV annotate → `model_probability` for existing `MODEL_PROBABILITY_EDGE`
+- [x] CLIs under `scripts/holler/` + `make ml-e2e` (asserts candidates ≥ 1)
+- [x] `make ml-compete` — annotate fixture day + compete with explicit model-edge opt-in
+- [x] Hermes playbook `docs/agents/HERMES_ML.md`
+- [x] API `GET/POST /v1/ml/{status,train,annotate}` + Health Workbench panel
+- [x] Free-first odds movement: cross-book `odds_history`/`odds_delta` + temporal snapshots under `data/ml/`
+- [x] Hermes retrain evaluator (advisory proposal only; `make ml-retrain-check`; never auto-trains)
+- [ ] Live sentiment feeds
+- [ ] Axial transformer prototype
+- [ ] Auto-apply retrain after human/Hermes approval (still deferred)
+
 ## Hard constraints (all tracks)
 
 - No wallets, payments, book placement, capital custody  
