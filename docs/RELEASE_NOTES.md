@@ -7,7 +7,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 | PR | State | Notes |
 |----|--------|--------|
 | **#3** — standalone advisory operator | **MERGED** `838ea88` | Foundation local advisory beta |
-| Subsequent continuum | on `main` (no open PR) | Multi-league free-first, calibration, backfill — tip `42ca274` |
+| Subsequent continuum | on `main` | Free-first closed day + re-settle-safe bank — tip `aa89903` (#10) |
 
 ---
 
@@ -15,7 +15,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 
 **Tag:** `v0.3.0-advisory-beta`  
 **Foundation:** PR #3 merge  
-**Tip (docs pin):** `42ca274` on `main`
+**Tip (docs pin):** `aa89903` on `main`
 
 ### Product
 
@@ -29,7 +29,8 @@ Advisory-only product. No real money, no book placement, no capital custody.
 - Advice reliability buckets + append-only reliability history + Workbench tables
 - Gated `MODEL_PROBABILITY_EDGE` (deterministic market fields; calibration-gated)
 - Calibration ladder (`CalibrationPacket.v1`): EMPTY → UNRELIABLE → WATCH → RELIABLE
-- Cumulative settlement bank + `make backfill` / Hermes status CLI
+- Cumulative settlement bank + `make backfill` / Hermes status CLI (calibration collapses latest per `entry_id`)
+- Free-first **closed day** CLI (`make free-first-day`) + `POST /v1/runs/free-first-day` + Workbench button
 - Testing framework: pytest markers, calibration suite, CI backfill step
 
 ### Authority

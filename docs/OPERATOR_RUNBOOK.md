@@ -97,6 +97,17 @@ python scripts/holler_free_first_ingest.py --out out/free_first_observation.json
 Without keys, odds side is skipped (`errors` list notes `THE_ODDS_API_KEY_not_set`).  
 Output pack includes `espn_events`, `odds_events`, `conflict`, optional `ingest` packet.
 
+Closed day (observe → compete → paper → ESPN settle → calibration bank):
+
+```bash
+# Injected (CI-safe)
+python scripts/free_first_operator_day.py --espn-raw … --odds-raw … --settle-espn-raw … --leagues NBA
+
+# Live finals (network; never places bets)
+make free-first-day
+# API: POST /v1/runs/free-first-day  ·  Workbench Today → “Free-first closed day”
+```
+
 ## Authority checks
 
 Every packet must keep:
