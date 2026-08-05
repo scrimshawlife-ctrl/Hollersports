@@ -250,6 +250,22 @@ export function postMlAnnotate(opts?: {
   });
 }
 
+/** Model card for last ensemble (metrics + markdown). */
+export function getMlModelCard(ensemble_path?: string) {
+  const q = ensemble_path
+    ? `?ensemble_path=${encodeURIComponent(ensemble_path)}`
+    : "";
+  return request<Json>(`/v1/ml/model-card${q}`);
+}
+
+/** Axial temporal stub on last ingest (stdlib placeholder, not neural). */
+export function postMlAxialStub() {
+  return request<Json>("/v1/ml/axial-stub", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
 /** Advisory retrain proposal (never auto-trains). */
 export function postMlRetrainCheck(opts?: {
   ensemble_path?: string;

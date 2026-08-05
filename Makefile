@@ -1,6 +1,6 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
 	install smoke calibration-suite backfill backfill-status api web free-first free-first-day \
-	ml-e2e ml-train ml-compete ml-retrain-check
+	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model
 
 install:
 	python -m pip install -U pip
@@ -81,3 +81,6 @@ ml-compete:
 # Advisory retrain proposal only (never auto-trains).
 ml-retrain-check:
 	python scripts/holler/ml_retrain_check.py
+
+ml-doc-model:
+	python scripts/holler/doc_model.py --ensemble data/ml/ensemble.json

@@ -86,8 +86,10 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] Hermes retrain evaluator (advisory proposal only; `make ml-retrain-check`; never auto-trains)
 - [x] API `POST /v1/ml/retrain-check` + Health “Retrain check” button
 - [x] Offline sentiment lexicon (headline/snippet → `sentiment_score`; no network)
+- [x] Model cards (`scripts/holler/doc_model.py`, auto on train, `GET /v1/ml/model-card`)
+- [x] Axial **stub** (stdlib dual-axis smooth; `POST /v1/ml/axial-stub` — not neural yet)
 - [ ] Live social/RSS sentiment feeds
-- [ ] Axial transformer prototype
+- [ ] Real axial transformer (PyTorch) behind same packet interface
 - [ ] Auto-apply retrain after human/Hermes approval (still deferred)
 
 ## Hard constraints (all tracks)
