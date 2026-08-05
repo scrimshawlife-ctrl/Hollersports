@@ -87,9 +87,9 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] API `POST /v1/ml/retrain-check` + Health “Retrain check” button
 - [x] Offline sentiment lexicon (headline/snippet → `sentiment_score`; no network)
 - [x] Model cards (`scripts/holler/doc_model.py`, auto on train, `GET /v1/ml/model-card`)
-- [x] Axial **stub** (stdlib dual-axis smooth; `POST /v1/ml/axial-stub` — not neural yet)
+- [x] Axial **stub** (stdlib dual-axis smooth; `POST /v1/ml/axial-stub`)
+- [x] Real PyTorch axial model (`[torch]` extra; train + `POST /v1/ml/axial` auto/torch)
 - [ ] Live social/RSS sentiment feeds
-- [ ] Real axial transformer (PyTorch) behind same packet interface
 - [x] Gated retrain apply (`POST /v1/ml/retrain-apply` requires `confirm=true`; optional suggestion gate)
 
 ## Hard constraints (all tracks)

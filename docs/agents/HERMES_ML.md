@@ -56,10 +56,26 @@ make ml-doc-model   # or auto-written under data/ml/model_cards/ on train
 curl -s localhost:8000/v1/ml/model-card | jq '{model_id, metrics, packet_hash}'
 ```
 
-### Axial stub (research placeholder)
+### Axial model (PyTorch + stdlib stub)
 
 ```bash
-# After ingest: dual-axis smooth over market feature sequence (not a neural net)
+# Optional install (CPU wheels fine for research)
+pip install -e "packages/hollersports[torch]"
+
+# Train axial on fixtures
+make ml-axial-train
+# or: python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 --out-dir data/ml/axial
+
+curl -s -X POST localhost:8000/v1/ml/axial/train \
+  -H 'content-type: application/json' \
+  -d '{"train_fixtures":["day001","day002","day003"],"epochs":40}' | jq .
+
+# Score last ingest: auto prefers trained torch, else stub
+curl -s -X POST localhost:8000/v1/ml/axial \
+  -H 'content-type: application/json' \
+  -d '{"backend":"auto"}' | jq '{status,backend,kind,probability,trained}'
+
+# Force stdlib stub (no torch)
 curl -s -X POST localhost:8000/v1/ml/axial-stub | jq .
 ```
 
