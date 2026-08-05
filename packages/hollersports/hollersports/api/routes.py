@@ -638,6 +638,8 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
         espn_raw=body.espn_raw,
         odds_raw=body.odds_raw,
         leagues=body.leagues,
+        data_root=str(store.data_root),
+        persist_odds_snapshot=True,
     )
     # Store primary + full ingest slate so compete/paper cover all events.
     ingest = pack.get("ingest")

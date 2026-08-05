@@ -181,6 +181,8 @@ def free_first_to_operator_inputs(
     run_id: str | None = None,
     joins: Sequence[Mapping[str, Any]] | None = None,
     max_start_delta_seconds: float = 12 * 3600,
+    data_root: str | None = None,
+    persist_odds_snapshot: bool = True,
 ) -> list[dict[str, Any]]:
     """Return one market-ingestion payload per free-first slate event.
 
@@ -218,16 +220,26 @@ def free_first_to_operator_inputs(
     else:
         join_rows = [j for j in joins if isinstance(j, Mapping)]
 
+    from hollersports.sources.odds_movement import enrich_event_markets
+
+    def _enrich(ev: dict[str, Any]) -> dict[str, Any]:
+        # Snapshot only once for the whole slate (first call persists; later reuse file).
+        return enrich_event_markets(
+            ev,
+            data_root=data_root,
+            persist_snapshot=bool(persist_odds_snapshot and data_root),
+        )
+
     # No joins at all (empty sides): still emit from whichever side has events.
     if not join_rows:
         events: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
         for e in odds:
             if isinstance(e, Mapping):
-                events.append((dict(e), None))
+                events.append((_enrich(dict(e)), None))
         if not events:
             for e in espn:
                 if isinstance(e, Mapping):
-                    events.append((dict(e), None))
+                    events.append((_enrich(dict(e)), None))
         return [
             _event_to_ingest_payload(
                 ev,
@@ -241,10 +253,46 @@ def free_first_to_operator_inputs(
 
     payloads: list[dict[str, Any]] = []
     multi = len(join_rows) > 1
+    # Persist snapshot once after enriching all events in the slate.
+    enriched_events: list[tuple[dict[str, Any], Mapping[str, Any]]] = []
     for j in join_rows:
         primary = _primary_event_from_join(j)
         if primary is None:
             continue
+        # Cross-book already applied in odds normalize; re-apply temporal with root.
+        enriched_events.append(
+            (
+                enrich_event_markets(
+                    primary,
+                    data_root=data_root,
+                    persist_snapshot=False,
+                ),
+                j,
+            )
+        )
+    if data_root and persist_odds_snapshot and enriched_events:
+        from hollersports.sources.odds_movement import (
+            collect_current_implieds,
+            load_implied_snapshots,
+            save_implied_snapshots,
+            apply_temporal_delta,
+        )
+
+        prior = load_implied_snapshots(data_root)
+        merged_snaps = dict(prior)
+        re_enriched: list[tuple[dict[str, Any], Mapping[str, Any]]] = []
+        for ev, j in enriched_events:
+            markets = list(ev.get("markets") or [])
+            if prior:
+                markets = apply_temporal_delta(markets, prior)
+            ev2 = dict(ev)
+            ev2["markets"] = markets
+            merged_snaps.update(collect_current_implieds(markets))
+            re_enriched.append((ev2, j))
+        save_implied_snapshots(data_root, merged_snaps)
+        enriched_events = re_enriched
+
+    for primary, j in enriched_events:
         eid = str(primary.get("event_id") or "UNKNOWN")
         event_run_id = f"{rid}:{eid}" if multi else rid
         payloads.append(
@@ -286,6 +334,8 @@ def build_live_observation_pack(
     odds_raw: list[dict[str, Any]] | None = None,
     leagues: Sequence[str] | None = None,
     max_start_delta_seconds: float = 12 * 3600,
+    data_root: str | None = None,
+    persist_odds_snapshot: bool = True,
 ) -> dict[str, Any]:
     """Build an observation pack from free-first sources.
 
@@ -293,6 +343,7 @@ def build_live_observation_pack(
     and never required for CI. Live fetch defaults to all day-one leagues; injected
     raw defaults to NBA unless ``leagues`` is set. Multi-event days produce
     ``ingests`` (list) plus ``ingest`` (first element, backward compatible).
+    ``data_root`` enables temporal odds_delta snapshots between polls.
     Does not place bets or handle money.
     """
     rid = run_id or f"LIVE-{_now_iso()}"
@@ -396,6 +447,8 @@ def build_live_observation_pack(
         run_id=rid,
         joins=joins,
         max_start_delta_seconds=max_start_delta_seconds,
+        data_root=data_root,
+        persist_odds_snapshot=persist_odds_snapshot,
     )
     ingests = run_multi_event_ingest(operator_inputs) if operator_inputs else []
     ingest = ingests[0] if ingests else None

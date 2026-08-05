@@ -43,6 +43,12 @@ curl -s localhost:8000/v1/ml/status | jq .
 
 Workbench: **Health → Research ML (Track F)** — Train / Annotate+compete buttons.
 
+### Odds movement (free-first)
+
+- Cross-book: multi-book Odds API lines get `odds_history`, `odds_delta`, `book_dispersion`
+- Temporal: re-observe writes/reads `data/ml/odds_implied_snapshots.json` (via API `data_root` or CLI `--data-root`)
+- Features consume `odds_delta` (never invents prices)
+
 Stepwise:
 
 ```bash

@@ -82,7 +82,8 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] `make ml-compete` — annotate fixture day + compete with explicit model-edge opt-in
 - [x] Hermes playbook `docs/agents/HERMES_ML.md`
 - [x] API `GET/POST /v1/ml/{status,train,annotate}` + Health Workbench panel
-- [ ] Live odds / sentiment feeds
+- [x] Free-first odds movement: cross-book `odds_history`/`odds_delta` + temporal snapshots under `data/ml/`
+- [ ] Live sentiment feeds
 - [ ] Axial transformer prototype
 - [ ] Hermes outcome-driven retrain loop
 

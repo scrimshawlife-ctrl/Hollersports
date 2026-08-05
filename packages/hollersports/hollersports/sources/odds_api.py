@@ -119,6 +119,13 @@ def normalize_odds_api_events(
                 if m.get("market_type") == "MONEYLINE" and m.get("consensus_score") is None:
                     m["consensus_score"] = consensus_score
 
+        # Cross-book odds_history / odds_delta (never invents prices).
+        from hollersports.sources.odds_movement import enrich_markets_cross_book
+
+        for m in markets:
+            m.setdefault("event_id", event_id)
+        markets = enrich_markets_cross_book(markets)
+
         out.append(
             {
                 "event_id": event_id,

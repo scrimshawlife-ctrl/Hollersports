@@ -168,6 +168,8 @@ def run_free_first_operator_day(
         espn_raw=espn_raw,
         odds_raw=odds_raw,
         leagues=leagues,
+        data_root=str(root),
+        persist_odds_snapshot=True,
     )
     assert_no_live_capital(pack)
     ingests = [i for i in (pack.get("ingests") or []) if isinstance(i, dict)]

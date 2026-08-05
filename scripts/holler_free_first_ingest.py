@@ -35,6 +35,11 @@ def main() -> int:
         default=None,
         help="Comma-separated day-one leagues (default: all). Example: NBA,NFL,MLB",
     )
+    p.add_argument(
+        "--data-root",
+        default="data",
+        help="Root for temporal odds snapshots (data/ml/odds_implied_snapshots.json)",
+    )
     args = p.parse_args()
 
     leagues = None
@@ -46,6 +51,8 @@ def main() -> int:
         fetch_espn=not args.odds_only,
         fetch_odds=not args.espn_only,
         leagues=leagues,
+        data_root=str(args.data_root),
+        persist_odds_snapshot=True,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(pack, indent=2, sort_keys=True) + "\n", encoding="utf-8")
