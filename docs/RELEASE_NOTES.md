@@ -12,15 +12,40 @@ Advisory-only product. No real money, no book placement, no capital custody.
 
 ---
 
+## v0.5.0-advisory-beta (package 0.5.0)
+
+**Tag:** `v0.5.0-advisory-beta`  
+**Theme:** Track F + **Track G** (sequences, larger temporal presets, distributional CRPS).  
+**Freeze:** **This is the field-test freeze** — test this tag, not open-ended model expansion.  
+See [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).
+
+### Track G additions
+
+- Multi-poll **sequence store** (`market_sequences.jsonl`) on free-first enrich  
+- Fixture sequences: `fixtures/sequences/synthetic_totals.json`  
+- Arch presets: `axial_small` · `axial_large` · `transformer` · `transformer_dist`  
+- Distributional total bins + **CRPS** train metric; score may emit `total_probs`  
+- Model cards auto-written under axial train `model_cards/`  
+- Make targets: `ml-axial-train-large`, `ml-axial-train-transformer`
+
+### Verify
+
+```bash
+git checkout v0.5.0-advisory-beta
+pip install -e "packages/hollersports[dev]"
+make smoke && make ml-e2e
+# optional:
+pip install -e "packages/hollersports[torch]"
+make ml-axial-train-transformer
+```
+
+---
+
 ## v0.4.0-advisory-beta (package 0.4.0)
 
 **Tag:** `v0.4.0-advisory-beta`  
-**Tip:** tag on `main` (release PR #18; Track F through #17)  
-**Theme:** Track F research ML pipeline on top of the v0.3 advisory operator.  
-**Freeze:** This tag is the **field-test freeze** for the small-scale ML stack.  
-Do not expand to production-scale transformers until unfreeze criteria are met  
-([TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md),  
-[TRACK_F_FUTURE_TRANSFORMERS.md](TRACK_F_FUTURE_TRANSFORMERS.md)).
+**Theme:** Track F research ML pipeline (pre–Track G).  
+Superseded for freeze testing by **v0.5.0-advisory-beta**.
 
 ### Highlights
 

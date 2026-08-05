@@ -22,7 +22,7 @@ def test_train_and_score_axial(tmp_path: Path):
         train_axial,
     )
 
-    X, y = sequences_from_fixture_days([FIXTURES / "day001", FIXTURES / "day002"])
+    X, y, _yt = sequences_from_fixture_days([FIXTURES / "day001", FIXTURES / "day002"])
     assert len(X) >= 2
     assert len(X) == len(y)
 

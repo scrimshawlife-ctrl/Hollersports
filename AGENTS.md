@@ -6,7 +6,7 @@ Local **advisory-only** sports market intelligence. No real money. No book place
 
 | Goal | Open | Run |
 |------|------|-----|
-| **Field-test freeze (v0.4 small ML stack)** | [`docs/TRACK_F_FREEZE_AND_FIELD_TEST.md`](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md) | `git checkout v0.4.0-advisory-beta` · `make smoke` · `make ml-e2e` |
+| **Field-test freeze (after Track G → v0.5)** | [`docs/TRACK_F_FREEZE_AND_FIELD_TEST.md`](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md) | `git checkout v0.5.0-advisory-beta` · `make smoke` · `make ml-e2e` |
 | **Backfill paper settlements (calibration sample)** | [`docs/agents/HERMES_BACKFILL.md`](docs/agents/HERMES_BACKFILL.md) | `python scripts/backfill_status.py` then `make backfill` |
 | **Track F ML pipeline (features→train→calibrate→EV)** | [`docs/agents/HERMES_ML.md`](docs/agents/HERMES_ML.md) | `make ml-e2e` · `make ml-compete` |
 | **Future large transformers (deferred)** | [`docs/TRACK_F_FUTURE_TRANSFORMERS.md`](docs/TRACK_F_FUTURE_TRANSFORMERS.md) | Do **not** start unless unfrozen |
@@ -32,7 +32,7 @@ Canonical playbook: **`docs/agents/HERMES_BACKFILL.md`**.
 2. No sportsbook placement, wallets, or payments  
 3. Prefer offline `fixtures/` over live free-first unless asked  
 4. Fail closed — do not invent odds or model probabilities  
-5. **Freeze:** do not expand to production-scale transformers or silent retrain while testing **v0.4.0-advisory-beta** unless the user unfreezes ([TRACK_F_FREEZE_AND_FIELD_TEST.md](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md))
+5. **Freeze after v0.5:** field-test the shipped F+G stack; do not add money rails or silent retrain ([TRACK_F_FREEZE_AND_FIELD_TEST.md](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md))
 
 ## Layout (short)
 

@@ -233,8 +233,13 @@ def enrich_markets_odds_movement(
     *,
     data_root: Path | str | None = None,
     persist_snapshot: bool = True,
+    append_sequence_poll: bool = True,
 ) -> list[dict[str, Any]]:
-    """Full enrichment: cross-book then optional temporal snapshot merge."""
+    """Full enrichment: cross-book then optional temporal snapshot merge.
+
+    When ``data_root`` is set and ``append_sequence_poll``, also appends a
+    multi-poll feature sequence row (G0) for temporal model training.
+    """
     enriched = enrich_markets_cross_book(markets)
     if data_root is None:
         return enriched
@@ -246,6 +251,13 @@ def enrich_markets_odds_movement(
         merged = dict(prior)
         merged.update(collect_current_implieds(enriched))
         save_implied_snapshots(data_root, merged)
+    if append_sequence_poll:
+        try:
+            from hollersports.sources.sequence_store import append_poll
+
+            append_poll(data_root, enriched)
+        except Exception:  # noqa: BLE001 — never break observe on sequence IO
+            pass
     return enriched
 
 

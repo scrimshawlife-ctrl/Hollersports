@@ -1,6 +1,7 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
 	install smoke calibration-suite backfill backfill-status api web free-first free-first-day \
-	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model ml-axial-train ml-rss-demo
+	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model ml-axial-train \
+	ml-axial-train-large ml-axial-train-transformer ml-rss-demo
 
 install:
 	python -m pip install -U pip
@@ -88,7 +89,18 @@ ml-doc-model:
 # Requires: pip install -e "packages/hollersports[torch]"
 ml-axial-train:
 	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
-		--out-dir data/ml/axial
+		--out-dir data/ml/axial --arch axial_small
+
+# Track G larger / dist presets (requires [torch])
+ml-axial-train-large:
+	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
+		--out-dir data/ml/axial --arch axial_large \
+		--sequences fixtures/sequences/synthetic_totals.json
+
+ml-axial-train-transformer:
+	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
+		--out-dir data/ml/axial --arch transformer_dist \
+		--sequences fixtures/sequences/synthetic_totals.json
 
 # Offline RSS inject example needs a local XML; live uses --fetch
 ml-rss-demo:

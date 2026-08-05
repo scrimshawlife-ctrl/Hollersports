@@ -1311,7 +1311,7 @@ class MlAxialRequest(BaseModel):
 
 
 class MlAxialTrainRequest(BaseModel):
-    """Train PyTorch axial model from fixture days (requires torch extra)."""
+    """Train PyTorch temporal model from fixture days (requires torch extra)."""
 
     train_fixtures: list[str] = Field(
         default_factory=lambda: ["day001", "day002", "day003"]
@@ -1319,6 +1319,18 @@ class MlAxialTrainRequest(BaseModel):
     epochs: int = Field(default=40, ge=1, le=500)
     seed: int = 42
     lr: float = Field(default=1e-3, gt=0.0)
+    arch_preset: str = Field(
+        default="axial_small",
+        description="axial_small | axial_large | transformer | transformer_dist",
+    )
+    use_sequence_store: bool = Field(
+        default=True,
+        description="Include multi-poll sequences from data_root/ml/market_sequences.jsonl",
+    )
+    fixture_sequences: str | None = Field(
+        default=None,
+        description="Optional fixture sequences path (e.g. sequences/synthetic_totals)",
+    )
 
 
 class MlRssSentimentRequest(BaseModel):
@@ -1440,6 +1452,23 @@ def ml_axial_train(body: MlAxialTrainRequest, request: Request) -> dict[str, Any
         except FileNotFoundError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
     out_dir = store.data_root / "ml" / "axial"
+    seq_path = None
+    if body.fixture_sequences:
+        # allow "sequences/synthetic_totals" relative to fixtures/
+        cand = Path(body.fixture_sequences)
+        if not cand.is_file():
+            cand = Path("fixtures") / body.fixture_sequences
+        if not cand.is_file() and not str(body.fixture_sequences).endswith(".json"):
+            cand = Path("fixtures") / f"{body.fixture_sequences}.json"
+        if cand.is_file():
+            seq_path = cand
+        else:
+            # try repo fixtures/sequences/
+            alt = Path("fixtures/sequences") / Path(body.fixture_sequences).name
+            if not str(alt).endswith(".json"):
+                alt = Path(str(alt) + ".json")
+            if alt.is_file():
+                seq_path = alt
     try:
         result = train_axial(
             days,
@@ -1447,6 +1476,9 @@ def ml_axial_train(body: MlAxialTrainRequest, request: Request) -> dict[str, Any
             epochs=int(body.epochs),
             seed=int(body.seed),
             lr=float(body.lr),
+            arch_preset=str(body.arch_preset or "axial_small"),
+            data_root=store.data_root if body.use_sequence_store else None,
+            fixture_sequence_path=seq_path,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
