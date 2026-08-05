@@ -39,9 +39,14 @@ curl -s -X POST localhost:8000/v1/ml/annotate \
   -d '{"auto_compete":true,"allow_forecast_weighting":true,"reliability_status":"RELIABLE"}' | jq .
 
 curl -s localhost:8000/v1/ml/status | jq .
+
+# Advisory retrain proposal (never auto-trains)
+curl -s -X POST localhost:8000/v1/ml/retrain-check \
+  -H 'content-type: application/json' \
+  -d '{"eval_fixtures":["day001","day002","day003"]}' | jq .
 ```
 
-Workbench: **Health → Research ML (Track F)** — Train / Annotate+compete buttons.
+Workbench: **Health → Research ML (Track F)** — Train / Annotate+compete / Retrain check.
 
 ### Retrain check (advisory only)
 

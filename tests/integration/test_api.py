@@ -186,6 +186,21 @@ def test_ml_train_annotate_compete(tmp_path):
         assert len(model) >= 1
         assert model[0]["authority"] == "SHADOW_ONLY"
 
+        # Advisory retrain-check (never trains)
+        rt = client.post(
+            "/v1/ml/retrain-check",
+            json={"eval_fixtures": ["day001", "day002", "day003"], "min_labeled": 5},
+        )
+        assert rt.status_code == 200, rt.text
+        rbody = rt.json()
+        assert rbody["schema_version"] == "HollerMlRetrainProposal.v1"
+        assert rbody["status"] in {"HOLD", "RETRAIN_SUGGESTED", "NOT_COMPUTABLE"}
+        assert rbody["capital_authority"] is False
+        assert rbody["execution_authority"] is False
+        assert rbody.get("auto_retrain") is False
+        st2 = client.get("/v1/ml/status")
+        assert st2.json().get("last_retrain_proposal") is not None
+
 
 def test_free_first_injected_no_network(tmp_path):
     with TestClient(create_app(data_root=str(tmp_path))) as client:

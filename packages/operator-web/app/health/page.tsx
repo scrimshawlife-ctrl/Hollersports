@@ -15,6 +15,7 @@ import {
   getReliabilityHistory,
   getMlStatus,
   postMlAnnotate,
+  postMlRetrainCheck,
   postMlTrain,
   type Json,
 } from "@/lib/api";
@@ -362,6 +363,37 @@ export default function HealthPage() {
             }}
           >
             Annotate + compete
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={loading || mlBusy}
+            title="Advisory only: evaluate ensemble Brier vs baseline; never auto-trains."
+            onClick={() => {
+              void (async () => {
+                setMlBusy(true);
+                setMlNote(null);
+                try {
+                  const r = await postMlRetrainCheck();
+                  setMlNote(
+                    `retrain ${String(r.status ?? "—")} · ${String(r.reason ?? "")}`,
+                  );
+                  setMlStatus(await getMlStatus());
+                } catch (e) {
+                  setMlNote(
+                    e instanceof ApiError
+                      ? e.message
+                      : e instanceof Error
+                        ? e.message
+                        : "retrain-check failed",
+                  );
+                } finally {
+                  setMlBusy(false);
+                }
+              })();
+            }}
+          >
+            Retrain check
           </button>
         </div>
         {mlNote && (

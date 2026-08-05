@@ -1,6 +1,7 @@
 """Feature engineering from fixture markets (no invented odds).
 
-Pure stdlib. Sentiment and live odds-delta are stubs (0.0) until feeds exist.
+Pure stdlib. Odds-delta from history/cross-book when present; sentiment from
+explicit score or offline lexicon on optional text fields (else 0.0).
 """
 
 from __future__ import annotations
@@ -9,6 +10,7 @@ import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from hollersports.ml.sentiment import resolve_market_sentiment
 from hollersports.schemas.hashing import packet_hash
 
 # Stable feature order for train / apply. Do not reorder without bumping model version.
@@ -117,6 +119,10 @@ def extract_feature_vector(market: Mapping[str, Any]) -> dict[str, float] | None
     # Bound American prices roughly into [-1, 1] for stable logistics.
     price_norm = max(-1.0, min(1.0, price_f / 200.0))
 
+    # Sentiment: explicit score or lexicon on headline/snippet; never invent text.
+    # Map [-1, 1] → roughly centered feature (keep signed value for model).
+    sent = resolve_market_sentiment(market)
+
     return {
         "implied_probability": implied_f,
         "consensus_score": _f(market.get("consensus_score"), 0.5),
@@ -126,7 +132,7 @@ def extract_feature_vector(market: Mapping[str, Any]) -> dict[str, float] | None
         "is_home": is_home,
         "price_norm": price_norm,
         "odds_delta": _odds_delta(market),
-        "sentiment_score": _f(market.get("sentiment_score"), 0.0),
+        "sentiment_score": float(sent),
     }
 
 
