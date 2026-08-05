@@ -258,6 +258,21 @@ def test_ml_train_annotate_compete(tmp_path):
         assert applied.json().get("source") == "retrain_apply"
         assert applied.json()["capital_authority"] is False
 
+        # RSS sentiment inject (no network)
+        rss_xml = """<?xml version="1.0"?><rss version="2.0"><channel>
+        <item><title>GSW Warriors hot winning momentum</title>
+        <description>Golden State dominant home favorite</description></item>
+        </channel></rss>"""
+        rss = client.post(
+            "/v1/ml/sentiment/rss",
+            json={"feed_xml": rss_xml, "fetch": False, "apply_to_ingest": True},
+        )
+        assert rss.status_code == 200, rss.text
+        assert rss.json()["schema_version"] == "HollerRssSentimentPacket.v1"
+        assert rss.json()["item_count"] >= 1
+        assert rss.json()["capital_authority"] is False
+        assert rss.json()["execution_authority"] is False
+
 
 def test_free_first_injected_no_network(tmp_path):
     with TestClient(create_app(data_root=str(tmp_path))) as client:

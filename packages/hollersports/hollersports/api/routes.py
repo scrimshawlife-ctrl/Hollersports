@@ -1321,6 +1321,32 @@ class MlAxialTrainRequest(BaseModel):
     lr: float = Field(default=1e-3, gt=0.0)
 
 
+class MlRssSentimentRequest(BaseModel):
+    """Enrich last ingest markets with RSS lexicon sentiment (advisory)."""
+
+    fetch: bool = Field(
+        default=False,
+        description="Opt-in live HTTPS feed fetch; default False (CI-safe)",
+    )
+    feed_urls: list[str] | None = Field(
+        default=None,
+        description="Override default ESPN sports RSS URLs when fetch=true",
+    )
+    feed_xml: str | None = Field(
+        default=None,
+        description="Injected RSS/Atom XML for offline/CI (preferred in tests)",
+    )
+    feed_xmls: list[str] | None = Field(
+        default=None,
+        description="Multiple injected feed documents",
+    )
+    min_token_hits: int = Field(default=1, ge=1, le=10)
+    apply_to_ingest: bool = Field(
+        default=True,
+        description="Write enriched markets back to last ingest in RunStore",
+    )
+
+
 @router.post("/ml/axial-stub")
 def ml_axial_stub(request: Request) -> dict[str, Any]:
     """Backward-compatible stdlib axial stub (see also POST /v1/ml/axial)."""
@@ -1554,6 +1580,71 @@ def ml_retrain_apply(body: MlRetrainApplyRequest, request: Request) -> dict[str,
         },
     )
     return _safe_packet(train_packet)
+
+
+@router.post("/ml/sentiment/rss")
+def ml_sentiment_rss(body: MlRssSentimentRequest, request: Request) -> dict[str, Any]:
+    """Enrich last ingest with RSS lexicon sentiment (inject XML or opt-in fetch).
+
+    Prefer ``feed_xml`` in tests/CI. Live ``fetch=true`` hits default ESPN sports
+    feeds (HTTPS, cached). Never invents text; unmatched markets stay unscored.
+    """
+    from hollersports.sources.rss_sentiment import enrich_markets_from_rss
+
+    store = _store(request)
+    ingest = store.get("ingest")
+    if not isinstance(ingest, dict) or ingest.get("status") != "INGESTED":
+        raise HTTPException(
+            status_code=400,
+            detail="no INGESTED run; POST /v1/runs/ingest first",
+        )
+    markets = [m for m in (ingest.get("markets") or []) if isinstance(m, dict)]
+    if not markets:
+        raise HTTPException(status_code=400, detail="ingest has no markets")
+
+    xmls: list[str] = []
+    if body.feed_xml:
+        xmls.append(body.feed_xml)
+    if body.feed_xmls:
+        xmls.extend(str(x) for x in body.feed_xmls)
+
+    packet = enrich_markets_from_rss(
+        markets,
+        feed_urls=body.feed_urls,
+        feed_xmls=xmls or None,
+        cache_dir=store.data_root / "http_cache",
+        fetch=bool(body.fetch),
+        min_token_hits=int(body.min_token_hits),
+    )
+    if body.apply_to_ingest and packet.get("markets"):
+        updated = dict(ingest)
+        updated["markets"] = packet["markets"]
+        prov = dict(updated.get("provenance") or {})
+        prov["rss_sentiment"] = True
+        prov["rss_matched"] = packet.get("matched_markets")
+        updated["provenance"] = prov
+        store.put("ingest", updated)
+        # Keep multi-ingest primary aligned when single primary
+        ingests = _stored_ingests(store)
+        if len(ingests) == 1:
+            store.put("ingests", [updated])
+
+    store.put("ml_rss_sentiment", {k: v for k, v in packet.items() if k != "markets"})
+    # Response omits full market dump size if large — include summary + sample
+    summary = {
+        **{k: v for k, v in packet.items() if k != "markets"},
+        "sample_markets": [
+            {
+                "market_id": m.get("market_id"),
+                "sentiment_score": m.get("sentiment_score"),
+                "headline": m.get("headline"),
+                "rss_hit_count": m.get("rss_hit_count"),
+            }
+            for m in (packet.get("markets") or [])[:10]
+            if isinstance(m, dict) and m.get("rss_hit_count")
+        ],
+    }
+    return _safe_packet(summary)
 
 
 @router.post("/ml/train")

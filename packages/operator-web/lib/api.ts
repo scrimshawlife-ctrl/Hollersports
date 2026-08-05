@@ -305,6 +305,24 @@ export function postMlRetrainApply(opts: {
   });
 }
 
+/** RSS lexicon sentiment on last ingest (inject XML or opt-in fetch). */
+export function postMlRssSentiment(opts?: {
+  fetch?: boolean;
+  feed_xml?: string;
+  feed_urls?: string[];
+  apply_to_ingest?: boolean;
+}) {
+  return request<Json>("/v1/ml/sentiment/rss", {
+    method: "POST",
+    body: JSON.stringify({
+      fetch: opts?.fetch ?? false,
+      feed_xml: opts?.feed_xml,
+      feed_urls: opts?.feed_urls,
+      apply_to_ingest: opts?.apply_to_ingest ?? true,
+    }),
+  });
+}
+
 /** Session-backed last competition packet (fallback if GET /candidates empty). */
 const COMPETE_KEY = "holler.operator.lastCompetition";
 
