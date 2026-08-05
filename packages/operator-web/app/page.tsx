@@ -101,6 +101,22 @@ export default function TodayPage() {
             (competed != null ? ` · competed ${String(competed)}` : "") +
             (cands != null ? ` · candidates ${String(cands)}` : ""),
         );
+      } else if (id === "settle") {
+        const entries = Array.isArray(result.entries) ? result.entries : [];
+        const pending = entries.filter(
+          (e) =>
+            e &&
+            typeof e === "object" &&
+            String((e as { status?: unknown }).status ?? "").toUpperCase() ===
+              "PENDING",
+        ).length;
+        const settled = entries.length - pending;
+        setLastAction(
+          `${id} → ${String(result.status ?? "ok")} · settled ${settled} · pending ${pending}` +
+            (result.result_count != null
+              ? ` · results ${String(result.result_count)}`
+              : ""),
+        );
       } else {
         setLastAction(`${id} → ${String(result.status ?? "ok")}`);
       }
@@ -303,9 +319,29 @@ export default function TodayPage() {
             type="button"
             className="btn"
             disabled={disabled}
-            onClick={() => void runAction("settle", () => postSettle())}
+            title={
+              slatePath.text === "free-first"
+                ? "Settle via live ESPN scoreboard finals when available; non-final stay PENDING. No money."
+                : "Settle against fixture results.json when a fixture day is loaded. No money."
+            }
+            onClick={() =>
+              void runAction("settle", () => {
+                const isFreeFirst = slatePath.text === "free-first";
+                const league =
+                  freeFirstLeague === "ALL" ? undefined : [freeFirstLeague];
+                return postSettle(
+                  isFreeFirst
+                    ? { fetch_espn: true, leagues: league }
+                    : {},
+                );
+              })
+            }
           >
-            {busy === "settle" ? "Settling…" : "Settle"}
+            {busy === "settle"
+              ? "Settling…"
+              : slatePath.text === "free-first"
+                ? "Settle (ESPN finals)"
+                : "Settle"}
           </button>
           <button
             type="button"

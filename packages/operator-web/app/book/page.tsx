@@ -8,9 +8,11 @@ import {
   cacheCompetition,
   candidateKey,
   getCandidates,
+  getDashboard,
   getPortfolio,
   postCompete,
   postPaper,
+  postSettle,
   readCachedCompetition,
   type Json,
 } from "@/lib/api";
@@ -40,6 +42,19 @@ type PortfolioRow = {
   expected_value: number | null;
   settled_value: number | null;
   status: string;
+};
+
+type SettlementRow = {
+  key: string;
+  entry_id: string;
+  event_id: string;
+  market_id: string;
+  selection: string;
+  status: string;
+  pnl: number | null;
+  result_source: string;
+  final_score: string;
+  reason?: string;
 };
 
 function asList(v: unknown): unknown[] {
@@ -112,6 +127,34 @@ function parsePortfolio(packet: Json | null): PortfolioRow[] {
   return rows;
 }
 
+function parseSettlements(packet: Json | null): SettlementRow[] {
+  if (!packet) return [];
+  const batch =
+    packet.settlements && typeof packet.settlements === "object"
+      ? (packet.settlements as Record<string, unknown>)
+      : packet;
+  const entries = asList(
+    (batch as { entries?: unknown }).entries ?? packet.settlement_entries,
+  );
+  return entries
+    .filter((e): e is Record<string, unknown> => !!e && typeof e === "object")
+    .map((e, i) => ({
+      key: String(e.entry_id ?? e.id ?? `settle-${i}`),
+      entry_id: String(e.entry_id ?? e.id ?? `settle-${i}`),
+      event_id: String(e.event_id ?? "—"),
+      market_id: String(e.market_id ?? "—"),
+      selection: String(e.selection ?? "—"),
+      status: String(e.status ?? "PENDING"),
+      pnl: numOrNull(e.pnl),
+      result_source: String(e.result_source ?? e.source ?? "—"),
+      final_score:
+        e.final_score != null && String(e.final_score) !== ""
+          ? String(e.final_score)
+          : "—",
+      reason: e.reason != null ? String(e.reason) : undefined,
+    }));
+}
+
 function fmtNum(n: number | null, digits = 4): string {
   if (n === null) return "—";
   return n.toFixed(digits);
@@ -120,6 +163,7 @@ function fmtNum(n: number | null, digits = 4): string {
 export default function BookPage() {
   const [competition, setCompetition] = useState<Json | null>(null);
   const [portfolio, setPortfolio] = useState<Json | null>(null);
+  const [slatePath, setSlatePath] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -128,8 +172,14 @@ export default function BookPage() {
   const load = useCallback(async (refreshCompete: boolean) => {
     setError(null);
     try {
-      const port = await getPortfolio();
+      const [port, dash] = await Promise.all([
+        getPortfolio(),
+        getDashboard().catch(() => null),
+      ]);
       setPortfolio(port);
+      const path = (dash?.panels as { slate?: { path?: unknown } } | undefined)
+        ?.slate?.path;
+      setSlatePath(path != null ? String(path) : null);
 
       if (refreshCompete) {
         const comp = await postCompete();
@@ -175,6 +225,14 @@ export default function BookPage() {
 
   const candidates = useMemo(() => parseCandidates(competition), [competition]);
   const portfolioRows = useMemo(() => parsePortfolio(portfolio), [portfolio]);
+  const settlementRows = useMemo(
+    () => parseSettlements(portfolio),
+    [portfolio],
+  );
+  const settlementPending = settlementRows.filter(
+    (r) => r.status.toUpperCase() === "PENDING",
+  ).length;
+  const settlementTerminal = settlementRows.length - settlementPending;
 
   const modelEdgeEnabled = Boolean(competition?.model_edge_enabled);
   const modelEdgeCount = candidates.filter(
@@ -297,6 +355,52 @@ export default function BookPage() {
     },
   ];
 
+  const settlementColumns: Column<SettlementRow>[] = [
+    {
+      key: "entry_id",
+      header: "Entry",
+      render: (r) => <span className="mono">{r.entry_id}</span>,
+    },
+    {
+      key: "event_id",
+      header: "Event",
+      render: (r) => <span className="mono">{r.event_id}</span>,
+    },
+    {
+      key: "selection",
+      header: "Selection",
+      render: (r) => r.selection,
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (r) => (
+        <AuthorityChip
+          label={r.status}
+          tone={toneForStatus(r.status)}
+          title={r.reason}
+        />
+      ),
+    },
+    {
+      key: "pnl",
+      header: "PnL",
+      align: "right",
+      tabular: true,
+      render: (r) => fmtNum(r.pnl, 2),
+    },
+    {
+      key: "final_score",
+      header: "Score",
+      render: (r) => <span className="mono">{r.final_score}</span>,
+    },
+    {
+      key: "result_source",
+      header: "Source",
+      render: (r) => <span className="mono">{r.result_source}</span>,
+    },
+  ];
+
   function toggleRow(key: string) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -351,8 +455,43 @@ export default function BookPage() {
     }
   }
 
+  async function onResettle(fetchEspn: boolean) {
+    setBusy(fetchEspn ? "settle-espn" : "settle");
+    setError(null);
+    setStatusLine(null);
+    try {
+      const result = await postSettle(
+        fetchEspn ? { fetch_espn: true } : {},
+      );
+      const entries = Array.isArray(result.entries) ? result.entries : [];
+      const pending = entries.filter(
+        (e) =>
+          e &&
+          typeof e === "object" &&
+          String((e as { status?: unknown }).status ?? "").toUpperCase() ===
+            "PENDING",
+      ).length;
+      setStatusLine(
+        `settle → ${String(result.status ?? "ok")} · terminal ${entries.length - pending} · pending ${pending}` +
+          (fetchEspn ? " · ESPN" : " · fixture"),
+      );
+      await load(false);
+    } catch (e) {
+      const msg =
+        e instanceof ApiError
+          ? e.message
+          : e instanceof Error
+            ? e.message
+            : "settle failed";
+      setError(msg);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   const competitionStatus = String(competition?.status ?? "—");
   const portfolioStatus = String(portfolio?.status ?? "EMPTY");
+  const isFreeFirst = slatePath === "free-first";
 
   return (
     <>
@@ -432,6 +571,59 @@ export default function BookPage() {
           rows={portfolioRows}
           rowKey={(r) => r.key}
           emptyMessage="Empty ledger — paper candidates to open tickets"
+        />
+      </section>
+
+      <section className="section" aria-label="Settlement queue">
+        <div
+          className="page-header"
+          style={{ borderBottom: "none", marginBottom: 8, paddingBottom: 0 }}
+        >
+          <h2 className="section-title" style={{ margin: 0 }}>
+            Settlement queue
+          </h2>
+          <div className="actions-row">
+            <AuthorityChip
+              label={`pending ${settlementPending}`}
+              tone={settlementPending > 0 ? "warn" : "neutral"}
+            />
+            <AuthorityChip
+              label={`terminal ${settlementTerminal}`}
+              tone="neutral"
+            />
+            <button
+              type="button"
+              className="btn"
+              disabled={busy !== null}
+              title="Settle using fixture results.json when a fixture day is loaded."
+              onClick={() => void onResettle(false)}
+            >
+              {busy === "settle" ? "Settling…" : "Settle (fixture)"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={busy !== null}
+              title="Re-settle via ESPN scoreboard finals. Non-final games stay PENDING. No money."
+              onClick={() => void onResettle(true)}
+            >
+              {busy === "settle-espn"
+                ? "Settling ESPN…"
+                : isFreeFirst
+                  ? "Re-settle (ESPN finals)"
+                  : "Settle (ESPN finals)"}
+            </button>
+          </div>
+        </div>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Triage PENDING vs finals. Outcome source shows ESPN_SCOREBOARD or
+          FIXTURE — advisory simulation only.
+        </p>
+        <DataTable
+          columns={settlementColumns}
+          rows={settlementRows}
+          rowKey={(r) => r.key}
+          emptyMessage="No settlements yet — paper then Settle from Today or here"
         />
       </section>
 
