@@ -284,6 +284,27 @@ export function postMlRetrainCheck(opts?: {
   });
 }
 
+/**
+ * Gated retrain apply — requires confirm=true.
+ * Default require_suggestion=true (last check must be RETRAIN_SUGGESTED).
+ */
+export function postMlRetrainApply(opts: {
+  confirm: boolean;
+  require_suggestion?: boolean;
+  train_fixtures?: string[];
+  seed?: number;
+}) {
+  return request<Json>("/v1/ml/retrain-apply", {
+    method: "POST",
+    body: JSON.stringify({
+      confirm: opts.confirm,
+      require_suggestion: opts.require_suggestion ?? true,
+      train_fixtures: opts.train_fixtures ?? ["day001", "day002", "day003"],
+      seed: opts.seed ?? 42,
+    }),
+  });
+}
+
 /** Session-backed last competition packet (fallback if GET /candidates empty). */
 const COMPETE_KEY = "holler.operator.lastCompetition";
 

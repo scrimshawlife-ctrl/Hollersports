@@ -235,6 +235,25 @@ class MlRetrainCheckRequest(BaseModel):
     min_labeled: int = Field(default=8, ge=1, le=10_000)
 
 
+class MlRetrainApplyRequest(BaseModel):
+    """Human/Hermes-gated retrain: requires explicit confirm (never silent)."""
+
+    confirm: bool = Field(
+        default=False,
+        description="Must be true to train; refuse otherwise",
+    )
+    require_suggestion: bool = Field(
+        default=True,
+        description="If true, last retrain-check must be RETRAIN_SUGGESTED",
+    )
+    train_fixtures: list[str] = Field(
+        default_factory=lambda: ["day001", "day002", "day003"],
+        description="Fixture days to retrain on",
+    )
+    seed: int = 42
+    prefer_sklearn: bool = False
+
+
 def _store(request: Request) -> RunStore:
     return request.app.state.store  # type: ignore[no-any-return]
 
@@ -1337,6 +1356,90 @@ def ml_retrain_check(
     )
     store.put("ml_retrain", proposal)
     return _safe_packet(proposal)
+
+
+@router.post("/ml/retrain-apply")
+def ml_retrain_apply(body: MlRetrainApplyRequest, request: Request) -> dict[str, Any]:
+    """Apply retrain only with explicit confirm (Hermes/human gate).
+
+    Refuses when confirm is false. Optionally requires last proposal status
+    RETRAIN_SUGGESTED. Still advisory artifacts only — no capital/execution.
+    """
+    from hollersports.ml.pipeline import run_train_calibrate
+
+    store = _store(request)
+    if not body.confirm:
+        raise HTTPException(
+            status_code=400,
+            detail="confirm_required: set confirm=true after reviewing retrain-check",
+        )
+    if body.require_suggestion:
+        last = store.get("ml_retrain")
+        status = str((last or {}).get("status") or "") if isinstance(last, dict) else ""
+        if status != "RETRAIN_SUGGESTED":
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "retrain_not_suggested: run POST /v1/ml/retrain-check first "
+                    f"(last status={status or 'EMPTY'}); or set require_suggestion=false"
+                ),
+            )
+
+    train_dirs: list[Path] = []
+    for name in body.train_fixtures:
+        try:
+            train_dirs.append(resolve_fixture_dir(name))
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    out_dir = store.data_root / "ml"
+    try:
+        result = run_train_calibrate(
+            train_dirs,
+            None,
+            out_dir=out_dir,
+            prefer_sklearn=bool(body.prefer_sklearn),
+            seed=int(body.seed),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    train_packet = {
+        "schema_version": "HollerMlTrainPacket.v1",
+        "status": "TRAINED",
+        "source": "retrain_apply",
+        **result,
+        "train_fixtures": list(body.train_fixtures),
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+        "note": "human_or_hermes_confirmed_retrain",
+    }
+    ensemble_packet = {
+        "ensemble_path": result["ensemble_path"],
+        "ensemble_id": result.get("ensemble_id"),
+        "model_id": result.get("model_id"),
+        "data_hash": result.get("data_hash"),
+        "metrics": result.get("metrics"),
+        "capital_authority": False,
+        "execution_authority": False,
+    }
+    store.put("ml_train", train_packet)
+    store.put("ml_ensemble", ensemble_packet)
+    store.put(
+        "ml_retrain_apply",
+        {
+            "schema_version": "HollerMlRetrainApply.v1",
+            "status": "APPLIED",
+            "model_id": result.get("model_id"),
+            "ensemble_path": result.get("ensemble_path"),
+            "capital_authority": False,
+            "execution_authority": False,
+            "mode": "ADVISORY_ONLY",
+        },
+    )
+    return _safe_packet(train_packet)
 
 
 @router.post("/ml/train")

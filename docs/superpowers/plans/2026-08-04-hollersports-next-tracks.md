@@ -90,7 +90,7 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] Axial **stub** (stdlib dual-axis smooth; `POST /v1/ml/axial-stub` — not neural yet)
 - [ ] Live social/RSS sentiment feeds
 - [ ] Real axial transformer (PyTorch) behind same packet interface
-- [ ] Auto-apply retrain after human/Hermes approval (still deferred)
+- [x] Gated retrain apply (`POST /v1/ml/retrain-apply` requires `confirm=true`; optional suggestion gate)
 
 ## Hard constraints (all tracks)
 

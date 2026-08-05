@@ -71,6 +71,11 @@ make ml-train
 make ml-retrain-check
 # → docs/evidence/ml_retrain_proposal.last.json
 # Never auto-trains. Hermes may surface suggested_command for human approval.
+
+# After review, optional gated apply (confirm required):
+curl -s -X POST localhost:8000/v1/ml/retrain-apply \
+  -H 'content-type: application/json' \
+  -d '{"confirm":true,"require_suggestion":true,"train_fixtures":["day001","day002","day003"]}' | jq .
 ```
 
 ### Odds movement (free-first)
