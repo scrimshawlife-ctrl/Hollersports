@@ -9,7 +9,7 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 |--|--|
 | **What it is** | Sports **betting advisory** operator: free-first / fixture ingest → market-first candidates → paper simulation to rank advice — fail-closed. |
 | **What it is not** | Money handler, sportsbook, payment rail, live bet placer, or Abraxas runtime dependency. |
-| **Package** | `hollersports` **0.4.0** (`packages/hollersports`) |
+| **Package** | `hollersports` **0.5.0** (`packages/hollersports`) · freeze tag `v0.5.0-advisory-beta` |
 | **Mode** | `ADVISORY_ONLY` / `PAPER_ONLY` (sim) · `capital_authority=false` · `execution_authority=false` · **no real money** |
 | **Main tip (docs pin)** | `aa89903` · foundation PR **#3** MERGED `838ea88` |
 | **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/`, `docs/agents/` |
@@ -108,7 +108,7 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 ```text
 Hollersports/
 ├── AGENTS.md                    # Agent entry (Hermes backfill)
-├── packages/hollersports/       # Primary Python package (v0.4.0)
+├── packages/hollersports/       # Primary Python package (v0.5.0)
 ├── packages/operator-web/       # Cobalt Workbench
 ├── schemas/json/                # Canonical packet contracts
 ├── fixtures/day001|day002|day003/  # Offline multi-league day packs

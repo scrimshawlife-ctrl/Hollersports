@@ -101,7 +101,7 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] Real PyTorch axial model (`[torch]` extra; train + `POST /v1/ml/axial` auto/torch)
 - [x] RSS sentiment feeds (inject XML / opt-in HTTPS; `POST /v1/ml/sentiment/rss`; lexicon match)
 - [x] Gated retrain apply (`POST /v1/ml/retrain-apply` requires `confirm=true`; optional suggestion gate)
-- [x] **Freeze** at `v0.4.0-advisory-beta` for small-scale field testing
+- [x] **Freeze** at `v0.5.0-advisory-beta` (F+G) for field testing
 
 ## Track G — Temporal capacity (research scale — before freeze)
 

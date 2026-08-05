@@ -6,12 +6,12 @@ class: ADVISORY_OPERATOR_READY   # local advisory beta only
 foundation_pr: 3
 foundation_merge_sha: 838ea88d0aa85b1c85f810bb080c590f5c8a7804
 foundation_merged_at: "2026-08-04T21:25:36Z"
-tip_sha: a10468d
-feature_tip_before_docs_pin: a10468d
-prior_docs_pin: 2c4bc7c
+tip_sha: 485ecd7
+feature_tip_before_docs_pin: 485ecd7
+prior_docs_pin: c109ce4
 branch: main
-package_version: "0.4.0"
-tag: v0.4.0-advisory-beta
+package_version: "0.5.0"
+tag: v0.5.0-advisory-beta
 date: "2026-08-05"
 verdict: PASS
 scope: local_single_operator_advisory
