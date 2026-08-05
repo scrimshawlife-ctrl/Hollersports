@@ -126,17 +126,81 @@ def append_settlement_history(
     return written
 
 
+def _entry_identity(row: Mapping[str, Any], *, index: int | None = None) -> str:
+    """Stable ticket key for re-settle collapse.
+
+    Prefer ``entry_id``. Without it, use ``entry_hash`` so legacy bank rows stay
+    distinct. Anonymous peers (no id/hash) keep their source index so calibration
+    samples are not accidentally collapsed to one row.
+    """
+    eid = str(row.get("entry_id") or "").strip()
+    if eid:
+        return f"id:{eid}"
+    eh = str(row.get("entry_hash") or "").strip()
+    if eh:
+        return f"hash:{eh}"
+    if index is not None:
+        return f"row:{index}"
+    return "|".join(
+        [
+            str(row.get("run_id") or ""),
+            str(row.get("event_id") or ""),
+            str(row.get("market_id") or ""),
+            str(row.get("selection") or ""),
+            str(row.get("strategy_id") or ""),
+        ]
+    )
+
+
+def collapse_latest_settlements(
+    rows: Sequence[Mapping[str, Any]] | None,
+    *,
+    settled_only: bool = True,
+) -> list[dict[str, Any]]:
+    """Keep the latest row per paper ``entry_id`` (re-settle safe).
+
+    Append-only bank may contain PENDING then WIN for the same ticket after
+    ESPN finals. Calibration must count each ticket once — the newest status.
+    When ``settled_only``, drop identities whose latest status is not terminal.
+    """
+    latest: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for i, raw in enumerate(rows or []):
+        if not isinstance(raw, Mapping):
+            continue
+        key = _entry_identity(raw, index=i)
+        if key not in latest:
+            order.append(key)
+        latest[key] = dict(raw)
+    out: list[dict[str, Any]] = []
+    for key in order:
+        row = latest[key]
+        status = str(row.get("status") or "").upper()
+        if settled_only and status not in _SETTLED:
+            continue
+        out.append(row)
+    return out
+
+
 def calibration_entries_for_store(
     data_root: Path | str,
     last_batch: Sequence[Mapping[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    """Prefer cumulative history; fall back to last settlement batch."""
-    hist = read_settlement_history(data_root=data_root, settled_only=True)
-    if hist:
-        return hist
-    return [
-        dict(e)
-        for e in (last_batch or [])
-        if isinstance(e, Mapping)
-        and str(e.get("status") or "").upper() in _SETTLED
-    ]
+    """Prefer cumulative history (latest per entry); fall back to last batch.
+
+    Re-settles append new rows; collapse so PENDING→WIN does not double-count.
+    """
+    # Read full chain so PENDING→terminal transitions collapse correctly.
+    hist_all = read_settlement_history(
+        data_root=data_root, settled_only=False
+    )
+    if hist_all:
+        return collapse_latest_settlements(hist_all, settled_only=True)
+    return collapse_latest_settlements(
+        [
+            dict(e)
+            for e in (last_batch or [])
+            if isinstance(e, Mapping)
+        ],
+        settled_only=True,
+    )

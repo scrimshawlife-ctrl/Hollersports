@@ -20,7 +20,6 @@ from pathlib import Path
 
 from hollersports.pipelines.operator_day import run_operator_day
 from hollersports.runes.calibration_evaluator import evaluate_calibration
-from hollersports.paper.settlement_history import read_settlement_history
 from hollersports.schemas.hashing import packet_hash
 
 DEFAULT_FIXTURES = ("day001", "day002", "day003")
@@ -112,7 +111,9 @@ def main() -> int:
                 }
             )
 
-    hist = read_settlement_history(data_root=args.data_root, settled_only=True)
+    from hollersports.paper.settlement_history import calibration_entries_for_store
+
+    hist = calibration_entries_for_store(args.data_root)
     cal = evaluate_calibration(hist, allow_forecast_weighting=True)
 
     receipt = {

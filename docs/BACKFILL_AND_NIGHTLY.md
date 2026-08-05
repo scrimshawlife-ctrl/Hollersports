@@ -45,10 +45,17 @@ Backfill writes:
 - `data/backfill/ledgers/reliability.jsonl` — reliability snapshots  
 - calibration ladder receipt with `sample_size` / `status` / `model_edge_allowed`
 
+## Calibration bank + re-settles
+
+The bank is **append-only** (`data/backfill/ledgers/settlements_history.jsonl`).
+Re-settling the same paper ticket (PENDING → WIN, or ESPN re-fetch) appends a new
+row. Calibration and `backfill_status` count **latest status per `entry_id`** so
+tickets are not double-counted.
+
 ## Optional live free-first observation
 
 ```bash
-# ESPN only
+# ESPN only (observe pack only)
 python scripts/holler_free_first_ingest.py --espn-only --out out/free_first.json
 
 # ESPN + Odds API
@@ -58,6 +65,26 @@ python scripts/holler_free_first_ingest.py --out out/free_first.json
 
 Workbench: **Free-first live observe** on Today (may hit network; fail-closed if offline).
 
+## Free-first closed day (observe → compete → paper → settle → bank)
+
+Prefer **injected** JSON for CI; live finals are opt-in.
+
+```bash
+# CI-safe (no network)
+python scripts/free_first_operator_day.py \
+  --espn-raw path/to/espn.json --odds-raw path/to/odds.json \
+  --settle-espn-raw path/to/finals.json --leagues NBA \
+  --data-root data/backfill --out docs/evidence/free_first_day.last.json
+
+# Live finals into the same bank (network; never places bets)
+make free-first-day
+# or: python scripts/free_first_operator_day.py --leagues NBA --fetch-espn-finals \
+#        --data-root data/backfill --out docs/evidence/free_first_day.last.json
+```
+
+Non-final ESPN outcomes stay PENDING and are collapsed out of the calibration
+sample until a later terminal re-settle.
+
 ## Suggested cron (operator machine)
 
 ```cron
@@ -66,6 +93,9 @@ Workbench: **Free-first live observe** on Today (may hit network; fail-closed if
 
 # Optional: live observe weekdays (requires network; never places bets)
 30 6 * * 1-5 cd /path/to/Hollersports && . .venv/bin/activate && python scripts/holler_free_first_ingest.py --espn-only --out out/free_first_$(date +\%Y\%m\%d).json >> out/nightly.log 2>&1
+
+# Optional: closed free-first day weekdays → calibration bank (network; advisory only)
+45 6 * * 1-5 cd /path/to/Hollersports && . .venv/bin/activate && python scripts/free_first_operator_day.py --leagues NBA --fetch-espn-finals --data-root data/backfill --out out/free_first_day_$(date +\%Y\%m\%d).json >> out/nightly.log 2>&1
 ```
 
 ## Reliability review

@@ -1,5 +1,5 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
-	install smoke calibration-suite backfill backfill-status api web free-first
+	install smoke calibration-suite backfill backfill-status api web free-first free-first-day
 
 install:
 	python -m pip install -U pip
@@ -52,3 +52,11 @@ web:
 # Optional live observation (ESPN free; Odds API if THE_ODDS_API_KEY set). Advisory only.
 free-first:
 	python scripts/holler_free_first_ingest.py --out out/free_first_observation.json
+
+# Closed free-first day → compete → paper → ESPN settle → calibration bank.
+# Prefer injected JSON for CI; live finals need --fetch-espn-finals (network).
+# Example (injected): python scripts/free_first_operator_day.py --espn-raw ... --odds-raw ... --settle-espn-raw ...
+FREE_FIRST_LEAGUES ?= NBA
+free-first-day:
+	python scripts/free_first_operator_day.py --leagues $(FREE_FIRST_LEAGUES) --fetch-espn-finals \
+		--data-root data/backfill --out docs/evidence/free_first_day.last.json
