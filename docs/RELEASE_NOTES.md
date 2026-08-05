@@ -2,6 +2,8 @@
 
 Advisory-only product. No real money, no book placement, no capital custody.
 
+Documentation map: [README.md](README.md) · field-test freeze: [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).
+
 ## Merge status
 
 | Span | State | Notes |
@@ -9,6 +11,22 @@ Advisory-only product. No real money, no book placement, no capital custody.
 | **#3** — standalone advisory operator | **MERGED** `838ea88` | Foundation local advisory beta |
 | **#4–#11** | **MERGED** on `main` | Free-first, settle, calibration bank continuum |
 | **#12–#17** — Track F research ML | **MERGED** | Features → train → EV → axial/RSS → gated retrain |
+| **#18–#20** — freeze + Track G | **MERGED** | v0.4 freeze notes · v0.5 Track G · tag `v0.5.0-advisory-beta` |
+| **#21** — field-test receipt | **MERGED** | `make field-test` · `FIELD_TEST_RECEIPT_v0.5.0.json` |
+| **#22** — Workbench Hallmark redesign | **MERGED** | Cobalt action board · Health panels · `design.md` |
+
+---
+
+## main (post-freeze docs & Workbench)
+
+Work on `main` after the freeze tag. Prefer **`v0.5.0-advisory-beta`** for field demos; use `main` for latest operator UI and docs.
+
+| PR | Theme |
+|----|--------|
+| #21 | Field-test ops receipt + Makefile `field-test` |
+| #22 | Hallmark Cobalt Workbench redesign (`design.md`, action groups, Health panels) |
+
+Docs hub: [docs/README.md](README.md) · contributing: [../CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ---
 
@@ -33,7 +51,7 @@ See [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).
 ```bash
 git checkout v0.5.0-advisory-beta
 pip install -e "packages/hollersports[dev]"
-make smoke && make ml-e2e
+make field-test    # smoke + ml-e2e + FIELD_TEST_RECEIPT_v0.5.0.json
 # optional:
 pip install -e "packages/hollersports[torch]"
 make ml-axial-train-transformer

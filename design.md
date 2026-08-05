@@ -3,6 +3,8 @@
 Locked design system for the **app** (`packages/operator-web`). All three
 routes (Today / Book / Health) share this system. Do not invent per-page themes.
 
+Docs map: [docs/README.md](docs/README.md) · package README: [packages/operator-web/README.md](packages/operator-web/README.md).
+
 ## Genre
 
 **atmospheric** — dark paper, low chroma, technical-austere operator console.

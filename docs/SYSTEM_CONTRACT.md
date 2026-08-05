@@ -1,5 +1,7 @@
 # HollerSports System Contract v0.3
 
+Documentation map: [README.md](README.md).
+
 ## Product purpose
 
 HollerSports is a **sports betting advisory** system: it observes markets, scores candidates, and helps an operator **decide what they might bet**.

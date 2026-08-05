@@ -9,15 +9,22 @@
 
 [![Python](https://img.shields.io/badge/python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Package](https://img.shields.io/badge/hollersports-0.5.0-0B3D91)](packages/hollersports/pyproject.toml)
+[![Freeze](https://img.shields.io/badge/freeze-v0.5.0--advisory--beta-blue)](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md)
 [![Purpose](https://img.shields.io/badge/purpose-advise%20only-0B3D91)](docs/SYSTEM_CONTRACT.md)
 [![Money](https://img.shields.io/badge/real%20money-never-success)](docs/SYSTEM_CONTRACT.md)
 [![Mode](https://img.shields.io/badge/mode-PAPER%20SIM-blue)](docs/SYSTEM_CONTRACT.md)
 [![Books](https://img.shields.io/badge/live%20books-disabled-red)](docs/SYSTEM_CONTRACT.md)
 [![Abraxas](https://img.shields.io/badge/Abraxas-concept%20lineage%20only-lightgrey)](docs/ABRAXAS_LINEAGE.md)
-[![Advisory beta](https://img.shields.io/badge/advisory%20beta-local%20PASS-blue)](docs/PRODUCTION_READINESS.md)
+[![Advisory beta](https://img.shields.io/badge/local%20advisory%20beta-PASS-blue)](docs/PRODUCTION_READINESS.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-informational)](LICENSE)
 
-[Quick start](#quick-start) · [Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) · [Testing & calibration](docs/TESTING_AND_CALIBRATION.md) · [Hermes backfill](docs/agents/HERMES_BACKFILL.md) · [Agents](AGENTS.md) · [Release notes](docs/RELEASE_NOTES.md) · [Production readiness](docs/PRODUCTION_READINESS.md) · [System contract](docs/SYSTEM_CONTRACT.md) · [Runbook](docs/OPERATOR_RUNBOOK.md) · [Design](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)
+[Quick start](#quick-start) ·
+[Docs index](docs/README.md) ·
+[Atlas](docs/atlas/HOLLERSPORTS_ATLAS.md) ·
+[Field test](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md) ·
+[Agents](AGENTS.md) ·
+[Release notes](docs/RELEASE_NOTES.md) ·
+[System contract](docs/SYSTEM_CONTRACT.md)
 
 </div>
 
@@ -27,9 +34,9 @@
 
 Most “betting tools” either invent certainty or quietly become money rails. HollerSports does neither:
 
-1. **Observe** markets with provenance and source health.  
-2. **Advise** with scored candidates (`SHADOW_ONLY`) — what you *might* consider betting.  
-3. **Simulate** advised tickets on paper to measure advice quality — **not** to move money.  
+1. **Observe** markets with provenance and source health.
+2. **Advise** with scored candidates (`SHADOW_ONLY`) — what you *might* consider betting.
+3. **Simulate** advised tickets on paper to measure advice quality — **not** to move money.
 4. **Fail closed** when odds, lines, or provenance are missing.
 
 > Strategies advise. Guards keep it paper. Ledgers score the advice. Humans decide — and bet elsewhere, if at all.
@@ -38,64 +45,84 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 
 ## Status
 
-**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `42ca274` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
-**Open PRs:** none (all continuum work is on `main`).  
-**Money / live books:** **never** — contract-forbidden.
+| | |
+|--|--|
+| **Classification** | Local **advisory beta** — [PASS](docs/PRODUCTION_READINESS.md) for `ADVISORY_OPERATOR_READY` |
+| **Package** | `hollersports` **0.5.0** |
+| **Field-test freeze** | Tag **[`v0.5.0-advisory-beta`](https://github.com/scrimshawlife-ctrl/Hollersports/releases/tag/v0.5.0-advisory-beta)** — prefer this pin for demos |
+| **Money / live books** | **Never** — contract-forbidden |
+| **Not claimed** | Multi-tenant SaaS GA · PyPI publish · production-scale transformers as betting alpha |
 
-| Track | State | Notes |
-|-------|--------|--------|
+| Capability | State | Notes |
+|------------|--------|--------|
 | Governance + hashing | **shipped** | Authority locks, fail-closed helpers |
-| Packet contracts v1 | **shipped** | Nine JSON Schemas + Pydantic |
-| Fixture ingest + source health | **shipped** | `fixtures/day001`–`day003` (model fields on day002+) |
-| Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated (calibration) |
+| Packet contracts v1 | **shipped** | JSON Schemas + Pydantic |
+| Fixture ingest + source health | **shipped** | `fixtures/day001`–`day003` |
+| Free-first live observe | **shipped** | ESPN free; Odds API optional; CI injects |
+| Market-first strategies | **shipped** | Consensus · public fade · CLV |
+| Model edge (gated) | **shipped** | Calibration ladder + `model_probability` |
+| Track F research ML | **shipped** | Features → train → EV annotate → `/v1/ml/*` |
+| Track G sequences / axial | **shipped** | Sequences, larger presets, CRPS (optional `[torch]`) |
 | Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL + settlement bank |
-| Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |
-| Calibration ladder + backfill | **shipped** | `GET /v1/calibration`, `make backfill`, Hermes playbook |
-| Golden 12-run + authority locks | **shipped** | `tests/golden/` + calibration suite |
-| FastAPI `/v1` | **shipped** | `create_app` factory |
-| Next.js Workbench (Cobalt) | **shipped** | Today · Book · Health |
-| CI | **shipped** | `.github/workflows/ci.yml` |
+| Settlement / promotion / operator day | **shipped** | `run_operator_day` + free-first closed day |
+| FastAPI `/v1` | **shipped** | `create_app` factory · port 8000 |
+| Operator Workbench | **shipped** | Next.js Cobalt · Today · Book · Health ([design.md](design.md)) |
+| CI | **shipped** | Python + operator-web workflows |
 | Real money / book placement | **never** | Advisory only |
-| Local advisory beta | **PASS** | PR #3 merge + continuum on main |
-| SaaS multi-tenant GA | **not claimed** | Local single-operator |
-Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.
 
-## Architecture (current)
+Full topology: **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)**.  
+Documentation map: **[docs/README.md](docs/README.md)**.
+
+## Architecture
 
 ```text
-fixtures/day001 ──► source_health ──► MarketIngestionPacket
-                                          │
-                                          ▼
-                              strategy competition
-                              (SHADOW_ONLY candidates)
-                                          │
-                                          ▼
-                              execution_guard (PAPER_ONLY)
-                                          │
-                                          ▼
-                              paper ledger → settle → performance
-                                          │
-                                          ▼
-                              promotion (review only) → dashboard projection
+fixtures/ ──or── free-first (ESPN ± Odds API)
+        │
+        ▼
+ source_health ──► MarketIngestionPacket
+        │
+        ▼
+ strategy competition (SHADOW_ONLY candidates)
+   · consensus / public fade / CLV
+   · MODEL_PROBABILITY_EDGE (gated by calibration + opt-in)
+        │
+        ▼
+ execution_guard (PAPER_ONLY) ──► paper ledger
+        │
+        ▼
+ settle ──► performance / reliability / calibration bank
+        │
+        ▼
+ promotion (review only) ──► PROJECTION_ONLY dashboard
+        │
+        ├── FastAPI /v1  (:8000)
+        └── Workbench    (:3000)
 ```
 
-API + Next.js Workbench are **shipped** (local). Hosted SaaS / Vercel remains out of scope.
+Optional research path (still advisory): offline **Track F/G** ML → annotate `model_probability` → compete only when the evidence ladder allows.
 
 ## Quick start
+
+### 1. Clone and validate (Python)
 
 ```bash
 git clone https://github.com/scrimshawlife-ctrl/Hollersports.git
 cd Hollersports
 
 python3 -m venv .venv && source .venv/bin/activate
-make validate   # install + pytest + smoke + multi-fixture calibration suite
-make test-calibration
-make calibration-suite
-make backfill-status   # Hermes: what needs paper backfill?
-make backfill          # grow calibration sample (offline fixtures)
+make validate          # install + pytest + smoke + calibration suite
+make field-test        # freeze receipt → docs/evidence/FIELD_TEST_RECEIPT_v0.5.0.json
 ```
 
-### Operator UI (local)
+Pinned field test (recommended for demos):
+
+```bash
+git checkout v0.5.0-advisory-beta
+python3 -m venv .venv && source .venv/bin/activate
+make field-test
+```
+
+### 2. Operator UI (local)
 
 ```bash
 # terminal 1 — API
@@ -105,7 +132,13 @@ make api    # http://127.0.0.1:8000
 make web    # http://127.0.0.1:3000  (proxies /v1 → :8000)
 ```
 
-### Ingest + compete on the fixture day
+| Route | Role |
+|-------|------|
+| **Today** | Action groups: fixture day · free-first live · paper loop |
+| **Book** | Candidates, paper portfolio, settlement queue |
+| **Health** | Sources, performance, promotion, calibration, reliability, Research ML |
+
+### 3. Library snippet
 
 ```python
 from pathlib import Path
@@ -121,23 +154,35 @@ comp = run_strategy_competition(ingest)
 print(comp["status"], comp["candidate_count"])
 ```
 
-### Paper a candidate
+Full day: `hollersports.pipelines.operator_day.run_operator_day`.  
+Ops detail: [docs/OPERATOR_RUNBOOK.md](docs/OPERATOR_RUNBOOK.md).
 
-Use `hollersports.runes.execution_guard.run_execution_guard` with all gates `True` and `mode` always `PAPER_ONLY`. Append via `hollersports.paper.ledger.append_paper_entry`. See [OPERATOR_RUNBOOK.md](docs/OPERATOR_RUNBOOK.md).
+### Useful Make targets
+
+| Target | Purpose |
+|--------|---------|
+| `make validate` | Install, tests, smoke, calibration suite |
+| `make field-test` | Smoke + ML e2e + freeze receipt |
+| `make api` / `make web` | Local operator stack |
+| `make backfill-status` / `make backfill` | Grow paper calibration sample |
+| `make free-first` / `make free-first-day` | Optional live observe / closed day |
+| `make ml-e2e` / `make ml-compete` | Offline Track F path |
+| `make ml-axial-train` | Optional PyTorch axial (`[torch]`) |
 
 ## Package layout
 
 | Path | Role |
 |------|------|
 | `packages/hollersports/` | Primary Python package (`hollersports` 0.5.0) |
+| `packages/operator-web/` | Next.js Cobalt Workbench |
 | `schemas/json/` | Canonical `*.v1.schema.json` packet contracts |
-| `fixtures/day001/` | Offline multi-league operator day (full slate markets) |
-| `fixtures/day002/` | Second day + `model_probability` for gated model edge |
-| `fixtures/day003/` | Third day for multi-day backfill / calibration sample |
-| `tests/unit/` | TDD suite for the primary package |
-| `docs/atlas/` | Repository atlas |
-| `engine/` | Legacy slate isolation engine (migration reference) |
-| `hollersports-core/` | Legacy feedback loop package |
+| `fixtures/day00N/` | Offline multi-league operator days |
+| `fixtures/sequences/` | Synthetic multi-poll sequences (Track G) |
+| `scripts/` | Smoke, backfill, free-first, field-test, `holler/` ML CLI |
+| `tests/{unit,integration,golden,calibration}/` | Layered pytest |
+| `docs/` | Contract, runbook, atlas, evidence, agent playbooks |
+| `design.md` | Locked Workbench design system (Hallmark) |
+| `engine/`, `hollersports-core/` | Legacy reference only — not the operator path |
 
 ## Day-one leagues
 
@@ -145,17 +190,19 @@ Architecture is multi-sport. Fixture pack and design day-one set:
 
 **NBA · NFL · MLB · NHL · EPL · MLS** — markets v1: moneyline, spread, total.
 
-## Documentation atlas
+## Documentation
 
-| Doc | Contents |
-|-----|----------|
-| **[docs/atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md)** | Topology, surfaces, OBSERVED vs PLANNED |
-| **[docs/SYSTEM_CONTRACT.md](docs/SYSTEM_CONTRACT.md)** | Ten non-negotiable laws |
-| **[docs/ABRAXAS_LINEAGE.md](docs/ABRAXAS_LINEAGE.md)** | Concept-only lineage — no Abraxas install |
-| **[docs/OPERATOR_RUNBOOK.md](docs/OPERATOR_RUNBOOK.md)** | Fixture operator day |
-| **[docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md](docs/superpowers/specs/2026-08-04-hollersports-standalone-design.md)** | Approved product design |
-| **[docs/superpowers/plans/2026-08-04-hollersports-standalone-operator.md](docs/superpowers/plans/2026-08-04-hollersports-standalone-operator.md)** | Implementation plan (Tasks 1–10) |
-| **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** | Legacy slate-engine integration notes |
+| Audience | Start here |
+|----------|------------|
+| New human operator | [docs/README.md](docs/README.md) → [OPERATOR_RUNBOOK.md](docs/OPERATOR_RUNBOOK.md) |
+| Product law | [SYSTEM_CONTRACT.md](docs/SYSTEM_CONTRACT.md) |
+| Topology | [atlas/HOLLERSPORTS_ATLAS.md](docs/atlas/HOLLERSPORTS_ATLAS.md) |
+| Field-test freeze | [TRACK_F_FREEZE_AND_FIELD_TEST.md](docs/TRACK_F_FREEZE_AND_FIELD_TEST.md) |
+| Tests & calibration | [TESTING_AND_CALIBRATION.md](docs/TESTING_AND_CALIBRATION.md) |
+| Agents / Hermes | [AGENTS.md](AGENTS.md) · [docs/agents/](docs/agents/README.md) |
+| Releases | [RELEASE_NOTES.md](docs/RELEASE_NOTES.md) |
+| Readiness evidence | [PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) |
+| Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 ## Governance seals
 
@@ -170,15 +217,18 @@ MODE=PAPER_ONLY
 ## Development
 
 ```bash
-# focused tests
-pytest tests/unit/test_governance.py -v
-pytest tests/unit/ -q --ignore=hollersports-core
-
-# editable install from packages/
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e "packages/hollersports[dev]"
+# optional research extras:
+# pip install -e "packages/hollersports[ml]"      # sklearn HGB
+# pip install -e "packages/hollersports[torch]"   # axial / transformer presets
+# pip install -e "packages/hollersports[research]"
+
+pytest tests/ --ignore=hollersports-core -q
+cd packages/operator-web && npm install && npm run build
 ```
 
-Implementation workstream: feature branch / plan Tasks 6–10 (settlement loop, API, Cobalt workbench UI, docs polish).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for PR expectations and honesty rules for docs.
 
 ## License
 

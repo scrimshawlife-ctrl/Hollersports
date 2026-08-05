@@ -2,6 +2,8 @@
 
 Advisory only — **no real money**, **no book placement**.
 
+Docs map: [README.md](README.md) · freeze: [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).
+
 ## Test layout
 
 | Layer | Path | Marker | Purpose |
@@ -32,6 +34,10 @@ make test-cov
 # Smoke + multi-fixture calibration receipt
 make smoke
 make calibration-suite
+
+# Field-test freeze bundle (smoke + offline ML e2e + receipt)
+make field-test
+# → docs/evidence/FIELD_TEST_RECEIPT_v0.5.0.json
 
 # Grow cumulative settlement bank (offline fixtures)
 # Hermes playbook: docs/agents/HERMES_BACKFILL.md
