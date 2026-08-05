@@ -127,6 +127,19 @@ def run_train_calibrate(
     ensemble_path = out / "ensemble.json"
     save_ensemble(ensemble, ensemble_path)
 
+    # Provenance model card (markdown + JSON) next to artifacts
+    card_paths: dict[str, str] = {}
+    try:
+        from hollersports.ml.model_card import write_model_card
+
+        card = write_model_card(ensemble_path, out_dir=out / "model_cards")
+        card_paths = {
+            "model_card_md": str(card.get("written_md") or ""),
+            "model_card_json": str(card.get("written_json") or ""),
+        }
+    except (OSError, ValueError, FileNotFoundError):
+        card_paths = {}
+
     return {
         "model_path": str(model_path),
         "ensemble_path": str(ensemble_path),
@@ -137,6 +150,7 @@ def run_train_calibrate(
         "train_n": len(train_rows),
         "val_n": len(val_rows),
         "data_hash": data_hash,
+        **card_paths,
         "capital_authority": False,
         "execution_authority": False,
     }

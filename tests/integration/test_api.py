@@ -201,6 +201,18 @@ def test_ml_train_annotate_compete(tmp_path):
         st2 = client.get("/v1/ml/status")
         assert st2.json().get("last_retrain_proposal") is not None
 
+        card = client.get("/v1/ml/model-card")
+        assert card.status_code == 200, card.text
+        assert card.json()["schema_version"] == "HollerModelCard.v1"
+        assert card.json()["capital_authority"] is False
+        assert "markdown" in card.json()
+
+        ax = client.post("/v1/ml/axial-stub")
+        assert ax.status_code == 200, ax.text
+        assert ax.json()["schema_version"] == "HollerAxialStub.v1"
+        assert ax.json()["kind"] == "axial_temporal_stub"
+        assert ax.json()["execution_authority"] is False
+
 
 def test_free_first_injected_no_network(tmp_path):
     with TestClient(create_app(data_root=str(tmp_path))) as client:

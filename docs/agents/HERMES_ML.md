@@ -48,6 +48,21 @@ curl -s -X POST localhost:8000/v1/ml/retrain-check \
 
 Workbench: **Health → Research ML (Track F)** — Train / Annotate+compete / Retrain check.
 
+### Model cards
+
+```bash
+make ml-train
+make ml-doc-model   # or auto-written under data/ml/model_cards/ on train
+curl -s localhost:8000/v1/ml/model-card | jq '{model_id, metrics, packet_hash}'
+```
+
+### Axial stub (research placeholder)
+
+```bash
+# After ingest: dual-axis smooth over market feature sequence (not a neural net)
+curl -s -X POST localhost:8000/v1/ml/axial-stub | jq .
+```
+
 ### Retrain check (advisory only)
 
 ```bash

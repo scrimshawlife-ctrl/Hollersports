@@ -26,6 +26,7 @@ _STATE_KEYS = (
     "ml_ensemble",
     "ml_annotate",
     "ml_retrain",
+    "ml_axial",
 )
 
 

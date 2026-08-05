@@ -1258,6 +1258,52 @@ def ml_status(request: Request) -> dict[str, Any]:
     return _safe_packet(body)
 
 
+@router.get("/ml/model-card")
+def ml_model_card(
+    request: Request,
+    ensemble_path: str | None = None,
+) -> dict[str, Any]:
+    """Return model card (metrics + markdown) for last or given ensemble."""
+    from hollersports.ml.model_card import build_model_card
+
+    store = _store(request)
+    try:
+        ep = _resolve_ensemble_path(store, ensemble_path)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        card = build_model_card(ep)
+    except (OSError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return _safe_packet(card)
+
+
+@router.post("/ml/axial-stub")
+def ml_axial_stub(request: Request) -> dict[str, Any]:
+    """Run axial temporal stub on last ingest markets (stdlib research placeholder).
+
+    Not a neural transformer. Never invents markets; empty ingest → 400.
+    """
+    from hollersports.ml.axial_stub import markets_to_sequence, score_sequence
+
+    store = _store(request)
+    ingest = store.get("ingest")
+    if not isinstance(ingest, dict) or ingest.get("status") != "INGESTED":
+        raise HTTPException(
+            status_code=400,
+            detail="no INGESTED run; POST /v1/runs/ingest first",
+        )
+    markets = [m for m in (ingest.get("markets") or []) if isinstance(m, dict)]
+    if not markets:
+        raise HTTPException(status_code=400, detail="ingest has no markets")
+    seq = markets_to_sequence(markets)
+    packet = score_sequence(seq)
+    packet["run_id"] = ingest.get("run_id")
+    packet["market_count"] = len(markets)
+    store.put("ml_axial", packet)
+    return _safe_packet(packet)
+
+
 @router.post("/ml/retrain-check")
 def ml_retrain_check(
     request: Request,
