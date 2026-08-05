@@ -45,3 +45,34 @@ def cached_get_json(
         encoding="utf-8",
     )
     return body
+
+
+def cached_get_text(
+    url: str,
+    *,
+    cache_dir: str | Path = "data/http_cache",
+    ttl_seconds: float = 300.0,
+    timeout_s: float = 20.0,
+    headers: dict[str, str] | None = None,
+) -> str:
+    """GET text/XML with disk cache. Returns raw decoded body string."""
+    root = Path(cache_dir)
+    root.mkdir(parents=True, exist_ok=True)
+    path = _cache_path(root, url + "#text")
+    now = time.time()
+    if path.is_file():
+        try:
+            blob = json.loads(path.read_text(encoding="utf-8"))
+            if now - float(blob.get("fetched_at", 0)) <= float(ttl_seconds):
+                return str(blob.get("body") or "")
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
+            pass
+
+    req = Request(url, headers=headers or {"User-Agent": "HollerSports-advisory/0.3"})
+    with urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — fixed HTTPS URLs from registry
+        raw = resp.read().decode("utf-8", errors="replace")
+    path.write_text(
+        json.dumps({"fetched_at": now, "url": url, "body": raw}, sort_keys=True),
+        encoding="utf-8",
+    )
+    return raw

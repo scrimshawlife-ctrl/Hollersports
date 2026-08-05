@@ -89,7 +89,7 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] Model cards (`scripts/holler/doc_model.py`, auto on train, `GET /v1/ml/model-card`)
 - [x] Axial **stub** (stdlib dual-axis smooth; `POST /v1/ml/axial-stub`)
 - [x] Real PyTorch axial model (`[torch]` extra; train + `POST /v1/ml/axial` auto/torch)
-- [ ] Live social/RSS sentiment feeds
+- [x] RSS sentiment feeds (inject XML / opt-in HTTPS; `POST /v1/ml/sentiment/rss`; lexicon match)
 - [x] Gated retrain apply (`POST /v1/ml/retrain-apply` requires `confirm=true`; optional suggestion gate)
 
 ## Hard constraints (all tracks)

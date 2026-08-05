@@ -79,6 +79,24 @@ curl -s -X POST localhost:8000/v1/ml/axial \
 curl -s -X POST localhost:8000/v1/ml/axial-stub | jq .
 ```
 
+### RSS sentiment (optional network)
+
+```bash
+# CI / offline inject
+python scripts/holler/fetch_rss_sentiment.py \
+  --xml-file /path/to/feed.xml \
+  --markets-json fixtures/day003/odds_records.json \
+  --out data/ml/rss_sentiment.last.json
+
+# Live ESPN sports RSS (opt-in network)
+python scripts/holler/fetch_rss_sentiment.py --fetch --markets-json fixtures/day003/odds_records.json
+
+curl -s -X POST localhost:8000/v1/ml/sentiment/rss \
+  -H 'content-type: application/json' \
+  -d '{"feed_xml":"<?xml ...>","fetch":false}' | jq .
+# Live: {"fetch":true}  (HTTPS, cached under data/http_cache)
+```
+
 ### Retrain check (advisory only)
 
 ```bash

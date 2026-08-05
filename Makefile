@@ -1,6 +1,6 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
 	install smoke calibration-suite backfill backfill-status api web free-first free-first-day \
-	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model ml-axial-train
+	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model ml-axial-train ml-rss-demo
 
 install:
 	python -m pip install -U pip
@@ -89,3 +89,9 @@ ml-doc-model:
 ml-axial-train:
 	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
 		--out-dir data/ml/axial
+
+# Offline RSS inject example needs a local XML; live uses --fetch
+ml-rss-demo:
+	python scripts/holler/fetch_rss_sentiment.py \
+		--markets-json fixtures/day003/odds_records.json \
+		--out data/ml/rss_sentiment.last.json

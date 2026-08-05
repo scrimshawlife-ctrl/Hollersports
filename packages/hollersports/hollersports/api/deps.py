@@ -29,6 +29,7 @@ _STATE_KEYS = (
     "ml_axial",
     "ml_retrain_apply",
     "ml_axial_train",
+    "ml_rss_sentiment",
 )
 
 
