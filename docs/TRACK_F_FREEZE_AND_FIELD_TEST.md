@@ -6,6 +6,8 @@ That cut includes Track F **and** Track G (sequences, larger temporal presets, C
 **Tag exists.** Receipt after local verify: `docs/evidence/FIELD_TEST_RECEIPT_v0.5.0.json`  
 (run `make field-test`).
 
+**Docs:** [README.md](README.md) index · [RELEASE_NOTES.md](RELEASE_NOTES.md) · operator UI on `main` may be newer than the freeze tag (Hallmark Workbench redesign PR #22) — pin the tag for ML freeze fidelity; use `main` for latest UI.
+
 ---
 
 ## What is frozen (in scope for testing)

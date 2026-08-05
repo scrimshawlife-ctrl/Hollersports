@@ -62,13 +62,22 @@ make api   # :8000
 make web   # :3000 — Today → Run full fixture day (or Free-first live observe)
 ```
 
-Today actions:
+Today controls and **action board** (Hallmark Cobalt Workbench — [design.md](../design.md)):
 
-- **Fixture** select — `day001` (default), `day002`, or `day003` (model fields on day002+)  
-- **Allow model edge** — optional opt-in for forecast weighting; **evidence auto-calibration** must be `RELIABLE` before model edge loads (fixture days stay UNRELIABLE; still SHADOW_ONLY)  
-- **Health → Calibration** — ladder status, sample, hit_rate, sim_roi, model_edge_allowed
-- **Run full fixture day** — offline-safe closed loop  
-- **Free-first live observe** — optional network (ESPN; Odds if `THE_ODDS_API_KEY`); league select defaults to all day-one; fail-closed if offline  
+| Control / group | Purpose |
+|-----------------|---------|
+| **Fixture** select | `day001` (default), `day002`, or `day003` (model fields on day002+) |
+| **Allow model edge** | Opt-in forecast weighting; evidence ladder must be `RELIABLE` before model edge loads (still SHADOW_ONLY) |
+| **Free-first leagues** | Day-one league filter (default all) |
+| **Fixture day** group | Primary: **Run full {day}** · secondary: Ingest |
+| **Free-first live** group | Primary: **Free-first closed day** · secondary: Live observe (network optional) |
+| **Paper loop** group | Primary: **Compete** · Paper top-N · Settle |
+
+Health:
+
+- **Anchors + panels** — ML · sources · performance · promotion · calibration · reliability · history · run log  
+- **Calibration** — ladder status, sample, hit_rate, sim_roi, model_edge_allowed  
+- **Research ML** — train / annotate+compete / retrain check (advisory only)
 
 ### Fixture location
 

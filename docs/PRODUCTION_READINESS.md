@@ -29,16 +29,19 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 ## Current posture
 
 **Classification:** **local advisory beta** on `main`.  
-**Foundation merge:** PR **#3** → `838ea88` (2026-08-04) — **MERGED** (no open PR remains).  
-**Tip SHA:** tag `v0.5.0-advisory-beta` on `main` (package **0.5.0**, Track F+G).  
-**Freeze:** field-test this tag — see [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).  
+**Package:** **0.5.0** (Track F + G).  
+**Field-test freeze:** tag **`v0.5.0-advisory-beta`** — prefer for demos; see [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md).  
+**Foundation merge:** PR **#3** → `838ea88` (2026-08-04).  
+**Post-freeze on main:** field-test receipt (**#21**), Hallmark Workbench redesign (**#22**), docs hub.  
 **Verdict:** **PASS** for local **ADVISORY_OPERATOR_READY** (no real money, no book placement).  
 **Not claimed:** multi-tenant SaaS GA, money rails, or production betting alpha from transformers  
 ([TRACK_F_FUTURE_TRANSFORMERS.md](TRACK_F_FUTURE_TRANSFORMERS.md)).
 
 | Document | Role |
 |----------|------|
-| [evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md) | Tip continuum after PR #3 (this board’s current pin) |
+| [README.md](README.md) | Documentation index (start here) |
+| [evidence/FIELD_TEST_RECEIPT_v0.5.0.json](evidence/FIELD_TEST_RECEIPT_v0.5.0.json) | Freeze field-test receipt (`make field-test`) |
+| [evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md) | Tip continuum after PR #3 |
 | [evidence/PRODUCTION_READINESS_MATRIX.md](evidence/PRODUCTION_READINESS_MATRIX.md) | Foundation matrix @ PR #3 merge SHA |
 | [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04-post-merge.md) | Post-merge PASS (local advisory beta) |
 | [evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md](evidence/PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md) | Baseline pre Phase B (NOT READY) |
@@ -50,6 +53,7 @@ See [SYSTEM_CONTRACT.md](SYSTEM_CONTRACT.md).
 | [MIGRATION_ENGINE.md](MIGRATION_ENGINE.md) | Legacy engine notes |
 | [OPERATOR_RUNBOOK.md](OPERATOR_RUNBOOK.md) | Fixture operator day |
 | [TESTING_AND_CALIBRATION.md](TESTING_AND_CALIBRATION.md) | Test layers + calibration ladder |
+| [TRACK_F_FREEZE_AND_FIELD_TEST.md](TRACK_F_FREEZE_AND_FIELD_TEST.md) | Freeze checklist |
 
 ## Maturity ladder
 
