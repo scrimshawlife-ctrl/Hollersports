@@ -57,6 +57,7 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Persist free-first ingest slate for paper prices + re-compete
 - [x] Free-first ESPN finals → settle (injected/opt-in fetch; PENDING if not final)
 - [x] Workbench slate summary (ingest_count / competed_event_count)
+- [x] Today Settle uses ESPN finals on free-first slate; Book settlement queue + re-settle
 
 ## Track D — Packaging / release
 
