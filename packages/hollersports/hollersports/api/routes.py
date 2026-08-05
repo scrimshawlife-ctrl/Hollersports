@@ -13,6 +13,7 @@ from hollersports.api.deps import RunStore, resolve_fixture_dir
 from hollersports.governance.authority import assert_no_live_capital
 from hollersports.pipelines.market_ingestion import run_market_ingestion
 from hollersports.pipelines.operator_day import run_operator_day
+from hollersports.pipelines.free_first_day import run_free_first_operator_day
 from hollersports.pipelines.paper_loop import run_paper_loop
 from hollersports.pipelines.strategy_competition import (
     run_strategy_competition,
@@ -153,6 +154,29 @@ class FreeFirstRequest(BaseModel):
         default=True,
         description="If ingest succeeds, run strategy competition on primary ingest",
     )
+
+
+class FreeFirstDayRequest(BaseModel):
+    """Closed free-first day into the calibration bank (advisory only)."""
+
+    run_id: str | None = None
+    leagues: list[str] | None = Field(
+        default=None,
+        description="Day-one leagues; omit for live all / injected NBA default.",
+    )
+    espn_raw: dict[str, Any] | None = None
+    odds_raw: list[dict[str, Any]] | None = None
+    settle_espn_raw: dict[str, Any] | None = Field(
+        default=None,
+        description="Injected ESPN finals scoreboard for settle (CI-safe).",
+    )
+    espn_only: bool = False
+    odds_only: bool = False
+    fetch_espn_finals: bool = Field(
+        default=False,
+        description="Opt-in live ESPN finals fetch when settle_espn_raw omitted.",
+    )
+    paper_top_n: int = Field(default=20, ge=0, le=200)
 
 
 def _store(request: Request) -> RunStore:
@@ -625,6 +649,98 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
         "execution_authority": False,
         "mode": "ADVISORY_ONLY",
         "note": "observation_only_no_money",
+    }
+    return _safe_packet(summary)
+
+
+@router.post("/runs/free-first-day")
+def runs_free_first_day(body: FreeFirstDayRequest, request: Request) -> dict[str, Any]:
+    """Closed free-first day: observe → compete → paper → ESPN settle → bank.
+
+    Prefer injected raw for CI. Live finals require ``fetch_espn_finals``.
+    Appends to the calibration bank (re-settle-safe collapse on read). Advisory only.
+    """
+    store = _store(request)
+    out = run_free_first_operator_day(
+        data_root=store.data_root,
+        run_id=body.run_id,
+        leagues=body.leagues,
+        espn_raw=body.espn_raw,
+        odds_raw=body.odds_raw,
+        settle_espn_raw=body.settle_espn_raw,
+        fetch_espn=not body.odds_only,
+        fetch_odds=not body.espn_only,
+        fetch_espn_finals=bool(body.fetch_espn_finals) and body.settle_espn_raw is None,
+        paper_top_n=body.paper_top_n,
+    )
+    ingest = out.get("ingest") if isinstance(out.get("ingest"), dict) else None
+    ingests = [i for i in (out.get("ingests") or []) if isinstance(i, dict)]
+    competition = out.get("competition") if isinstance(out.get("competition"), dict) else None
+    paper = out.get("paper") if isinstance(out.get("paper"), dict) else None
+    settlements = out.get("settlements") if isinstance(out.get("settlements"), dict) else None
+    settlement_entries = list((settlements or {}).get("entries") or [])
+
+    performance = compute_performance(settlement_entries)
+    source_health = (ingest or {}).get("source_health") or {}
+    health_status = str(source_health.get("status") or "")
+    evidence: dict[str, Any] = {
+        "target_id": "free-first",
+        "target_type": "PORTFOLIO",
+        "sample_size": len(settlement_entries),
+        "hit_rate": performance.get("hit_rate"),
+        "sim_roi": performance.get("sim_roi"),
+        "source_health_status": health_status or "UNKNOWN",
+        "source_health_pass_rate": 1.0 if health_status in {"PASS", "WARN"} else 0.0,
+        "clv_retention": performance.get("clv_retention"),
+        "invariance_pass": True,
+        "regimes": 1,
+        "market_types": 1,
+        "unresolved_blockers": 0,
+    }
+    promotion = evaluate_promotion(performance, evidence)
+    if settlement_entries:
+        record_reliability_from_settlements(store.data_root, settlement_entries)
+    # Bank append already done inside run_free_first_operator_day.
+
+    store.update(
+        fixture=None,
+        meta={
+            "path": "free-first",
+            "run_id": out.get("run_id"),
+            "ingest_count": out.get("ingest_count") or len(ingests),
+            "closed_day": True,
+        },
+        ingest=ingest or (ingests[0] if ingests else None),
+        ingests=ingests,
+        competition=competition,
+        paper=paper,
+        settlements=settlements,
+        performance=performance,
+        promotion=promotion,
+    )
+    _rebuild_dashboard(store)
+
+    summary = {
+        "schema_version": "FreeFirstDaySummary.v1",
+        "status": out.get("status"),
+        "run_id": out.get("run_id"),
+        "ingest_count": out.get("ingest_count"),
+        "competed_event_count": out.get("competed_event_count"),
+        "candidate_count": out.get("candidate_count"),
+        "paper_status": out.get("paper_status"),
+        "paper_approved": out.get("paper_approved"),
+        "settlement_count": out.get("settlement_count"),
+        "bank_written": out.get("bank_written"),
+        "result_count": out.get("result_count"),
+        "result_errors": out.get("result_errors") or [],
+        "calibration": out.get("calibration"),
+        "promotion_status": promotion.get("status"),
+        "errors": out.get("errors") or [],
+        "authority": "PROJECTION_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+        "note": "closed_day_no_money",
     }
     return _safe_packet(summary)
 

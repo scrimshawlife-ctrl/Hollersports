@@ -1,7 +1,7 @@
 # HollerSports — next tracks (post advisory beta)
 
-> After PR #3 merge to `main` (**MERGED** `838ea88`). Continuum tip `42ca274`.  
-> Advisory only — no real money. **No open PR** — work lands on `main`.
+> After PR #3 merge to `main` (**MERGED** `838ea88`). Continuum tip `aa89903` (#10).  
+> Advisory only — no real money.
 
 ## Completed (v0.2 → v0.3 advisory beta)
 
@@ -60,6 +60,7 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Today Settle uses ESPN finals on free-first slate; Book settlement queue + re-settle
 - [x] Settlement bank: calibration collapses latest terminal per `entry_id` (re-settle safe)
 - [x] Headless free-first closed day CLI (`make free-first-day` / `scripts/free_first_operator_day.py`)
+- [x] API `POST /v1/runs/free-first-day` + Workbench Today closed-day button
 
 ## Track D — Packaging / release
 

@@ -244,15 +244,31 @@ def run_free_first_operator_day(
     cal_entries = calibration_entries_for_store(root, settlement_entries)
     calibration = evaluate_calibration(cal_entries, allow_forecast_weighting=True)
 
+    settlements: dict[str, Any] = {
+        "schema_version": "SettlementBatch.v1",
+        "status": "COMPUTED",
+        "run_id": rid,
+        "entries": settlement_entries,
+        "count": len(settlement_entries),
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+    }
+
     out = {
         "schema_version": "FreeFirstOperatorDay.v1",
         "status": pack.get("status"),
         "run_id": rid,
+        "ingest": pack.get("ingest"),
+        "ingests": ingests,
         "ingest_count": len(ingests),
+        "competition": competition,
         "competed_event_count": competition.get("competed_event_count"),
         "candidate_count": competition.get("candidate_count"),
+        "paper": paper,
         "paper_status": paper.get("status"),
         "paper_approved": paper.get("approved_count"),
+        "settlements": settlements,
         "settlement_count": len(settlement_entries),
         "bank_written": len(written),
         "result_count": len(results_rows),

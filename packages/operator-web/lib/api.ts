@@ -172,6 +172,31 @@ export function postFreeFirst(opts?: {
   });
 }
 
+/** Closed free-first day → paper → ESPN settle → calibration bank (advisory only). */
+export function postFreeFirstDay(opts?: {
+  espn_only?: boolean;
+  odds_only?: boolean;
+  fetch_espn_finals?: boolean;
+  leagues?: string[];
+  paper_top_n?: number;
+}) {
+  const body: Record<string, unknown> = {
+    espn_only: opts?.espn_only ?? false,
+    odds_only: opts?.odds_only ?? false,
+    fetch_espn_finals: opts?.fetch_espn_finals ?? true,
+  };
+  if (opts?.leagues && opts.leagues.length > 0) {
+    body.leagues = opts.leagues;
+  }
+  if (opts?.paper_top_n != null) {
+    body.paper_top_n = opts.paper_top_n;
+  }
+  return request<Json>("/v1/runs/free-first-day", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export function getCandidates() {
   return request<Json>("/v1/candidates");
 }

@@ -460,3 +460,112 @@ def test_paper_rejects_when_source_health_fail(tmp_path):
         assert executions
         assert executions[0].get("status") == "REJECTED"
         assert "source_health_gate" in (executions[0].get("failed_gates") or [])
+
+
+def test_free_first_day_injected_closed_loop(tmp_path):
+    """POST /v1/runs/free-first-day with injected observe+finals (no network)."""
+    with TestClient(create_app(data_root=str(tmp_path))) as client:
+        espn_raw = {
+            "sport": "BASKETBALL",
+            "events": [
+                {
+                    "id": "espn-day",
+                    "date": "2026-04-24T23:00:00Z",
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {"team": {"abbreviation": "BOS"}, "homeAway": "home"},
+                                {"team": {"abbreviation": "LAL"}, "homeAway": "away"},
+                            ]
+                        }
+                    ],
+                }
+            ],
+        }
+        odds_raw = [
+            {
+                "id": "odds-day",
+                "home_team": "BOS",
+                "away_team": "LAL",
+                "commence_time": "2026-04-24T23:00:00Z",
+                "bookmakers": [
+                    {
+                        "key": "book_a",
+                        "markets": [
+                            {
+                                "key": "h2h",
+                                "outcomes": [
+                                    {"name": "BOS", "price": -120},
+                                    {"name": "LAL", "price": 100},
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+        finals = {
+            "sport": "BASKETBALL",
+            "events": [
+                {
+                    "id": "espn-day",
+                    "date": "2026-04-24T23:00:00Z",
+                    "status": {
+                        "type": {
+                            "name": "STATUS_FINAL",
+                            "completed": True,
+                            "state": "post",
+                        }
+                    },
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {
+                                    "team": {"abbreviation": "BOS"},
+                                    "score": "110",
+                                    "winner": True,
+                                    "homeAway": "home",
+                                },
+                                {
+                                    "team": {"abbreviation": "LAL"},
+                                    "score": "100",
+                                    "winner": False,
+                                    "homeAway": "away",
+                                },
+                            ]
+                        }
+                    ],
+                }
+            ],
+        }
+        r = client.post(
+            "/v1/runs/free-first-day",
+            json={
+                "run_id": "T-API-FF-DAY",
+                "leagues": ["NBA"],
+                "espn_raw": espn_raw,
+                "odds_raw": odds_raw,
+                "settle_espn_raw": finals,
+                "fetch_espn_finals": False,
+            },
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["capital_authority"] is False
+        assert body["execution_authority"] is False
+        assert body["mode"] == "ADVISORY_ONLY"
+        assert body["status"] == "OBSERVED"
+        assert body.get("ingest_count", 0) >= 1
+        assert body.get("paper_approved", 0) >= 1
+        assert body.get("settlement_count", 0) >= 1
+        assert body.get("bank_written", 0) >= 1
+
+        dash = client.get("/v1/dashboard")
+        assert dash.status_code == 200
+        slate = (dash.json().get("panels") or {}).get("slate") or {}
+        assert slate.get("path") == "free-first"
+        assert slate.get("ingest_count", 0) >= 1
+
+        cand = client.get("/v1/candidates")
+        assert cand.status_code == 200
+        assert cand.json()["candidate_count"] >= 1

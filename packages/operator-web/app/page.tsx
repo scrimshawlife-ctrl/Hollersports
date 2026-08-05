@@ -9,6 +9,7 @@ import {
   getDashboard,
   postCompete,
   postFreeFirst,
+  postFreeFirstDay,
   postFullDay,
   postIngest,
   postPaper,
@@ -23,7 +24,8 @@ type ActionId =
   | "settle"
   | "refresh"
   | "fullday"
-  | "freefirst";
+  | "freefirst"
+  | "freefirstday";
 
 function panelField(
   dashboard: Json | null,
@@ -286,6 +288,25 @@ export default function TodayPage() {
             }
           >
             {busy === "freefirst" ? "Observing…" : "Free-first live observe"}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={disabled}
+            title="Observe → compete → paper → ESPN finals settle → calibration bank. Network; non-final stay PENDING. No money."
+            onClick={() =>
+              void runAction("freefirstday", () =>
+                postFreeFirstDay({
+                  fetch_espn_finals: true,
+                  leagues:
+                    freeFirstLeague === "ALL" ? undefined : [freeFirstLeague],
+                }),
+              )
+            }
+          >
+            {busy === "freefirstday"
+              ? "Running free-first day…"
+              : "Free-first closed day"}
           </button>
           <button
             type="button"
