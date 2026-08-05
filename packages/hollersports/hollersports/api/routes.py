@@ -1425,9 +1425,9 @@ def ml_axial_train(body: MlAxialTrainRequest, request: Request) -> dict[str, Any
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     packet = {
+        **result,
         "schema_version": "HollerAxialTrainPacket.v1",
         "status": "TRAINED",
-        **result,
         "authority": "SHADOW_ONLY",
         "capital_authority": False,
         "execution_authority": False,
