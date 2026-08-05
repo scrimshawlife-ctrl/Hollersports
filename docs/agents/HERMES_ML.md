@@ -43,6 +43,16 @@ curl -s localhost:8000/v1/ml/status | jq .
 
 Workbench: **Health → Research ML (Track F)** — Train / Annotate+compete buttons.
 
+### Retrain check (advisory only)
+
+```bash
+# After train: evaluate Brier vs stored baseline; may emit RETRAIN_SUGGESTED
+make ml-train
+make ml-retrain-check
+# → docs/evidence/ml_retrain_proposal.last.json
+# Never auto-trains. Hermes may surface suggested_command for human approval.
+```
+
 ### Odds movement (free-first)
 
 - Cross-book: multi-book Odds API lines get `odds_history`, `odds_delta`, `book_dispersion`

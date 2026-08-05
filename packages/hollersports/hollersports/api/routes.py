@@ -1330,22 +1330,27 @@ def ml_annotate(body: MlAnnotateRequest, request: Request) -> dict[str, Any]:
 
     # Keep multi-ingest slate in sync when present
     ingests = _stored_ingests(store)
+    annotated_ingests: list[dict[str, Any]] = []
     if len(ingests) > 1:
-        new_ingests: list[dict[str, Any]] = []
+        total_scored = 0
         for packet in ingests:
             if not isinstance(packet, dict):
                 continue
-            ann, _ = _annotate_ingest_markets(
+            ann, n = _annotate_ingest_markets(
                 packet, ensemble_path, ev_threshold=float(body.ev_threshold)
             )
-            new_ingests.append(ann)
-        store.put("ingests", new_ingests)
+            annotated_ingests.append(ann)
+            total_scored += n
+        n_scored = total_scored
+        store.put("ingests", annotated_ingests)
         # Primary ingest: prefer same run_id match
         primary = next(
-            (p for p in new_ingests if p.get("run_id") == updated.get("run_id")),
-            new_ingests[0],
+            (p for p in annotated_ingests if p.get("run_id") == updated.get("run_id")),
+            annotated_ingests[0],
         )
         updated = primary
+    else:
+        annotated_ingests = [updated]
     store.put("ingest", updated)
 
     competition = None
@@ -1365,7 +1370,17 @@ def ml_annotate(body: MlAnnotateRequest, request: Request) -> dict[str, Any]:
                 "reliability_status": str(body.reliability_status or "UNRELIABLE"),
             }
             store.put("calibration", calibration)
-        competition = run_strategy_competition(updated, calibration=calibration)
+        # Multi-event free-first slates: compete the full annotated list (parity with /runs/compete).
+        if len(annotated_ingests) > 1:
+            competition = run_strategy_competition_multi(
+                annotated_ingests,
+                calibration=calibration,
+                run_id=str(updated.get("run_id") or "") or None,
+            )
+        else:
+            competition = run_strategy_competition(
+                updated, calibration=calibration
+            )
         store.put("competition", competition)
 
     _rebuild_dashboard(store)

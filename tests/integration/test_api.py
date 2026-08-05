@@ -141,6 +141,23 @@ def test_ml_train_annotate_compete(tmp_path):
         assert ing.status_code == 200
         assert ing.json()["status"] == "INGESTED"
 
+        # Auto-calibration on small fixture bank → model edge usually off (ladder intact).
+        ann_auto = client.post(
+            "/v1/ml/annotate",
+            json={
+                "auto_compete": True,
+                "allow_forecast_weighting": True,
+                "use_auto_calibration": True,
+            },
+        )
+        assert ann_auto.status_code == 200, ann_auto.text
+        assert ann_auto.json()["status"] == "ANNOTATED"
+        assert ann_auto.json()["annotated_markets"] >= 1
+        assert ann_auto.json()["capital_authority"] is False
+        # Small sample: model edge must not force-open via Workbench-style auto path
+        assert ann_auto.json().get("model_edge_enabled") is False
+
+        # Explicit manual RELIABLE remains available for offline demos / tests only
         ann = client.post(
             "/v1/ml/annotate",
             json={

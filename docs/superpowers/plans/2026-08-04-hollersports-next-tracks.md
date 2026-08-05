@@ -83,9 +83,10 @@ Source notes: [`docs/arxiv_research_summary.md`](../../arxiv_research_summary.md
 - [x] Hermes playbook `docs/agents/HERMES_ML.md`
 - [x] API `GET/POST /v1/ml/{status,train,annotate}` + Health Workbench panel
 - [x] Free-first odds movement: cross-book `odds_history`/`odds_delta` + temporal snapshots under `data/ml/`
+- [x] Hermes retrain evaluator (advisory proposal only; `make ml-retrain-check`; never auto-trains)
 - [ ] Live sentiment feeds
 - [ ] Axial transformer prototype
-- [ ] Hermes outcome-driven retrain loop
+- [ ] Auto-apply retrain after human/Hermes approval (still deferred)
 
 ## Hard constraints (all tracks)
 

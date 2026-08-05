@@ -325,20 +325,23 @@ export default function HealthPage() {
             type="button"
             className="btn"
             disabled={loading || mlBusy}
-            title="Requires a prior ingest on Today. Optional compete with model edge override for demo."
+            title="Requires a prior ingest on Today. Annotates markets, then competes with auto-calibration (model edge only if ladder allows)."
             onClick={() => {
               void (async () => {
                 setMlBusy(true);
                 setMlNote(null);
                 try {
+                  // Evidence gate: auto calibration from settlement bank — never
+                  // force RELIABLE from the Workbench (keeps calibration ladder intact).
                   const r = await postMlAnnotate({
                     auto_compete: true,
                     allow_forecast_weighting: true,
-                    reliability_status: "RELIABLE",
-                    use_auto_calibration: false,
+                    use_auto_calibration: true,
                   });
                   setMlNote(
-                    `annotated ${String(r.annotated_markets ?? 0)} markets · model-edge cands ${String(
+                    `annotated ${String(r.annotated_markets ?? 0)} markets · model-edge ${String(
+                      r.model_edge_enabled ?? false,
+                    )} · model-edge cands ${String(
                       r.model_edge_candidate_count ?? 0,
                     )}`,
                   );
