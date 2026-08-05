@@ -3,6 +3,16 @@
 Offline research ML path: features → train → temperature calibrate → EV annotate →
 `MODEL_PROBABILITY_EDGE`. **No real money. No book placement.**
 
+## Freeze (v0.4.0)
+
+**Field-test this small stack** at tag `v0.4.0-advisory-beta`.  
+Checklist: [TRACK_F_FREEZE_AND_FIELD_TEST.md](../TRACK_F_FREEZE_AND_FIELD_TEST.md).  
+**Do not** start production-scale transformers until unfreeze:  
+[TRACK_F_FUTURE_TRANSFORMERS.md](../TRACK_F_FUTURE_TRANSFORMERS.md).
+
+Priority while frozen: grow settlement sample (`make backfill`), free-first closed days,  
+operator UX bugs — not larger nets.
+
 ## Commands
 
 ```bash
