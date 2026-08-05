@@ -213,6 +213,29 @@ def test_ml_train_annotate_compete(tmp_path):
         assert ax.json()["kind"] == "axial_temporal_stub"
         assert ax.json()["execution_authority"] is False
 
+        # PyTorch axial when optional dep present (CI without torch still passes stub path)
+        try:
+            from hollersports.ml.axial_torch import torch_available as _ta
+        except ImportError:
+            _ta = lambda: False  # noqa: E731
+        if _ta():
+            tr = client.post(
+                "/v1/ml/axial/train",
+                json={
+                    "train_fixtures": ["day001", "day002"],
+                    "epochs": 8,
+                    "seed": 0,
+                },
+            )
+            assert tr.status_code == 200, tr.text
+            assert tr.json()["status"] == "TRAINED"
+            assert tr.json()["kind"] == "axial_torch_v1"
+            scored = client.post("/v1/ml/axial", json={"backend": "torch"})
+            assert scored.status_code == 200, scored.text
+            assert scored.json()["backend"] == "torch"
+            assert scored.json()["trained"] is True
+            assert 0.0 < float(scored.json()["probability"]) < 1.0
+
         # Gated retrain-apply: refuse without confirm
         no = client.post("/v1/ml/retrain-apply", json={"confirm": False})
         assert no.status_code == 400

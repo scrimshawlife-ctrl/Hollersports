@@ -1297,15 +1297,49 @@ def ml_model_card(
     return _safe_packet(card)
 
 
+class MlAxialRequest(BaseModel):
+    """Score last ingest with axial backend: torch (preferred) or stdlib stub."""
+
+    backend: str = Field(
+        default="auto",
+        description="auto | torch | stub — auto uses trained torch weights if present",
+    )
+    model_meta_path: str | None = Field(
+        default=None,
+        description="Path to axial_torch.meta.json; default data_root/ml/axial/axial_torch.meta.json",
+    )
+
+
+class MlAxialTrainRequest(BaseModel):
+    """Train PyTorch axial model from fixture days (requires torch extra)."""
+
+    train_fixtures: list[str] = Field(
+        default_factory=lambda: ["day001", "day002", "day003"]
+    )
+    epochs: int = Field(default=40, ge=1, le=500)
+    seed: int = 42
+    lr: float = Field(default=1e-3, gt=0.0)
+
+
 @router.post("/ml/axial-stub")
 def ml_axial_stub(request: Request) -> dict[str, Any]:
-    """Run axial temporal stub on last ingest markets (stdlib research placeholder).
+    """Backward-compatible stdlib axial stub (see also POST /v1/ml/axial)."""
+    return ml_axial(request, MlAxialRequest(backend="stub"))
 
-    Not a neural transformer. Never invents markets; empty ingest → 400.
+
+@router.post("/ml/axial")
+def ml_axial(
+    request: Request,
+    body: MlAxialRequest | None = None,
+) -> dict[str, Any]:
+    """Score last ingest with PyTorch axial (if available) or stdlib stub.
+
+    Never invents markets; empty ingest → 400. Advisory only.
     """
     from hollersports.ml.axial_stub import markets_to_sequence, score_sequence
 
     store = _store(request)
+    req = body or MlAxialRequest()
     ingest = store.get("ingest")
     if not isinstance(ingest, dict) or ingest.get("status") != "INGESTED":
         raise HTTPException(
@@ -1316,10 +1350,90 @@ def ml_axial_stub(request: Request) -> dict[str, Any]:
     if not markets:
         raise HTTPException(status_code=400, detail="ingest has no markets")
     seq = markets_to_sequence(markets)
+
+    backend = str(req.backend or "auto").lower()
+    meta_path = Path(req.model_meta_path) if req.model_meta_path else (
+        store.data_root / "ml" / "axial" / "axial_torch.meta.json"
+    )
+
+    packet: dict[str, Any]
+    if backend in {"torch", "auto"}:
+        try:
+            from hollersports.ml.axial_torch import score_sequence_torch, torch_available
+
+            if not torch_available():
+                if backend == "torch":
+                    raise HTTPException(
+                        status_code=503,
+                        detail='torch_not_installed: pip install -e "packages/hollersports[torch]"',
+                    )
+            else:
+                path = meta_path if meta_path.is_file() else None
+                if path is None and backend == "torch":
+                    # Untrained forward still allowed for shape smoke
+                    packet = score_sequence_torch(seq, model_meta_path=None)
+                else:
+                    packet = score_sequence_torch(seq, model_meta_path=path)
+                packet["run_id"] = ingest.get("run_id")
+                packet["market_count"] = len(markets)
+                packet["backend"] = "torch"
+                store.put("ml_axial", packet)
+                return _safe_packet(packet)
+        except HTTPException:
+            raise
+        except Exception as exc:  # noqa: BLE001
+            if backend == "torch":
+                raise HTTPException(status_code=400, detail=f"axial_torch:{exc}") from exc
+            # auto falls through to stub
+
     packet = score_sequence(seq)
     packet["run_id"] = ingest.get("run_id")
     packet["market_count"] = len(markets)
+    packet["backend"] = "stub"
     store.put("ml_axial", packet)
+    return _safe_packet(packet)
+
+
+@router.post("/ml/axial/train")
+def ml_axial_train(body: MlAxialTrainRequest, request: Request) -> dict[str, Any]:
+    """Train PyTorch axial model into data_root/ml/axial (requires torch)."""
+    store = _store(request)
+    try:
+        from hollersports.ml.axial_torch import torch_available, train_axial
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    if not torch_available():
+        raise HTTPException(
+            status_code=503,
+            detail='torch_not_installed: pip install -e "packages/hollersports[torch]"',
+        )
+    days: list[Path] = []
+    for name in body.train_fixtures:
+        try:
+            days.append(resolve_fixture_dir(name))
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+    out_dir = store.data_root / "ml" / "axial"
+    try:
+        result = train_axial(
+            days,
+            out_dir=out_dir,
+            epochs=int(body.epochs),
+            seed=int(body.seed),
+            lr=float(body.lr),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    packet = {
+        "schema_version": "HollerAxialTrainPacket.v1",
+        "status": "TRAINED",
+        **result,
+        "authority": "SHADOW_ONLY",
+        "capital_authority": False,
+        "execution_authority": False,
+        "mode": "ADVISORY_ONLY",
+    }
+    store.put("ml_axial_train", packet)
     return _safe_packet(packet)
 
 

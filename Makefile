@@ -1,6 +1,6 @@
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
 	install smoke calibration-suite backfill backfill-status api web free-first free-first-day \
-	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model
+	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model ml-axial-train
 
 install:
 	python -m pip install -U pip
@@ -84,3 +84,8 @@ ml-retrain-check:
 
 ml-doc-model:
 	python scripts/holler/doc_model.py --ensemble data/ml/ensemble.json
+
+# Requires: pip install -e "packages/hollersports[torch]"
+ml-axial-train:
+	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
+		--out-dir data/ml/axial
