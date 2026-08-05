@@ -53,6 +53,17 @@ function asList(v: unknown): unknown[] {
   return Array.isArray(v) ? v : [];
 }
 
+const HEALTH_ANCHORS = [
+  { id: "ml", label: "ML" },
+  { id: "sources", label: "Sources" },
+  { id: "performance", label: "Performance" },
+  { id: "promotion", label: "Promotion" },
+  { id: "calibration", label: "Calibration" },
+  { id: "reliability", label: "Reliability" },
+  { id: "history", label: "History" },
+  { id: "run-log", label: "Run log" },
+] as const;
+
 export default function HealthPage() {
   const [health, setHealth] = useState<Json | null>(null);
   const [dashboard, setDashboard] = useState<Json | null>(null);
@@ -229,6 +240,14 @@ export default function HealthPage() {
     },
   ];
 
+  const mlModelId =
+    mlStatus?.last_train &&
+    typeof mlStatus.last_train === "object" &&
+    mlStatus.last_train !== null &&
+    "model_id" in (mlStatus.last_train as object)
+      ? String((mlStatus.last_train as { model_id?: string }).model_id ?? "")
+      : "";
+
   return (
     <>
       <header className="page-header">
@@ -242,6 +261,7 @@ export default function HealthPage() {
             type="button"
             className="btn"
             disabled={loading}
+            aria-busy={loading || undefined}
             onClick={() => void load()}
           >
             {loading ? "Loading…" : "Refresh"}
@@ -249,10 +269,18 @@ export default function HealthPage() {
         </div>
       </header>
 
-      <p className="status-line" role="note">
+      <p className="lede" role="note">
         Advisory only — metrics are paper simulation for advice quality. No real
         money. No book placement.
       </p>
+
+      <nav className="health-anchors" aria-label="Health sections">
+        {HEALTH_ANCHORS.map((a) => (
+          <a key={a.id} href={`#${a.id}`}>
+            {a.label}
+          </a>
+        ))}
+      </nav>
 
       {loading && !error && (
         <p className="muted" aria-live="polite">
@@ -266,31 +294,31 @@ export default function HealthPage() {
         </p>
       )}
 
-      <section className="section" aria-label="Track F ML">
-        <h2 className="section-title">Research ML (Track F)</h2>
-        <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
-          Offline features → train → annotate last ingest with{" "}
-          <span className="mono">model_probability</span>. Advisory only — no
-          money. Fail closed without ensemble.
-        </p>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
+      <section className="panel" id="ml" aria-label="Track F ML">
+        <div className="panel-head">
+          <h2 className="section-title">Research ML (Track F)</h2>
           <AuthorityChip
             label={String(mlStatus?.status ?? "—")}
             tone={toneForStatus(mlStatus?.status)}
           />
-          <span className="muted mono" style={{ fontSize: 12 }}>
+        </div>
+        <p className="panel-lede">
+          Offline features → train → annotate last ingest with{" "}
+          <span className="mono">model_probability</span>. Advisory only — no
+          money. Fail closed without ensemble.
+        </p>
+        <div className="actions-row mb-sm">
+          <span className="meta-line">
             ensemble={String(mlStatus?.ensemble_present ? "yes" : "no")}
-            {mlStatus?.last_train &&
-            typeof mlStatus.last_train === "object" &&
-            mlStatus.last_train !== null &&
-            "model_id" in (mlStatus.last_train as object)
-              ? ` · ${(mlStatus.last_train as { model_id?: string }).model_id}`
-              : ""}
+            {mlModelId ? ` · ${mlModelId}` : ""}
           </span>
+        </div>
+        <div className="actions-row">
           <button
             type="button"
-            className="btn"
+            className="btn btn-primary"
             disabled={loading || mlBusy}
+            aria-busy={mlBusy || undefined}
             onClick={() => {
               void (async () => {
                 setMlBusy(true);
@@ -326,6 +354,7 @@ export default function HealthPage() {
             type="button"
             className="btn"
             disabled={loading || mlBusy}
+            aria-busy={mlBusy || undefined}
             title="Requires a prior ingest on Today. Annotates markets, then competes with auto-calibration (model edge only if ladder allows)."
             onClick={() => {
               void (async () => {
@@ -368,6 +397,7 @@ export default function HealthPage() {
             type="button"
             className="btn"
             disabled={loading || mlBusy}
+            aria-busy={mlBusy || undefined}
             title="Advisory only: evaluate ensemble Brier vs baseline; never auto-trains."
             onClick={() => {
               void (async () => {
@@ -397,31 +427,33 @@ export default function HealthPage() {
           </button>
         </div>
         {mlNote && (
-          <p className="status-line mono" style={{ fontSize: 12 }}>
+          <p className="status-line mono" aria-live="polite">
             {mlNote}
           </p>
         )}
       </section>
 
-      <section className="section" aria-label="Sources">
-        <h2 className="section-title">Sources</h2>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
-          <AuthorityChip
-            label={String(
-              sourceHealth.status ?? sourcesPanel.status ?? "—",
-            )}
-            tone={toneForStatus(
-              sourceHealth.status ?? sourcesPanel.status,
-            )}
-            title={
-              sourceHealth.reason != null
-                ? String(sourceHealth.reason)
-                : undefined
-            }
-          />
-          <span className="muted mono" style={{ fontSize: 12 }}>
-            source_id={String(sourcesPanel.source_id ?? "—")}
-          </span>
+      <section className="panel" id="sources" aria-label="Sources">
+        <div className="panel-head">
+          <h2 className="section-title">Sources</h2>
+          <div className="actions-row">
+            <AuthorityChip
+              label={String(
+                sourceHealth.status ?? sourcesPanel.status ?? "—",
+              )}
+              tone={toneForStatus(
+                sourceHealth.status ?? sourcesPanel.status,
+              )}
+              title={
+                sourceHealth.reason != null
+                  ? String(sourceHealth.reason)
+                  : undefined
+              }
+            />
+            <span className="meta-line">
+              source_id={String(sourcesPanel.source_id ?? "—")}
+            </span>
+          </div>
         </div>
         <DataTable
           columns={sourceColumns}
@@ -443,9 +475,9 @@ export default function HealthPage() {
         )}
       </section>
 
-      <section className="section" aria-label="Performance">
-        <h2 className="section-title">Performance</h2>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
+      <section className="panel" id="performance" aria-label="Performance">
+        <div className="panel-head">
+          <h2 className="section-title">Performance</h2>
           <AuthorityChip
             label={String(performance.status ?? "—")}
             tone={toneForStatus(performance.status)}
@@ -460,7 +492,7 @@ export default function HealthPage() {
           {perfKeys.map((k) => {
             const f = fieldOrDash(performance[k], `missing ${k}`);
             return (
-              <div key={k} style={{ display: "contents" }}>
+              <div key={k} className="display-contents">
                 <dt>{k}</dt>
                 <dd className="tabular" title={f.reason}>
                   {f.text}
@@ -474,26 +506,22 @@ export default function HealthPage() {
         </dl>
       </section>
 
-      <section className="section" aria-label="Promotion">
-        <h2 className="section-title">Promotion</h2>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
-          <AuthorityChip
-            label={String(promo.status ?? "—")}
-            tone={toneForStatus(promo.status)}
-            title={promo.reason != null ? String(promo.reason) : undefined}
-          />
-          <span className="muted mono" style={{ fontSize: 12 }}>
-            target={String(promo.target_id ?? "—")} /{" "}
-            {String(promo.target_type ?? "—")}
-          </span>
+      <section className="panel" id="promotion" aria-label="Promotion">
+        <div className="panel-head">
+          <h2 className="section-title">Promotion</h2>
+          <div className="actions-row">
+            <AuthorityChip
+              label={String(promo.status ?? "—")}
+              tone={toneForStatus(promo.status)}
+              title={promo.reason != null ? String(promo.reason) : undefined}
+            />
+            <span className="meta-line">
+              target={String(promo.target_id ?? "—")} /{" "}
+              {String(promo.target_type ?? "—")}
+            </span>
+          </div>
         </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 16,
-          }}
-        >
+        <div className="gate-grid">
           <div>
             <h3 className="section-title">Passed gates</h3>
             <ul className="gate-list">
@@ -525,25 +553,25 @@ export default function HealthPage() {
         </div>
       </section>
 
-      <section className="section" aria-label="Calibration">
-        <h2 className="section-title">Calibration</h2>
-        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
-          Evidence ladder from settled paper outcomes. Model edge unlocks only
-          when status is RELIABLE and forecast weighting is allowed — still
-          SHADOW_ONLY, no money.
-        </p>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
+      <section className="panel" id="calibration" aria-label="Calibration">
+        <div className="panel-head">
+          <h2 className="section-title">Calibration</h2>
           <AuthorityChip
             label={String(calibration?.status ?? (loading ? "…" : "EMPTY"))}
             tone={toneForStatus(calibration?.status)}
           />
-          <span className="muted mono" style={{ fontSize: 12 }}>
-            sample={String(calibration?.sample_size ?? "—")} · hit=
-            {String(calibration?.hit_rate ?? "—")} · sim_roi=
-            {String(calibration?.sim_roi ?? "—")} · model_edge=
-            {String(calibration?.model_edge_allowed ?? "—")}
-          </span>
         </div>
+        <p className="panel-lede">
+          Evidence ladder from settled paper outcomes. Model edge unlocks only
+          when status is RELIABLE and forecast weighting is allowed — still
+          SHADOW_ONLY, no money.
+        </p>
+        <p className="meta-line mb-sm">
+          sample={String(calibration?.sample_size ?? "—")} · hit=
+          {String(calibration?.hit_rate ?? "—")} · sim_roi=
+          {String(calibration?.sim_roi ?? "—")} · model_edge=
+          {String(calibration?.model_edge_allowed ?? "—")}
+        </p>
         <dl className="kv-list">
           {(
             [
@@ -557,7 +585,7 @@ export default function HealthPage() {
           ).map((k) => {
             const f = fieldOrDash(calibration?.[k], `missing ${k}`);
             return (
-              <div key={k} style={{ display: "contents" }}>
+              <div key={k} className="display-contents">
                 <dt>{k}</dt>
                 <dd className="tabular">{f.text}</dd>
               </div>
@@ -572,22 +600,24 @@ export default function HealthPage() {
         )}
       </section>
 
-      <section className="section" aria-label="Advice reliability">
-        <h2 className="section-title">Advice reliability</h2>
-        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
+      <section className="panel" id="reliability" aria-label="Advice reliability">
+        <div className="panel-head">
+          <h2 className="section-title">Advice reliability</h2>
+          <div className="actions-row">
+            <AuthorityChip
+              label={String(reliability?.status ?? (loading ? "…" : "EMPTY"))}
+              tone={toneForStatus(reliability?.status)}
+            />
+            <span className="meta-line">
+              sample={String(reliability?.sample_size ?? "—")} · buckets=
+              {String(reliability?.bucket_count ?? "—")}
+            </span>
+          </div>
+        </div>
+        <p className="panel-lede">
           Simulation hit rate / ROI by strategy, league, and market — not real
           money.
         </p>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
-          <AuthorityChip
-            label={String(reliability?.status ?? (loading ? "…" : "EMPTY"))}
-            tone={toneForStatus(reliability?.status)}
-          />
-          <span className="muted mono" style={{ fontSize: 12 }}>
-            sample={String(reliability?.sample_size ?? "—")} · buckets=
-            {String(reliability?.bucket_count ?? "—")}
-          </span>
-        </div>
         <DataTable
           columns={[
             {
@@ -636,23 +666,25 @@ export default function HealthPage() {
         />
       </section>
 
-      <section className="section" aria-label="Reliability history">
-        <h2 className="section-title">Reliability history</h2>
-        <p className="muted" style={{ fontSize: 12, marginTop: 0 }}>
+      <section className="panel" id="history" aria-label="Reliability history">
+        <div className="panel-head">
+          <h2 className="section-title">Reliability history</h2>
+          <div className="actions-row">
+            <AuthorityChip
+              label={String(
+                reliabilityHistory?.status ?? (loading ? "…" : "EMPTY"),
+              )}
+              tone={toneForStatus(reliabilityHistory?.status)}
+            />
+            <span className="meta-line">
+              snapshots={String(reliabilityHistory?.count ?? "—")}
+            </span>
+          </div>
+        </div>
+        <p className="panel-lede">
           Append-only snapshots after each settle — advice calibration trail,
           not a bank ledger.
         </p>
-        <div className="actions-row" style={{ marginBottom: 12 }}>
-          <AuthorityChip
-            label={String(
-              reliabilityHistory?.status ?? (loading ? "…" : "EMPTY"),
-            )}
-            tone={toneForStatus(reliabilityHistory?.status)}
-          />
-          <span className="muted mono" style={{ fontSize: 12 }}>
-            snapshots={String(reliabilityHistory?.count ?? "—")}
-          </span>
-        </div>
         <DataTable
           columns={[
             {
@@ -701,11 +733,13 @@ export default function HealthPage() {
         />
       </section>
 
-      <section className="section" aria-label="Run log">
-        <h2 className="section-title">Run log</h2>
+      <section className="panel" id="run-log" aria-label="Run log">
+        <div className="panel-head">
+          <h2 className="section-title">Run log</h2>
+        </div>
         <dl className="kv-list">
           {runLog.map((row) => (
-            <div key={row.key} style={{ display: "contents" }}>
+            <div key={row.key} className="display-contents">
               <dt>{row.label}</dt>
               <dd>{row.value}</dd>
             </div>

@@ -181,10 +181,26 @@ export default function TodayPage() {
     <>
       <header className="page-header">
         <h1>Today</h1>
-        <AuthorityChip
-          label={String(dashboard?.authority ?? "PROJECTION_ONLY")}
-          tone={toneForStatus(dashboard?.authority)}
-        />
+        <div className="actions-row">
+          <AuthorityChip
+            label={String(dashboard?.authority ?? "PROJECTION_ONLY")}
+            tone={toneForStatus(dashboard?.authority)}
+          />
+          <button
+            type="button"
+            className="btn"
+            disabled={disabled}
+            aria-busy={busy === "refresh" || loading || undefined}
+            onClick={() =>
+              void runAction("refresh", async () => {
+                await refresh();
+                return { status: "REFRESHED" };
+              })
+            }
+          >
+            {busy === "refresh" || loading ? "Refreshing…" : "Refresh"}
+          </button>
+        </div>
       </header>
 
       <section className="section" aria-label="Overview">
@@ -209,8 +225,9 @@ export default function TodayPage() {
 
       <section className="section" aria-label="Actions">
         <h2 className="section-title">Actions</h2>
-        <div className="actions-row" style={{ marginBottom: 12, gap: 16 }}>
-          <label className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+
+        <div className="controls-bar">
+          <label className="field-label">
             Fixture
             <select
               className="mono"
@@ -227,8 +244,7 @@ export default function TodayPage() {
             </select>
           </label>
           <label
-            className="muted"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+            className="field-label"
             title="Requests forecast weighting; model edge unlocks only when evidence calibration is RELIABLE (see Health → Calibration). Markets need model_probability (day002). Still SHADOW_ONLY — no money."
           >
             <input
@@ -240,8 +256,7 @@ export default function TodayPage() {
             Allow model edge (evidence calibration)
           </label>
           <label
-            className="muted"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+            className="field-label"
             title="Day-one leagues for free-first live observe. Default: all. Advisory only — no money."
           >
             Free-first leagues
@@ -262,122 +277,154 @@ export default function TodayPage() {
             </select>
           </label>
         </div>
-        <div className="actions-row">
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={disabled}
-            onClick={() => void runAction("fullday", () => postFullDay(fixture))}
-          >
-            {busy === "fullday" ? "Running day…" : `Run full ${fixture}`}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            title="Optional network observation (ESPN; Odds API if key set). No money."
-            onClick={() =>
-              void runAction("freefirst", () =>
-                postFreeFirst({
-                  espn_only: false,
-                  auto_compete: true,
-                  leagues:
-                    freeFirstLeague === "ALL" ? undefined : [freeFirstLeague],
-                }),
-              )
-            }
-          >
-            {busy === "freefirst" ? "Observing…" : "Free-first live observe"}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            title="Observe → compete → paper → ESPN finals settle → calibration bank. Network; non-final stay PENDING. No money."
-            onClick={() =>
-              void runAction("freefirstday", () =>
-                postFreeFirstDay({
-                  fetch_espn_finals: true,
-                  leagues:
-                    freeFirstLeague === "ALL" ? undefined : [freeFirstLeague],
-                }),
-              )
-            }
-          >
-            {busy === "freefirstday"
-              ? "Running free-first day…"
-              : "Free-first closed day"}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            onClick={() => void runAction("ingest", () => postIngest(fixture))}
-          >
-            {busy === "ingest" ? "Ingesting…" : `Ingest ${fixture}`}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            onClick={() =>
-              void runAction("compete", () =>
-                postCompete({ allow_forecast_weighting: allowModelEdge }),
-              )
-            }
-          >
-            {busy === "compete" ? "Competing…" : "Compete"}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            onClick={() => void runAction("paper", () => postPaper())}
-          >
-            {busy === "paper" ? "Papering…" : "Paper top-N"}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            title={
-              slatePath.text === "free-first"
-                ? "Settle via live ESPN scoreboard finals when available; non-final stay PENDING. No money."
-                : "Settle against fixture results.json when a fixture day is loaded. No money."
-            }
-            onClick={() =>
-              void runAction("settle", () => {
-                const isFreeFirst = slatePath.text === "free-first";
-                const league =
-                  freeFirstLeague === "ALL" ? undefined : [freeFirstLeague];
-                return postSettle(
-                  isFreeFirst
-                    ? { fetch_espn: true, leagues: league }
-                    : {},
-                );
-              })
-            }
-          >
-            {busy === "settle"
-              ? "Settling…"
-              : slatePath.text === "free-first"
-                ? "Settle (ESPN finals)"
-                : "Settle"}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={disabled}
-            onClick={() =>
-              void runAction("refresh", async () => {
-                await refresh();
-                return { status: "REFRESHED" };
-              })
-            }
-          >
-            {busy === "refresh" || loading ? "Refreshing…" : "Refresh"}
-          </button>
+
+        <div className="action-board">
+          <div className="action-group">
+            <h3 className="action-group-title">Fixture day</h3>
+            <p className="action-group-hint">
+              Offline paper loop on fixture days. Primary: full day pipeline.
+            </p>
+            <div className="actions-row">
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={disabled}
+                aria-busy={busy === "fullday" || undefined}
+                onClick={() =>
+                  void runAction("fullday", () => postFullDay(fixture))
+                }
+              >
+                {busy === "fullday" ? "Running day…" : `Run full ${fixture}`}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={disabled}
+                aria-busy={busy === "ingest" || undefined}
+                onClick={() =>
+                  void runAction("ingest", () => postIngest(fixture))
+                }
+              >
+                {busy === "ingest" ? "Ingesting…" : `Ingest ${fixture}`}
+              </button>
+            </div>
+          </div>
+
+          <div className="action-group">
+            <h3 className="action-group-title">Free-first live</h3>
+            <p className="action-group-hint">
+              Network observation (ESPN; Odds API if keyed). Non-finals stay
+              PENDING. No money.
+            </p>
+            <div className="actions-row">
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={disabled}
+                aria-busy={busy === "freefirstday" || undefined}
+                title="Observe → compete → paper → ESPN finals settle → calibration bank. Network; non-final stay PENDING. No money."
+                onClick={() =>
+                  void runAction("freefirstday", () =>
+                    postFreeFirstDay({
+                      fetch_espn_finals: true,
+                      leagues:
+                        freeFirstLeague === "ALL"
+                          ? undefined
+                          : [freeFirstLeague],
+                    }),
+                  )
+                }
+              >
+                {busy === "freefirstday"
+                  ? "Running free-first day…"
+                  : "Free-first closed day"}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={disabled}
+                aria-busy={busy === "freefirst" || undefined}
+                title="Optional network observation (ESPN; Odds API if key set). No money."
+                onClick={() =>
+                  void runAction("freefirst", () =>
+                    postFreeFirst({
+                      espn_only: false,
+                      auto_compete: true,
+                      leagues:
+                        freeFirstLeague === "ALL"
+                          ? undefined
+                          : [freeFirstLeague],
+                    }),
+                  )
+                }
+              >
+                {busy === "freefirst" ? "Observing…" : "Live observe"}
+              </button>
+            </div>
+          </div>
+
+          <div className="action-group">
+            <h3 className="action-group-title">Paper loop</h3>
+            <p className="action-group-hint">
+              Compete · paper · settle on the current slate. Advisory simulation
+              only.
+            </p>
+            <div className="actions-row">
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={disabled}
+                aria-busy={busy === "compete" || undefined}
+                onClick={() =>
+                  void runAction("compete", () =>
+                    postCompete({ allow_forecast_weighting: allowModelEdge }),
+                  )
+                }
+              >
+                {busy === "compete" ? "Competing…" : "Compete"}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={disabled}
+                aria-busy={busy === "paper" || undefined}
+                onClick={() => void runAction("paper", () => postPaper())}
+              >
+                {busy === "paper" ? "Papering…" : "Paper top-N"}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={disabled}
+                aria-busy={busy === "settle" || undefined}
+                title={
+                  slatePath.text === "free-first"
+                    ? "Settle via live ESPN scoreboard finals when available; non-final stay PENDING. No money."
+                    : "Settle against fixture results.json when a fixture day is loaded. No money."
+                }
+                onClick={() =>
+                  void runAction("settle", () => {
+                    const isFreeFirst = slatePath.text === "free-first";
+                    const league =
+                      freeFirstLeague === "ALL" ? undefined : [freeFirstLeague];
+                    return postSettle(
+                      isFreeFirst
+                        ? { fetch_espn: true, leagues: league }
+                        : {},
+                    );
+                  })
+                }
+              >
+                {busy === "settle"
+                  ? "Settling…"
+                  : slatePath.text === "free-first"
+                    ? "Settle (ESPN finals)"
+                    : "Settle"}
+              </button>
+            </div>
+          </div>
         </div>
+
         {error && (
           <p className="error-line" role="alert">
             {error}

@@ -518,21 +518,20 @@ export default function BookPage() {
         </div>
       </header>
 
-      <p className="status-line" role="note">
-        Advisory candidates only — paper sim scores advice quality. No real money.
-        No book placement.
+      <p className="lede" role="note">
+        Advisory candidates only — paper sim scores advice quality. No real
+        money. No book placement.
       </p>
 
       <section className="section" aria-label="Candidates">
-        <div className="page-header" style={{ borderBottom: "none", marginBottom: 8, paddingBottom: 0 }}>
-          <h2 className="section-title" style={{ margin: 0 }}>
-            Candidates
-          </h2>
+        <div className="section-head">
+          <h2 className="section-title">Candidates</h2>
           <div className="actions-row">
             <button
               type="button"
               className="btn"
               disabled={busy !== null}
+              aria-busy={busy === "compete" || undefined}
               onClick={() => void onRefreshCandidates()}
             >
               {busy === "compete" ? "Refreshing…" : "Refresh candidates"}
@@ -541,6 +540,7 @@ export default function BookPage() {
               type="button"
               className="btn btn-primary"
               disabled={busy !== null || selected.size === 0}
+              aria-busy={busy === "paper" || undefined}
               onClick={() => void onPaperSelected()}
             >
               {busy === "paper"
@@ -575,13 +575,8 @@ export default function BookPage() {
       </section>
 
       <section className="section" aria-label="Settlement queue">
-        <div
-          className="page-header"
-          style={{ borderBottom: "none", marginBottom: 8, paddingBottom: 0 }}
-        >
-          <h2 className="section-title" style={{ margin: 0 }}>
-            Settlement queue
-          </h2>
+        <div className="section-head">
+          <h2 className="section-title">Settlement queue</h2>
           <div className="actions-row">
             <AuthorityChip
               label={`pending ${settlementPending}`}
@@ -595,6 +590,7 @@ export default function BookPage() {
               type="button"
               className="btn"
               disabled={busy !== null}
+              aria-busy={busy === "settle" || undefined}
               title="Settle using fixture results.json when a fixture day is loaded."
               onClick={() => void onResettle(false)}
             >
@@ -604,6 +600,7 @@ export default function BookPage() {
               type="button"
               className="btn btn-primary"
               disabled={busy !== null}
+              aria-busy={busy === "settle-espn" || undefined}
               title="Re-settle via ESPN scoreboard finals. Non-final games stay PENDING. No money."
               onClick={() => void onResettle(true)}
             >
@@ -615,7 +612,7 @@ export default function BookPage() {
             </button>
           </div>
         </div>
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="lede">
           Triage PENDING vs finals. Outcome source shows ESPN_SCOREBOARD or
           FIXTURE — advisory simulation only.
         </p>

@@ -1,22 +1,50 @@
-/* Hallmark · macrostructure: Workbench · genre: atmospheric · theme: Cobalt · nav: N3 · footer: Ft4
- * tone: technical-austere · pre-emit critique: P5 H4 E4 S5 R5 V4
+/* Hallmark · genre: atmospheric · macrostructure: Workbench · design-system: design.md
+ * designed-as-app · theme: Cobalt · nav: N3 · footer: Ft4
+ * tone: technical-austere · pre-emit critique: P5 H5 E5 S5 R5 V4
  */
 :root {
-  --color-paper: oklch(18% 0.02 250);
-  --color-paper-2: oklch(22% 0.02 250);
-  --color-ink: oklch(92% 0.02 250);
-  --color-muted: oklch(70% 0.02 250);
-  --color-accent: oklch(62% 0.14 250);
-  --color-accent-ink: oklch(18% 0.02 250);
-  --color-warn: oklch(75% 0.12 85);
-  --color-fail: oklch(65% 0.16 25);
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --space-sm: 8px;
+  /* Paper band — dark atmospheric */
+  --color-paper: oklch(16% 0.018 250);
+  --color-paper-2: oklch(20% 0.02 250);
+  --color-paper-3: oklch(24% 0.022 250);
+  --color-ink: oklch(93% 0.015 250);
+  --color-muted: oklch(68% 0.02 250);
+  --color-accent: oklch(68% 0.13 245);
+  --color-accent-ink: oklch(16% 0.018 250);
+  --color-warn: oklch(78% 0.11 85);
+  --color-fail: oklch(68% 0.15 25);
+  --color-ok: oklch(72% 0.12 155);
+
+  /* Prefer next/font CSS vars when present on <html> */
+  --font-display: var(--font-display-loaded, "Space Grotesk"), system-ui, sans-serif;
+  --font-body: var(--font-body-loaded, "IBM Plex Sans"), system-ui, sans-serif;
+  --font-mono: var(--font-mono-loaded, "IBM Plex Mono"), ui-monospace, monospace;
+
+  /* 4pt scale */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
   --space-md: 16px;
   --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-lg: 15px;
+  --text-xl: 18px;
+  --text-2xl: 22px;
+
   --hairline: color-mix(in oklch, var(--color-ink) 12%, transparent);
-  --surface-lift: oklch(24% 0.025 250);
-  --focus-ring: oklch(70% 0.12 250);
+  --surface-lift: var(--color-paper-3);
+  --focus-ring: oklch(72% 0.11 245);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur-short: 200ms;
+
+  --radius-control: 3px;
+  --radius-panel: 4px;
+  --rail-width: 200px;
 }

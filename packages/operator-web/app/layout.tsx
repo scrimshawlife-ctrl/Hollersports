@@ -38,18 +38,7 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
     >
-      <body
-        style={
-          {
-            ["--font-display" as string]:
-              "var(--font-display-loaded), system-ui, sans-serif",
-            ["--font-body" as string]:
-              "var(--font-body-loaded), system-ui, sans-serif",
-            ["--font-mono" as string]:
-              "var(--font-mono-loaded), ui-monospace, monospace",
-          } as React.CSSProperties
-        }
-      >
+      <body>
         <Shell>{children}</Shell>
       </body>
     </html>

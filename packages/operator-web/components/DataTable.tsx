@@ -40,12 +40,14 @@ export function DataTable<T>({
       <table className="data-table">
         <thead>
           <tr>
-            {selectable && <th scope="col" style={{ width: 36 }} aria-label="Select" />}
+            {selectable && (
+              <th scope="col" className="col-select" aria-label="Select" />
+            )}
             {columns.map((col) => (
               <th
                 key={col.key}
                 scope="col"
-                style={col.align === "right" ? { textAlign: "right" } : undefined}
+                className={col.align === "right" ? "text-right" : undefined}
               >
                 {col.header}
               </th>
@@ -93,17 +95,19 @@ export function DataTable<T>({
                       />
                     </td>
                   )}
-                  {columns.map((col) => (
-                    <td
-                      key={col.key}
-                      className={col.tabular ? "tabular" : undefined}
-                      style={
-                        col.align === "right" ? { textAlign: "right" } : undefined
-                      }
-                    >
-                      {col.render(row, i)}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    const classes = [
+                      col.tabular ? "tabular" : "",
+                      col.align === "right" ? "text-right" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ");
+                    return (
+                      <td key={col.key} className={classes || undefined}>
+                        {col.render(row, i)}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })

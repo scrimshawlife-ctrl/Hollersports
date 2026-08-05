@@ -1,6 +1,6 @@
-/** Three-tone authority / status chip (neutral · warn · fail). */
+/** Authority / status chip (neutral · warn · fail · ok). */
 
-export type ChipTone = "neutral" | "warn" | "fail";
+export type ChipTone = "neutral" | "warn" | "fail" | "ok";
 
 export type AuthorityChipProps = {
   label: string;
@@ -8,7 +8,7 @@ export type AuthorityChipProps = {
   title?: string;
 };
 
-/** Map common packet statuses to the three allowed tones. */
+/** Map common packet statuses to the allowed tones. */
 export function toneForStatus(status: unknown): ChipTone {
   const s = String(status ?? "").toUpperCase();
   if (
@@ -29,6 +29,17 @@ export function toneForStatus(status: unknown): ChipTone {
     s === "REVIEW_ELIGIBLE"
   ) {
     return "warn";
+  }
+  if (
+    s === "OK" ||
+    s === "PASS" ||
+    s === "PASSED" ||
+    s === "RELIABLE" ||
+    s === "HEALTHY" ||
+    s === "SUCCESS" ||
+    s === "TRAINED"
+  ) {
+    return "ok";
   }
   return "neutral";
 }
