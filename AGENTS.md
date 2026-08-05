@@ -7,6 +7,7 @@ Local **advisory-only** sports market intelligence. No real money. No book place
 | Goal | Open | Run |
 |------|------|-----|
 | **Backfill paper settlements (calibration sample)** | [`docs/agents/HERMES_BACKFILL.md`](docs/agents/HERMES_BACKFILL.md) | `python scripts/backfill_status.py` then `make backfill` |
+| **Track F ML pipeline (features→train→calibrate→EV)** | [`docs/agents/HERMES_ML.md`](docs/agents/HERMES_ML.md) | `make ml-e2e` · `make ml-compete` |
 | Agent playbook index | [`docs/agents/README.md`](docs/agents/README.md) | — |
 | Fixture inventory | [`fixtures/MANIFEST.json`](fixtures/MANIFEST.json) | — |
 | Full test/calibration docs | [`docs/TESTING_AND_CALIBRATION.md`](docs/TESTING_AND_CALIBRATION.md) | `make test` |
