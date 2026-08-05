@@ -1,79 +1,83 @@
+# Prefer active venv python, else python3 (macOS often has no bare `python`).
+PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python3)
+export PYTHONPATH := packages/hollersports:$(PYTHONPATH)
+
 .PHONY: validate test test-unit test-integration test-golden test-calibration test-cov \
 	install smoke calibration-suite backfill backfill-status api web free-first free-first-day \
 	ml-e2e ml-train ml-compete ml-retrain-check ml-doc-model ml-axial-train \
-	ml-axial-train-large ml-axial-train-transformer ml-rss-demo
+	ml-axial-train-large ml-axial-train-transformer ml-rss-demo field-test
 
 install:
-	python -m pip install -U pip
-	pip install -e "packages/hollersports[dev]"
+	$(PYTHON) -m pip install -U pip
+	$(PYTHON) -m pip install -e "packages/hollersports[dev]"
 
 test:
-	pytest tests/ --ignore=hollersports-core -q
+	$(PYTHON) -m pytest tests/ --ignore=hollersports-core -q
 
 test-unit:
-	pytest tests/unit -q -m "unit or not integration"
+	$(PYTHON) -m pytest tests/unit -q -m "unit or not integration"
 
 test-integration:
-	pytest tests/integration -q
+	$(PYTHON) -m pytest tests/integration -q
 
 test-golden:
-	pytest tests/golden tests/calibration -q -m "golden or calibration"
+	$(PYTHON) -m pytest tests/golden tests/calibration -q -m "golden or calibration"
 
 test-calibration:
-	pytest tests/unit/test_calibration_evaluator.py tests/unit/test_settlement_history.py tests/calibration -q -m calibration
+	$(PYTHON) -m pytest tests/unit/test_calibration_evaluator.py tests/unit/test_settlement_history.py tests/calibration -q -m calibration
 
 test-cov:
-	pytest tests/ --ignore=hollersports-core -q \
+	$(PYTHON) -m pytest tests/ --ignore=hollersports-core -q \
 		--cov=hollersports --cov-report=term-missing \
 		--cov-config=packages/hollersports/pyproject.toml
 
 smoke:
-	python scripts/smoke_operator_day.py --out docs/evidence/smoke_operator_day.last.json
+	$(PYTHON) scripts/smoke_operator_day.py --out docs/evidence/smoke_operator_day.last.json
 
 calibration-suite:
-	python scripts/run_calibration_suite.py --out docs/evidence/calibration_suite.last.json
+	$(PYTHON) scripts/run_calibration_suite.py --out docs/evidence/calibration_suite.last.json
 
 # Multi-fixture accumulation into data/backfill (grows calibration sample).
 # Hermes: see docs/agents/HERMES_BACKFILL.md — run backfill-status first.
 backfill-status:
-	python scripts/backfill_status.py
+	$(PYTHON) scripts/backfill_status.py
 
 backfill:
-	python scripts/backfill_fixtures.py --out docs/evidence/backfill_calibration.last.json
-	python scripts/backfill_status.py
+	$(PYTHON) scripts/backfill_fixtures.py --out docs/evidence/backfill_calibration.last.json
+	$(PYTHON) scripts/backfill_status.py
 
 validate: install test smoke calibration-suite
 	@echo "validate OK"
 
 api:
-	uvicorn hollersports.api.app:create_app --factory --reload --port 8000
+	$(PYTHON) -m uvicorn hollersports.api.app:create_app --factory --reload --port 8000
 
 web:
 	cd packages/operator-web && npm run dev
 
 # Optional live observation (ESPN free; Odds API if THE_ODDS_API_KEY set). Advisory only.
 free-first:
-	python scripts/holler_free_first_ingest.py --out out/free_first_observation.json
+	$(PYTHON) scripts/holler_free_first_ingest.py --out out/free_first_observation.json
 
 # Closed free-first day → compete → paper → ESPN settle → calibration bank.
 # Prefer injected JSON for CI; live finals need --fetch-espn-finals (network).
 # Example (injected): python scripts/free_first_operator_day.py --espn-raw ... --odds-raw ... --settle-espn-raw ...
 FREE_FIRST_LEAGUES ?= NBA
 free-first-day:
-	python scripts/free_first_operator_day.py --leagues $(FREE_FIRST_LEAGUES) --fetch-espn-finals \
+	$(PYTHON) scripts/free_first_operator_day.py --leagues $(FREE_FIRST_LEAGUES) --fetch-espn-finals \
 		--data-root data/backfill --out docs/evidence/free_first_day.last.json
 
 # Track F research ML (offline fixtures; advisory only; no sklearn required).
 # Train on day001+day002, apply day003 → docs/evidence/ml_pipeline_e2e.last.json
 ml-e2e:
-	python scripts/holler/ml_e2e.py
+	$(PYTHON) scripts/holler/ml_e2e.py
 
 ml-train:
-	python scripts/holler/train_gbm.py fixtures/day001 fixtures/day002 --out-dir data/ml
+	$(PYTHON) scripts/holler/train_gbm.py fixtures/day001 fixtures/day002 --out-dir data/ml
 
 # Annotate day003 + strategy competition with explicit model-edge opt-in (offline demo).
 ml-compete:
-	python scripts/holler/ml_compete_day.py \
+	$(PYTHON) scripts/holler/ml_compete_day.py \
 		--fixture-day fixtures/day003 \
 		--train-days fixtures/day001 fixtures/day002 \
 		--allow-model-edge \
@@ -81,29 +85,34 @@ ml-compete:
 
 # Advisory retrain proposal only (never auto-trains).
 ml-retrain-check:
-	python scripts/holler/ml_retrain_check.py
+	$(PYTHON) scripts/holler/ml_retrain_check.py
 
 ml-doc-model:
-	python scripts/holler/doc_model.py --ensemble data/ml/ensemble.json
+	$(PYTHON) scripts/holler/doc_model.py --ensemble data/ml/ensemble.json
 
 # Requires: pip install -e "packages/hollersports[torch]"
 ml-axial-train:
-	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
+	$(PYTHON) scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
 		--out-dir data/ml/axial --arch axial_small
 
 # Track G larger / dist presets (requires [torch])
 ml-axial-train-large:
-	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
+	$(PYTHON) scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
 		--out-dir data/ml/axial --arch axial_large \
 		--sequences fixtures/sequences/synthetic_totals.json
 
 ml-axial-train-transformer:
-	python scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
+	$(PYTHON) scripts/holler/train_axial.py fixtures/day001 fixtures/day002 fixtures/day003 \
 		--out-dir data/ml/axial --arch transformer_dist \
 		--sequences fixtures/sequences/synthetic_totals.json
 
 # Offline RSS inject example needs a local XML; live uses --fetch
 ml-rss-demo:
-	python scripts/holler/fetch_rss_sentiment.py \
+	$(PYTHON) scripts/holler/fetch_rss_sentiment.py \
 		--markets-json fixtures/day003/odds_records.json \
 		--out data/ml/rss_sentiment.last.json
+
+# v0.5 field-test freeze receipt (offline; no torch required)
+field-test: install smoke ml-e2e
+	$(PYTHON) scripts/write_field_test_receipt.py
+	@echo "field-test OK → docs/evidence/FIELD_TEST_RECEIPT_v0.5.0.json"

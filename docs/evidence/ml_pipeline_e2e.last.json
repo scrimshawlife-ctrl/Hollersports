@@ -2,22 +2,22 @@
   "apply": {
     "edges": [
       {
-        "edge": 0.14355545069738862,
-        "edge_raw": 0.14355545069738862,
-        "ev": 0.122592417828981,
+        "edge": 0.14353854806199873,
+        "edge_raw": 0.14353854806199873,
+        "ev": 0.12256424676999789,
         "implied": 0.53,
         "market_id": "NBA-20260426-GSW-PHX-ML-HOME",
-        "model_probability": 0.6735554506973886,
-        "model_probability_raw": 0.6735554506973886
+        "model_probability": 0.6735385480619988,
+        "model_probability_raw": 0.6735385480619988
       },
       {
-        "edge": -0.2749314630916716,
-        "edge_raw": -0.2749314630916716,
-        "ev": -0.5513423651108448,
+        "edge": -0.27491939267776166,
+        "edge_raw": -0.27491939267776166,
+        "ev": -0.551314603158852,
         "implied": 0.47,
         "market_id": "NBA-20260426-GSW-PHX-ML-AWAY",
-        "model_probability": 0.19506853690832837,
-        "model_probability_raw": 0.19506853690832837
+        "model_probability": 0.1950806073222383,
+        "model_probability_raw": 0.1950806073222383
       },
       {
         "edge": 0.10815399610145526,
@@ -67,16 +67,16 @@
     ],
     "ev_positive": 6,
     "market_count": 7,
-    "packet_hash": "6e6d31c8d6bdac47df53da5b2103260348a9526eb1a0c0084ce2965b624bd639"
+    "packet_hash": "4f078278c05c9d4c0dc2cb3649ef11556c146e14d976c3d4069652cbab522e6e"
   },
   "candidates": {
     "authority": "SHADOW_ONLY",
     "count": 6,
     "sample": [
       {
-        "edge": 0.14355545069738862,
+        "edge": 0.14353854806199873,
         "market_id": "NBA-20260426-GSW-PHX-ML-HOME",
-        "score": 0.7177772534869431
+        "score": 0.7176927403099936
       },
       {
         "edge": 0.10815399610145526,
@@ -123,6 +123,8 @@
       "val_n": 11,
       "val_nll": 0.5533062499955917
     },
+    "model_card_json": "/Users/appliedalchemylabs/Documents/Hollersports/data/ml/e2e/model_cards/gbm_v2d4a1c2d9e.json",
+    "model_card_md": "/Users/appliedalchemylabs/Documents/Hollersports/data/ml/e2e/model_cards/gbm_v2d4a1c2d9e.md",
     "model_id": "gbm_v2d4a1c2d9e",
     "model_path": "/Users/appliedalchemylabs/Documents/Hollersports/data/ml/e2e/gbm_v2d4a1c2d9e.json",
     "train_n": 11,

@@ -1,10 +1,10 @@
 # Release freeze — test after Track F + G complete
 
-**Decision:** Freeze for field testing at **`v0.5.0-advisory-beta`** (package **0.5.0**)
-once this branch lands on `main`. That cut includes Track F **and** Track G
-(small→larger temporal models, sequences, distributional CRPS).
+**Decision:** Freeze for field testing at **`v0.5.0-advisory-beta`** (package **0.5.0**).  
+That cut includes Track F **and** Track G (sequences, larger temporal presets, CRPS).
 
-Until the tag is cut, prefer `main` tip after the Track G merge.
+**Tag exists.** Receipt after local verify: `docs/evidence/FIELD_TEST_RECEIPT_v0.5.0.json`  
+(run `make field-test`).
 
 ---
 
@@ -27,14 +27,13 @@ Default CI: **`[dev]` only** (torch tests skip).
 ## Field-test checklist
 
 ```bash
-git checkout v0.5.0-advisory-beta   # after tag exists; else main post-G merge
+git checkout v0.5.0-advisory-beta
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e "packages/hollersports[dev]"
+# Makefile prefers python3 + PYTHONPATH=packages/hollersports
+make field-test    # install + smoke + ml-e2e + FIELD_TEST_RECEIPT_v0.5.0.json
 
-make smoke
-make ml-e2e
 make api && make web
-make backfill-status
+make backfill-status   # grow sample toward RELIABLE (field work, not freeze blocker)
 
 # Optional torch capacity (not required for freeze pass)
 pip install -e "packages/hollersports[torch]"
@@ -42,7 +41,7 @@ make ml-axial-train
 make ml-axial-train-transformer
 ```
 
-**Pass:** smoke + ml-e2e green; authorities never true; annotate respects calibration ladder.
+**Pass:** `make field-test` → verdict `FIELD_TEST_READY`; authorities false; ml-e2e candidates ≥ 1.
 
 ---
 
