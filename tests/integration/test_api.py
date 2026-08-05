@@ -1,5 +1,7 @@
 """FastAPI surface integration tests (paper-only operator day)."""
 
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from hollersports.api.app import create_app
@@ -103,6 +105,69 @@ def test_day002_full_day_and_calibrated_model_edge(tmp_path):
         assert len(model) >= 1
         assert model[0].get("authority") == "SHADOW_ONLY"
         assert model[0].get("capital_authority") is False
+
+
+def test_ml_train_annotate_compete(tmp_path):
+    """Track F: train ensemble → annotate day003 ingest → model edge candidates."""
+    with TestClient(create_app(data_root=str(tmp_path))) as client:
+        # Fail closed: annotate without train
+        miss = client.post("/v1/ml/annotate", json={})
+        assert miss.status_code == 404
+
+        empty = client.get("/v1/ml/status")
+        assert empty.status_code == 200
+        assert empty.json()["capital_authority"] is False
+        assert empty.json()["ensemble_present"] is False
+
+        train = client.post(
+            "/v1/ml/train",
+            json={"train_fixtures": ["day001", "day002"], "seed": 42},
+        )
+        assert train.status_code == 200, train.text
+        tbody = train.json()
+        assert tbody["status"] == "TRAINED"
+        assert tbody["capital_authority"] is False
+        assert tbody["execution_authority"] is False
+        assert Path(tbody["ensemble_path"]).is_file()
+
+        st = client.get("/v1/ml/status")
+        assert st.json()["ensemble_present"] is True
+
+        # Need ingest before annotate
+        bad = client.post("/v1/ml/annotate", json={})
+        assert bad.status_code == 400
+
+        ing = client.post("/v1/runs/ingest", json={"fixture": "day003"})
+        assert ing.status_code == 200
+        assert ing.json()["status"] == "INGESTED"
+
+        ann = client.post(
+            "/v1/ml/annotate",
+            json={
+                "auto_compete": True,
+                "allow_forecast_weighting": True,
+                "reliability_status": "RELIABLE",
+                "use_auto_calibration": False,
+            },
+        )
+        assert ann.status_code == 200, ann.text
+        abody = ann.json()
+        assert abody["status"] == "ANNOTATED"
+        assert abody["annotated_markets"] >= 1
+        assert abody["model_edge_enabled"] is True
+        assert abody["model_edge_candidate_count"] >= 1
+        assert abody["capital_authority"] is False
+        assert abody["execution_authority"] is False
+
+        cands = client.get("/v1/candidates")
+        assert cands.status_code == 200
+        model = [
+            c
+            for c in cands.json().get("candidates") or []
+            if c.get("strategy_id") == "MODEL_PROBABILITY_EDGE"
+        ]
+        assert len(model) >= 1
+        assert model[0]["authority"] == "SHADOW_ONLY"
 
 
 def test_free_first_injected_no_network(tmp_path):

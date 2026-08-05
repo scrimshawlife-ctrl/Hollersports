@@ -13,6 +13,9 @@ import {
   getCalibration,
   getReliability,
   getReliabilityHistory,
+  getMlStatus,
+  postMlAnnotate,
+  postMlTrain,
   type Json,
 } from "@/lib/api";
 
@@ -59,6 +62,9 @@ export default function HealthPage() {
     null,
   );
   const [calibration, setCalibration] = useState<Json | null>(null);
+  const [mlStatus, setMlStatus] = useState<Json | null>(null);
+  const [mlBusy, setMlBusy] = useState(false);
+  const [mlNote, setMlNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -66,7 +72,7 @@ export default function HealthPage() {
     setError(null);
     setLoading(true);
     try {
-      const [h, d, p, promo, rel, hist, cal] = await Promise.all([
+      const [h, d, p, promo, rel, hist, cal, ml] = await Promise.all([
         getHealth(),
         getDashboard(),
         getPortfolio(),
@@ -74,6 +80,7 @@ export default function HealthPage() {
         getReliability(),
         getReliabilityHistory(20),
         getCalibration(true),
+        getMlStatus(),
       ]);
       setHealth(h);
       setDashboard(d);
@@ -82,6 +89,7 @@ export default function HealthPage() {
       setReliability(rel);
       setReliabilityHistory(hist);
       setCalibration(cal);
+      setMlStatus(ml);
     } catch (e) {
       const msg =
         e instanceof ApiError
@@ -256,6 +264,109 @@ export default function HealthPage() {
           {error} · Check API on :8000 (`make api`) then Refresh.
         </p>
       )}
+
+      <section className="section" aria-label="Track F ML">
+        <h2 className="section-title">Research ML (Track F)</h2>
+        <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
+          Offline features → train → annotate last ingest with{" "}
+          <span className="mono">model_probability</span>. Advisory only — no
+          money. Fail closed without ensemble.
+        </p>
+        <div className="actions-row" style={{ marginBottom: 12 }}>
+          <AuthorityChip
+            label={String(mlStatus?.status ?? "—")}
+            tone={toneForStatus(mlStatus?.status)}
+          />
+          <span className="muted mono" style={{ fontSize: 12 }}>
+            ensemble={String(mlStatus?.ensemble_present ? "yes" : "no")}
+            {mlStatus?.last_train &&
+            typeof mlStatus.last_train === "object" &&
+            mlStatus.last_train !== null &&
+            "model_id" in (mlStatus.last_train as object)
+              ? ` · ${(mlStatus.last_train as { model_id?: string }).model_id}`
+              : ""}
+          </span>
+          <button
+            type="button"
+            className="btn"
+            disabled={loading || mlBusy}
+            onClick={() => {
+              void (async () => {
+                setMlBusy(true);
+                setMlNote(null);
+                try {
+                  const r = await postMlTrain({
+                    train_fixtures: ["day001", "day002"],
+                  });
+                  setMlNote(
+                    `trained ${String(r.model_id ?? "")} · T=${String(
+                      (r.metrics as { temperature?: number } | undefined)
+                        ?.temperature ?? "—",
+                    )}`,
+                  );
+                  setMlStatus(await getMlStatus());
+                } catch (e) {
+                  setMlNote(
+                    e instanceof ApiError
+                      ? e.message
+                      : e instanceof Error
+                        ? e.message
+                        : "train failed",
+                  );
+                } finally {
+                  setMlBusy(false);
+                }
+              })();
+            }}
+          >
+            {mlBusy ? "Working…" : "Train day001+002"}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={loading || mlBusy}
+            title="Requires a prior ingest on Today. Optional compete with model edge override for demo."
+            onClick={() => {
+              void (async () => {
+                setMlBusy(true);
+                setMlNote(null);
+                try {
+                  const r = await postMlAnnotate({
+                    auto_compete: true,
+                    allow_forecast_weighting: true,
+                    reliability_status: "RELIABLE",
+                    use_auto_calibration: false,
+                  });
+                  setMlNote(
+                    `annotated ${String(r.annotated_markets ?? 0)} markets · model-edge cands ${String(
+                      r.model_edge_candidate_count ?? 0,
+                    )}`,
+                  );
+                  setMlStatus(await getMlStatus());
+                  await load();
+                } catch (e) {
+                  setMlNote(
+                    e instanceof ApiError
+                      ? e.message
+                      : e instanceof Error
+                        ? e.message
+                        : "annotate failed",
+                  );
+                } finally {
+                  setMlBusy(false);
+                }
+              })();
+            }}
+          >
+            Annotate + compete
+          </button>
+        </div>
+        {mlNote && (
+          <p className="status-line mono" style={{ fontSize: 12 }}>
+            {mlNote}
+          </p>
+        )}
+      </section>
 
       <section className="section" aria-label="Sources">
         <h2 className="section-title">Sources</h2>

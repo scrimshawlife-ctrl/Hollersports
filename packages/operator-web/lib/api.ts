@@ -201,6 +201,55 @@ export function getCandidates() {
   return request<Json>("/v1/candidates");
 }
 
+/** Track F ML status (ensemble path / last train). Advisory research tooling. */
+export function getMlStatus() {
+  return request<Json>("/v1/ml/status");
+}
+
+/** Train baseline ensemble from fixture days (offline; no money). */
+export function postMlTrain(opts?: {
+  train_fixtures?: string[];
+  val_fixtures?: string[];
+  seed?: number;
+  prefer_sklearn?: boolean;
+}) {
+  return request<Json>("/v1/ml/train", {
+    method: "POST",
+    body: JSON.stringify({
+      train_fixtures: opts?.train_fixtures ?? ["day001", "day002"],
+      val_fixtures: opts?.val_fixtures,
+      seed: opts?.seed ?? 42,
+      prefer_sklearn: opts?.prefer_sklearn ?? false,
+    }),
+  });
+}
+
+/**
+ * Annotate last ingest markets with model_probability.
+ * Fail closed if no ensemble. Optional auto_compete + model-edge gates.
+ */
+export function postMlAnnotate(opts?: {
+  ensemble_path?: string;
+  ev_threshold?: number;
+  auto_compete?: boolean;
+  allow_forecast_weighting?: boolean;
+  reliability_status?: string;
+  use_auto_calibration?: boolean;
+}) {
+  const body: Record<string, unknown> = {
+    ev_threshold: opts?.ev_threshold ?? 0.03,
+    auto_compete: opts?.auto_compete ?? false,
+    allow_forecast_weighting: opts?.allow_forecast_weighting ?? false,
+    reliability_status: opts?.reliability_status ?? "UNRELIABLE",
+    use_auto_calibration: opts?.use_auto_calibration ?? false,
+  };
+  if (opts?.ensemble_path) body.ensemble_path = opts.ensemble_path;
+  return request<Json>("/v1/ml/annotate", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 /** Session-backed last competition packet (fallback if GET /candidates empty). */
 const COMPETE_KEY = "holler.operator.lastCompetition";
 

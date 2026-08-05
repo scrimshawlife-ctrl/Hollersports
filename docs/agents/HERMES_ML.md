@@ -21,6 +21,28 @@ python scripts/holler/ml_compete_day.py \
   --out-dir data/ml/compete
 ```
 
+### API (operator)
+
+```bash
+make api   # uvicorn :8000
+
+curl -s -X POST localhost:8000/v1/ml/train \
+  -H 'content-type: application/json' \
+  -d '{"train_fixtures":["day001","day002"]}' | jq .
+
+curl -s -X POST localhost:8000/v1/runs/ingest \
+  -H 'content-type: application/json' \
+  -d '{"fixture":"day003"}' | jq .status
+
+curl -s -X POST localhost:8000/v1/ml/annotate \
+  -H 'content-type: application/json' \
+  -d '{"auto_compete":true,"allow_forecast_weighting":true,"reliability_status":"RELIABLE"}' | jq .
+
+curl -s localhost:8000/v1/ml/status | jq .
+```
+
+Workbench: **Health → Research ML (Track F)** — Train / Annotate+compete buttons.
+
 Stepwise:
 
 ```bash
