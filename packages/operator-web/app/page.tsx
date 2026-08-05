@@ -45,6 +45,9 @@ function panelField(
 const FIXTURES = ["day001", "day002", "day003"] as const;
 type FixtureId = (typeof FIXTURES)[number];
 
+const FREE_FIRST_LEAGUES = ["ALL", "NBA", "NFL", "MLB", "NHL", "MLS", "EPL"] as const;
+type FreeFirstLeagueChoice = (typeof FREE_FIRST_LEAGUES)[number];
+
 export default function TodayPage() {
   const [dashboard, setDashboard] = useState<Json | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,6 +56,8 @@ export default function TodayPage() {
   const [lastAction, setLastAction] = useState<string | null>(null);
   const [fixture, setFixture] = useState<FixtureId>("day001");
   const [allowModelEdge, setAllowModelEdge] = useState(false);
+  const [freeFirstLeague, setFreeFirstLeague] =
+    useState<FreeFirstLeagueChoice>("ALL");
 
   const refresh = useCallback(async () => {
     setError(null);
@@ -188,6 +193,28 @@ export default function TodayPage() {
             />
             Allow model edge (evidence calibration)
           </label>
+          <label
+            className="muted"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+            title="Day-one leagues for free-first live observe. Default: all. Advisory only — no money."
+          >
+            Free-first leagues
+            <select
+              className="mono"
+              value={freeFirstLeague}
+              disabled={disabled}
+              aria-label="Free-first leagues"
+              onChange={(e) =>
+                setFreeFirstLeague(e.target.value as FreeFirstLeagueChoice)
+              }
+            >
+              {FREE_FIRST_LEAGUES.map((id) => (
+                <option key={id} value={id}>
+                  {id === "ALL" ? "All day-one" : id}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         <div className="actions-row">
           <button
@@ -205,7 +232,12 @@ export default function TodayPage() {
             title="Optional network observation (ESPN; Odds API if key set). No money."
             onClick={() =>
               void runAction("freefirst", () =>
-                postFreeFirst({ espn_only: false, auto_compete: true }),
+                postFreeFirst({
+                  espn_only: false,
+                  auto_compete: true,
+                  leagues:
+                    freeFirstLeague === "ALL" ? undefined : [freeFirstLeague],
+                }),
               )
             }
           >

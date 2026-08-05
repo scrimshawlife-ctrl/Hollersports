@@ -12,6 +12,25 @@ from urllib.request import Request, urlopen
 # https://the-odds-api.com/ — free tier key via THE_ODDS_API_KEY. Never place bets.
 _ODDS_BASE = "https://api.the-odds-api.com/v4/sports"
 
+# Day-one leagues → The Odds API sport keys (aligned with ESPN_LEAGUE_PATHS).
+ODDS_LEAGUE_SPORT_KEYS: dict[str, str] = {
+    "NBA": "basketball_nba",
+    "NFL": "americanfootball_nfl",
+    "MLB": "baseball_mlb",
+    "NHL": "icehockey_nhl",
+    "MLS": "soccer_usa_mls",
+    "EPL": "soccer_epl",
+}
+
+
+def odds_sport_key_for_league(league: str) -> str:
+    """Return The Odds API sport key for a day-one league label."""
+    key = str(league or "").strip().upper()
+    if key not in ODDS_LEAGUE_SPORT_KEYS:
+        supported = ", ".join(sorted(ODDS_LEAGUE_SPORT_KEYS))
+        raise ValueError(f"unsupported_odds_league:{league!r}; supported={supported}")
+    return ODDS_LEAGUE_SPORT_KEYS[key]
+
 
 def _american_to_decimal(price: Any) -> float | None:
     try:

@@ -46,6 +46,8 @@ jobs:
           cache-dependency-path: packages/operator-web/package-lock.json
       - name: Install
         run: npm ci || npm install
+      - name: Lint
+        run: npm run lint
       - name: Build
         run: npm run build
       - name: Guardrail — no live UX

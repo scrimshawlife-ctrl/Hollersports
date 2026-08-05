@@ -103,7 +103,8 @@ Workbench: **Health → Calibration** shows ladder; **Today** checkbox uses auto
 1. `pytest tests/ --ignore=hollersports-core` (all layers)  
 2. `scripts/smoke_operator_day.py`  
 3. `scripts/run_calibration_suite.py`  
-4. operator-web build + live-UX string guard  
+4. Fixture backfill accumulation (`scripts/backfill_fixtures.py` → evidence receipt)  
+5. operator-web `npm run lint` + build + live-UX string guard  
 
 ## Product law
 
