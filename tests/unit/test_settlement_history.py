@@ -74,3 +74,61 @@ def test_fallback_to_last_batch(tmp_path):
     last = [{"status": "WIN", "stake": 5, "pnl": 4}]
     entries = calibration_entries_for_store(tmp_path, last)
     assert len(entries) == 1
+
+
+def test_resettle_collapses_pending_then_win(tmp_path):
+    """Re-settle must not double-count the same entry_id in calibration."""
+    append_settlement_history(
+        tmp_path,
+        [
+            {
+                "status": "PENDING",
+                "stake": 10,
+                "pnl": 0,
+                "entry_id": "ticket-1",
+                "strategy_id": "MARKET_CONSENSUS_EDGE",
+            }
+        ],
+        run_id="R1",
+        recorded_at="2026-08-05T01:00:00Z",
+    )
+    append_settlement_history(
+        tmp_path,
+        [
+            {
+                "status": "WIN",
+                "stake": 10,
+                "pnl": 9,
+                "entry_id": "ticket-1",
+                "strategy_id": "MARKET_CONSENSUS_EDGE",
+            }
+        ],
+        run_id="R1",
+        recorded_at="2026-08-05T02:00:00Z",
+    )
+    # Raw bank still has both rows (append-only audit).
+    assert len(read_settlement_history(data_root=tmp_path, settled_only=False)) == 2
+    # Calibration sees one terminal ticket.
+    entries = calibration_entries_for_store(tmp_path, last_batch=[])
+    assert len(entries) == 1
+    assert entries[0]["status"] == "WIN"
+    assert entries[0]["entry_id"] == "ticket-1"
+    assert entries[0]["pnl"] == 9.0
+
+
+def test_resettle_latest_terminal_wins(tmp_path):
+    append_settlement_history(
+        tmp_path,
+        [{"status": "WIN", "stake": 10, "pnl": 9, "entry_id": "t2"}],
+        run_id="R",
+        recorded_at="2026-08-05T01:00:00Z",
+    )
+    append_settlement_history(
+        tmp_path,
+        [{"status": "LOSS", "stake": 10, "pnl": -10, "entry_id": "t2"}],
+        run_id="R",
+        recorded_at="2026-08-05T03:00:00Z",
+    )
+    entries = calibration_entries_for_store(tmp_path)
+    assert len(entries) == 1
+    assert entries[0]["status"] == "LOSS"

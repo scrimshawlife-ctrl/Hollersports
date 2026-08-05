@@ -58,6 +58,8 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Free-first ESPN finals → settle (injected/opt-in fetch; PENDING if not final)
 - [x] Workbench slate summary (ingest_count / competed_event_count)
 - [x] Today Settle uses ESPN finals on free-first slate; Book settlement queue + re-settle
+- [x] Settlement bank: calibration collapses latest terminal per `entry_id` (re-settle safe)
+- [x] Headless free-first closed day CLI (`make free-first-day` / `scripts/free_first_operator_day.py`)
 
 ## Track D — Packaging / release
 

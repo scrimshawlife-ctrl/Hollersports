@@ -70,22 +70,51 @@ def _discover_fixtures(fixtures_root: Path) -> list[dict]:
 
 
 def _sample_size(data_root: Path) -> int:
-    hist = data_root / "ledgers" / "settlements_history.jsonl"
-    if not hist.is_file():
-        return 0
-    n = 0
-    settled = frozenset({"WIN", "LOSS", "PUSH", "VOID"})
-    for line in hist.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            row = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(row, dict) and str(row.get("status") or "").upper() in settled:
-            n += 1
-    return n
+    """Calibration sample: latest terminal status per entry_id (re-settle safe)."""
+    try:
+        sys.path.insert(0, str(REPO_ROOT / "packages" / "hollersports"))
+        from hollersports.paper.settlement_history import calibration_entries_for_store
+
+        return len(calibration_entries_for_store(data_root))
+    except Exception:  # noqa: BLE001 — status tool stays resilient without install
+        hist = data_root / "ledgers" / "settlements_history.jsonl"
+        if not hist.is_file():
+            return 0
+        settled = frozenset({"WIN", "LOSS", "PUSH", "VOID"})
+        latest: dict[str, dict] = {}
+        order: list[str] = []
+        for line in hist.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(row, dict):
+                continue
+            eid = str(row.get("entry_id") or "").strip()
+            key = (
+                f"id:{eid}"
+                if eid
+                else "|".join(
+                    [
+                        str(row.get("run_id") or ""),
+                        str(row.get("event_id") or ""),
+                        str(row.get("market_id") or ""),
+                        str(row.get("selection") or ""),
+                        str(row.get("strategy_id") or ""),
+                    ]
+                )
+            )
+            if key not in latest:
+                order.append(key)
+            latest[key] = row
+        return sum(
+            1
+            for key in order
+            if str(latest[key].get("status") or "").upper() in settled
+        )
 
 
 def _load_receipt(path: Path) -> dict | None:
@@ -102,10 +131,10 @@ def _calibration_snapshot(data_root: Path) -> dict:
     """Best-effort ladder status without hard-failing if package missing."""
     try:
         sys.path.insert(0, str(REPO_ROOT / "packages" / "hollersports"))
-        from hollersports.paper.settlement_history import read_settlement_history
+        from hollersports.paper.settlement_history import calibration_entries_for_store
         from hollersports.runes.calibration_evaluator import evaluate_calibration
 
-        rows = read_settlement_history(data_root=data_root, settled_only=True)
+        rows = calibration_entries_for_store(data_root)
         cal = evaluate_calibration(rows, allow_forecast_weighting=True)
         return {
             "status": cal.get("status"),

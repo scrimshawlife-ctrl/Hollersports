@@ -209,6 +209,8 @@ python -c "import json; print(json.load(open('docs/evidence/backfill_calibration
 |--------|------|
 | `scripts/backfill_fixtures.py` | Multi-day operator loop + bank append |
 | `scripts/backfill_status.py` | Inventory + needs_backfill |
-| `hollersports.paper.settlement_history` | JSONL bank |
+| `hollersports.paper.settlement_history` | JSONL bank (append-only; calibration collapses latest per `entry_id`) |
 | `hollersports.runes.calibration_evaluator` | EMPTY→…→RELIABLE ladder |
 | `hollersports.pipelines.operator_day` | Single fixture closed loop |
+| `hollersports.pipelines.free_first_day` | Live/injected free-first closed day → same bank |
+| `scripts/free_first_operator_day.py` | CLI for free-first day (`make free-first-day`) |
