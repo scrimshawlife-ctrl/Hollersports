@@ -124,7 +124,7 @@ make backfill
 
 Defaults inside `scripts/backfill_fixtures.py`:
 
-- fixtures: all in `DEFAULT_FIXTURES` (`day001`, `day002`) — or pass `--fixtures`
+- fixtures: all in `DEFAULT_FIXTURES` (`day001`, `day002`, `day003`) — or pass `--fixtures`
 - `--repeats 4` — each fixture run 4 times
 - `--paper-top-n 50` — paper many candidates per run
 - `--data-root data/backfill`
