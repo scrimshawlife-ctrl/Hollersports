@@ -55,6 +55,8 @@ Original local-first path (no hosted SaaS). Continue here:
 - [x] Free-first live sport coverage expansion (day-one leagues via API/CLI/Workbench)
 - [x] Free-first multi-ingest auto-compete (merge candidates across INGESTED events)
 - [x] Persist free-first ingest slate for paper prices + re-compete
+- [x] Free-first ESPN finals → settle (injected/opt-in fetch; PENDING if not final)
+- [x] Workbench slate summary (ingest_count / competed_event_count)
 
 ## Track D — Packaging / release
 

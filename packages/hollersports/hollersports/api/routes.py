@@ -39,6 +39,11 @@ from hollersports.runes.reliability_bucket import compute_reliability_buckets
 from hollersports.runes.settlement_engine import settle_entry
 from hollersports.sources.fixture_adapter import load_fixture_day
 from hollersports.sources.free_first_ingest import build_live_observation_pack
+from hollersports.sources.espn_outcomes import (
+    merge_espn_moneyline_results,
+    normalize_espn_moneyline_results,
+)
+from hollersports.sources.espn_scoreboard import ESPN_LEAGUE_PATHS, fetch_espn_scoreboard
 from hollersports.sources.registry import list_sources, load_registry
 
 router = APIRouter(prefix="/v1")
@@ -105,6 +110,27 @@ class PaperRunRequest(BaseModel):
 
 class FullDayRequest(BaseModel):
     fixture: str = Field(default="day001", description="Fixture day name")
+
+
+class SettleRequest(BaseModel):
+    """Settle paper entries. Fixture results preferred; free-first may inject ESPN."""
+
+    results: list[dict[str, Any]] | None = Field(
+        default=None,
+        description="Optional injected result rows (tests / offline). Fail-closed otherwise.",
+    )
+    espn_raw: dict[str, Any] | None = Field(
+        default=None,
+        description="Injected ESPN scoreboard JSON for free-first finals (CI-safe).",
+    )
+    leagues: list[str] | None = Field(
+        default=None,
+        description="Leagues for espn_raw / optional live fetch (default NBA when raw set).",
+    )
+    fetch_espn: bool = Field(
+        default=False,
+        description="Opt-in live ESPN fetch when no fixture/results/injection (never required).",
+    )
 
 
 class FreeFirstRequest(BaseModel):
@@ -207,6 +233,47 @@ def _any_source_health_fail(ingests: list[dict[str, Any]]) -> bool:
     return False
 
 
+def _expand_results_via_ingest_joins(
+    results: list[dict[str, Any]],
+    ingests: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Duplicate ESPN result rows under joined odds event_ids when present.
+
+    Free-first prefers odds ``event_id`` on candidates; ESPN finals use schedule
+    ids. Join meta on ingest ``source_refs.join`` maps left (ESPN) ↔ right (odds).
+    """
+    if not results or not ingests:
+        return list(results)
+    alias: dict[str, set[str]] = {}
+    for ing in ingests:
+        refs = ing.get("source_refs") if isinstance(ing.get("source_refs"), dict) else {}
+        join = refs.get("join") if isinstance(refs.get("join"), dict) else {}
+        left = str(join.get("left_event_id") or "")
+        right = str(join.get("right_event_id") or "")
+        payload_eid = str((ing.get("payload") or {}).get("event_id") or ing.get("event_id") or "")
+        # Market packets use top-level event_id after ingest.
+        top_eid = str(ing.get("event_id") or "")
+        for a, b in ((left, right), (right, left), (left, top_eid), (left, payload_eid)):
+            if a and b and a != b:
+                alias.setdefault(a, set()).add(b)
+                alias.setdefault(b, set()).add(a)
+    if not alias:
+        return list(results)
+    expanded = list(results)
+    for row in results:
+        eid = str(row.get("event_id") or "")
+        for alt in alias.get(eid, ()):
+            copy = dict(row)
+            copy["event_id"] = alt
+            copy.setdefault("provenance", {})
+            if isinstance(copy["provenance"], dict):
+                prov = dict(copy["provenance"])
+                prov["aliased_from_event_id"] = eid
+                copy["provenance"] = prov
+            expanded.append(copy)
+    return expanded
+
+
 def _top_candidates(
     candidates: list[dict[str, Any]],
     n: int,
@@ -259,11 +326,15 @@ def _index_results(
     for r in results:
         eid = str(r.get("event_id") or "")
         mid = str(r.get("market_id") or "")
+        sel = str(r.get("selection") or "")
         if mid:
             index[(eid, mid)] = r
             index[("", mid)] = r
         if eid and not mid:
             index[(eid, "")] = r
+        if eid and sel:
+            index[(eid, f"sel:{sel}")] = r
+            index[(eid, f"sel:{sel.upper()}")] = r
     return index
 
 
@@ -271,13 +342,19 @@ def _lookup_result(
     index: dict[tuple[str, str], dict[str, Any]],
     event_id: str,
     market_id: str,
+    selection: str = "",
 ) -> dict[str, Any] | None:
     eid = str(event_id or "")
     mid = str(market_id or "")
+    sel = str(selection or "")
     if (eid, mid) in index:
         return index[(eid, mid)]
     if mid and ("", mid) in index:
         return index[("", mid)]
+    if eid and sel:
+        for key in ((eid, f"sel:{sel}"), (eid, f"sel:{sel.upper()}")):
+            if key in index:
+                return index[key]
     if eid and (eid, "") in index:
         return index[(eid, "")]
     return None
@@ -294,6 +371,21 @@ def _rebuild_dashboard(store: RunStore) -> dict[str, Any]:
     source_health = {}
     if isinstance(ingest, dict):
         source_health = ingest.get("source_health") or {}
+    meta = store.get("meta") if isinstance(store.get("meta"), dict) else {}
+    competition = (
+        store.get("competition") if isinstance(store.get("competition"), dict) else {}
+    )
+    ingests = _stored_ingests(store)
+    slate = {
+        "path": meta.get("path"),
+        "ingest_count": meta.get("ingest_count")
+        if meta.get("ingest_count") is not None
+        else len(ingests),
+        "competed_event_count": competition.get("competed_event_count"),
+        "candidate_count": competition.get("candidate_count"),
+        "competition_status": competition.get("status"),
+        "conflict_status": meta.get("conflict_status"),
+    }
     dashboard = project_dashboard(
         {
             "run_id": run_id,
@@ -303,6 +395,7 @@ def _rebuild_dashboard(store: RunStore) -> dict[str, Any]:
             "settlements": store.get("settlements") or {},
             "performance": store.get("performance") or {},
             "promotion": store.get("promotion") or {},
+            "slate": slate,
             "sources": {
                 "source_id": (ingest.get("source_id") if isinstance(ingest, dict) else None)
                 or "FIXTURE",
@@ -502,6 +595,7 @@ def runs_free_first(body: FreeFirstRequest, request: Request) -> dict[str, Any]:
                 "path": "free-first",
                 "run_id": pack.get("run_id"),
                 "ingest_count": pack.get("ingest_count") or len(ingests),
+                "conflict_status": (pack.get("conflict") or {}).get("status"),
             },
         )
         if body.auto_compete:
@@ -645,9 +739,14 @@ def runs_paper(
 @router.post("/runs/settle")
 def runs_settle(
     request: Request,
-    body: EmptyRunRequest | None = None,  # noqa: ARG001
+    body: SettleRequest | EmptyRunRequest | None = None,
 ) -> dict[str, Any]:
-    """Attach fixture results + settle paper entries → performance + promotion."""
+    """Attach results + settle paper entries → performance + promotion.
+
+    Fixture ``results.json`` when a fixture day is loaded. Free-first may inject
+    ``espn_raw`` / ``results`` (CI-safe) or opt into ``fetch_espn``. Missing
+    outcomes stay PENDING — never invent winners. Advisory only.
+    """
     store = _store(request)
     paper = store.get("paper") or {}
     ingest = store.get("ingest") or {}
@@ -657,13 +756,43 @@ def runs_settle(
     elif isinstance(ingest, dict):
         run_id = str(ingest.get("run_id") or "UNKNOWN")
 
-    fixture_raw = store.get("fixture")
-    results_index: dict[tuple[str, str], dict[str, Any]] = {}
-    if fixture_raw:
-        try:
-            results_index = _index_results(_load_results(Path(str(fixture_raw))))
-        except OSError:
-            results_index = {}
+    settle_body = body if isinstance(body, SettleRequest) else SettleRequest()
+    results_rows: list[dict[str, Any]] = []
+    result_errors: list[str] = []
+
+    if settle_body.results:
+        results_rows = [r for r in settle_body.results if isinstance(r, dict)]
+    else:
+        fixture_raw = store.get("fixture")
+        if fixture_raw:
+            try:
+                results_rows = _load_results(Path(str(fixture_raw)))
+            except OSError as exc:
+                result_errors.append(f"fixture_results:{exc}")
+        elif settle_body.espn_raw is not None:
+            leagues = settle_body.leagues or ["NBA"]
+            for league in leagues:
+                try:
+                    results_rows.extend(
+                        normalize_espn_moneyline_results(
+                            settle_body.espn_raw, league=str(league)
+                        )
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    result_errors.append(f"espn_raw:{league}:{type(exc).__name__}:{exc}")
+        elif settle_body.fetch_espn:
+            leagues = settle_body.leagues or list(ESPN_LEAGUE_PATHS.keys())
+            packs: list[tuple[dict[str, Any], str]] = []
+            for league in leagues:
+                try:
+                    packs.append((fetch_espn_scoreboard(league=str(league)), str(league)))
+                except Exception as exc:  # noqa: BLE001
+                    result_errors.append(f"espn_fetch:{league}:{type(exc).__name__}:{exc}")
+            results_rows = merge_espn_moneyline_results(packs)
+
+    # Free-first: alias ESPN schedule ids → odds event ids via join provenance.
+    results_rows = _expand_results_via_ingest_joins(results_rows, _stored_ingests(store))
+    results_index = _index_results(results_rows)
 
     entries_src: list[Any] = []
     if isinstance(paper, dict):
@@ -682,6 +811,7 @@ def runs_settle(
             results_index,
             str(entry.get("event_id") or ""),
             str(entry.get("market_id") or ""),
+            str(entry.get("selection") or ""),
         )
         settlement_entries.append(settle_entry(settle_input, result))
 
@@ -691,6 +821,8 @@ def runs_settle(
         "run_id": run_id,
         "entries": settlement_entries,
         "count": len(settlement_entries),
+        "result_count": len(results_rows),
+        "result_errors": result_errors,
         "authority": "SHADOW_ONLY",
         "capital_authority": False,
         "execution_authority": False,
@@ -708,7 +840,15 @@ def runs_settle(
     evidence: dict[str, Any] = {
         "target_id": portfolio_id,
         "target_type": "PORTFOLIO",
+        "sample_size": len(settlement_entries),
+        "hit_rate": performance.get("hit_rate"),
+        "sim_roi": performance.get("sim_roi"),
+        "source_health_status": health_status or "UNKNOWN",
         "source_health_pass_rate": 1.0 if health_status in {"PASS", "WARN"} else 0.0,
+        "clv_retention": performance.get("clv_retention"),
+        "calibration_status": (store.get("calibration") or {}).get("status")
+        if isinstance(store.get("calibration"), dict)
+        else None,
         "invariance_pass": True,
         "regimes": 1,
         "market_types": len(
@@ -725,6 +865,7 @@ def runs_settle(
 
     # Append-only reliability + cumulative settlement bank (advice quality).
     record_reliability_from_settlements(store.data_root, settlement_entries)
+    fixture_raw = store.get("fixture")
     fixture_name = Path(str(fixture_raw)).name if fixture_raw else None
     append_settlement_history(
         store.data_root,

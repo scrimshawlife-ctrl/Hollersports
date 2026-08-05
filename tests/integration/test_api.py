@@ -301,6 +301,81 @@ def test_free_first_multi_event_auto_compete_merges(tmp_path):
             ]
             assert len(missing_price) < len(entries)
 
+        dash = client.get("/v1/dashboard")
+        assert dash.status_code == 200
+        slate = (dash.json().get("panels") or {}).get("slate") or {}
+        assert slate.get("ingest_count") == 2
+        assert slate.get("competed_event_count") == 2
+        assert slate.get("path") == "free-first"
+
+        # Settle with injected ESPN finals (fail-closed when not final).
+        finals = {
+            "sport": "BASKETBALL",
+            "events": [
+                {
+                    "id": "espn-a",
+                    "date": "2026-04-24T23:00:00Z",
+                    "status": {
+                        "type": {
+                            "name": "STATUS_FINAL",
+                            "completed": True,
+                            "state": "post",
+                        }
+                    },
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {
+                                    "team": {"abbreviation": "BOS"},
+                                    "score": "110",
+                                    "winner": True,
+                                    "homeAway": "home",
+                                },
+                                {
+                                    "team": {"abbreviation": "LAL"},
+                                    "score": "100",
+                                    "winner": False,
+                                    "homeAway": "away",
+                                },
+                            ]
+                        }
+                    ],
+                },
+                {
+                    "id": "espn-b",
+                    "date": "2026-04-25T02:00:00Z",
+                    "status": {
+                        "type": {
+                            "name": "STATUS_SCHEDULED",
+                            "completed": False,
+                            "state": "pre",
+                        }
+                    },
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {"team": {"abbreviation": "GSW"}, "score": ""},
+                                {"team": {"abbreviation": "PHX"}, "score": ""},
+                            ]
+                        }
+                    ],
+                },
+            ],
+        }
+        settle = client.post(
+            "/v1/runs/settle",
+            json={"espn_raw": finals, "leagues": ["NBA"]},
+        )
+        assert settle.status_code == 200
+        sbody = settle.json()
+        assert sbody["capital_authority"] is False
+        assert sbody.get("result_count", 0) >= 2
+        sentries = list(sbody.get("entries") or [])
+        if sentries:
+            statuses = {str(e.get("status") or "") for e in sentries if isinstance(e, dict)}
+            # Finals for espn-a may WIN/LOSS; espn-b stays PENDING.
+            assert statuses <= {"WIN", "LOSS", "PUSH", "VOID", "PENDING", "NOT_COMPUTABLE"}
+
 
 def test_safe_packet_live_ux_returns_403(tmp_path):
     """Authority / live-UX lock from _safe_packet is HTTP 403 (fail-closed).

@@ -91,7 +91,19 @@ export default function TodayPage() {
       if (id === "compete") {
         cacheCompetition(result);
       }
-      setLastAction(`${id} → ${String(result.status ?? "ok")}`);
+      if (id === "freefirst") {
+        const ingestCount = result.ingest_count;
+        const competed = result.competed_event_count;
+        const cands = result.candidate_count;
+        setLastAction(
+          `${id} → ${String(result.status ?? "ok")}` +
+            (ingestCount != null ? ` · ingest ${String(ingestCount)}` : "") +
+            (competed != null ? ` · competed ${String(competed)}` : "") +
+            (cands != null ? ` · candidates ${String(cands)}` : ""),
+        );
+      } else {
+        setLastAction(`${id} → ${String(result.status ?? "ok")}`);
+      }
       await refresh();
     } catch (e) {
       const msg =
@@ -132,6 +144,18 @@ export default function TodayPage() {
     "status",
   ]);
   const sourceStatus = panelField(dashboard, ["panels", "sources", "status"]);
+  const slateIngest = panelField(dashboard, ["panels", "slate", "ingest_count"]);
+  const slateCompeted = panelField(dashboard, [
+    "panels",
+    "slate",
+    "competed_event_count",
+  ]);
+  const slateCandidates = panelField(dashboard, [
+    "panels",
+    "slate",
+    "candidate_count",
+  ]);
+  const slatePath = panelField(dashboard, ["panels", "slate", "path"]);
 
   const disabled = busy !== null || loading;
 
@@ -158,6 +182,10 @@ export default function TodayPage() {
           <OverviewField label="settlement pending" value={settlementPending} />
           <OverviewField label="promotion" value={promoStatus} />
           <OverviewField label="ingest status" value={sourceStatus} />
+          <OverviewField label="slate path" value={slatePath} />
+          <OverviewField label="slate ingest_count" value={slateIngest} />
+          <OverviewField label="slate competed" value={slateCompeted} />
+          <OverviewField label="slate candidates" value={slateCandidates} />
         </dl>
       </section>
 

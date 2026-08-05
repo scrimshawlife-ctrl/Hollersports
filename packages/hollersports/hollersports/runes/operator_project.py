@@ -80,6 +80,26 @@ def project_dashboard(state: Mapping[str, Any] | dict[str, Any] | None) -> dict[
         },
         "failed_gates": failed_gates,
         "sources": dict(sources),
+        "slate": {
+            "path": (st.get("slate") or {}).get("path")
+            if isinstance(st.get("slate"), Mapping)
+            else None,
+            "ingest_count": (st.get("slate") or {}).get("ingest_count")
+            if isinstance(st.get("slate"), Mapping)
+            else None,
+            "competed_event_count": (st.get("slate") or {}).get("competed_event_count")
+            if isinstance(st.get("slate"), Mapping)
+            else None,
+            "candidate_count": (st.get("slate") or {}).get("candidate_count")
+            if isinstance(st.get("slate"), Mapping)
+            else None,
+            "competition_status": (st.get("slate") or {}).get("competition_status")
+            if isinstance(st.get("slate"), Mapping)
+            else None,
+            "conflict_status": (st.get("slate") or {}).get("conflict_status")
+            if isinstance(st.get("slate"), Mapping)
+            else None,
+        },
     }
 
     packet = OperatorDashboardPacket(
