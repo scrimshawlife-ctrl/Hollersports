@@ -161,6 +161,114 @@ def test_free_first_injected_no_network(tmp_path):
         assert body["mode"] == "ADVISORY_ONLY"
         assert body["status"] == "OBSERVED"
         assert body.get("espn_event_count", 0) >= 1
+        assert body.get("ingest_count", 0) >= 1
+        assert body.get("competed_event_count", 0) >= 1
+        assert body.get("competition_status") == "COMPUTED"
+        assert body.get("candidate_count", 0) >= 1
+
+        cand = client.get("/v1/candidates")
+        assert cand.status_code == 200
+        assert cand.json()["candidate_count"] >= 1
+
+
+def test_free_first_multi_event_auto_compete_merges(tmp_path):
+    """Multi-game injected free-first competes all INGESTED events (not first-only)."""
+    with TestClient(create_app(data_root=str(tmp_path))) as client:
+        espn_raw = {
+            "sport": "BASKETBALL",
+            "events": [
+                {
+                    "id": "espn-a",
+                    "date": "2026-04-24T23:00:00Z",
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {"team": {"abbreviation": "BOS"}},
+                                {"team": {"abbreviation": "LAL"}},
+                            ]
+                        }
+                    ],
+                },
+                {
+                    "id": "espn-b",
+                    "date": "2026-04-25T02:00:00Z",
+                    "competitions": [
+                        {
+                            "competitors": [
+                                {"team": {"abbreviation": "GSW"}},
+                                {"team": {"abbreviation": "PHX"}},
+                            ]
+                        }
+                    ],
+                },
+            ],
+        }
+        odds_raw = [
+            {
+                "id": "odds-a",
+                "home_team": "BOS",
+                "away_team": "LAL",
+                "commence_time": "2026-04-24T23:00:00Z",
+                "bookmakers": [
+                    {
+                        "key": "book_a",
+                        "markets": [
+                            {
+                                "key": "h2h",
+                                "outcomes": [
+                                    {"name": "BOS", "price": -120},
+                                    {"name": "LAL", "price": 100},
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            },
+            {
+                "id": "odds-b",
+                "home_team": "GSW",
+                "away_team": "PHX",
+                "commence_time": "2026-04-25T02:00:00Z",
+                "bookmakers": [
+                    {
+                        "key": "book_a",
+                        "markets": [
+                            {
+                                "key": "h2h",
+                                "outcomes": [
+                                    {"name": "GSW", "price": -110},
+                                    {"name": "PHX", "price": -110},
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            },
+        ]
+        r = client.post(
+            "/v1/runs/free-first",
+            json={
+                "espn_raw": espn_raw,
+                "odds_raw": odds_raw,
+                "auto_compete": True,
+                "run_id": "T-API-FF-MULTI",
+            },
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["status"] == "OBSERVED"
+        assert body["ingest_count"] == 2
+        assert body["competed_event_count"] == 2
+        assert body["competition_status"] == "COMPUTED"
+        assert body["candidate_count"] >= 2
+        assert body["capital_authority"] is False
+
+        cand = client.get("/v1/candidates")
+        assert cand.status_code == 200
+        cbody = cand.json()
+        assert cbody["candidate_count"] >= 2
+        event_ids = {c.get("event_id") for c in cbody.get("candidates") or []}
+        assert len(event_ids) >= 2
 
 
 def test_safe_packet_live_ux_returns_403(tmp_path):

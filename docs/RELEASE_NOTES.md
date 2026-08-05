@@ -7,7 +7,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 | PR | State | Notes |
 |----|--------|--------|
 | **#3** — standalone advisory operator | **MERGED** `838ea88` | Foundation local advisory beta |
-| Subsequent continuum | on `main` (no open PR) | Calibration, backfill, day003, Hermes docs — tip `96ffd8a` |
+| Subsequent continuum | on `main` (no open PR) | Multi-league free-first, calibration, backfill — tip `42ca274` |
 
 ---
 
@@ -15,7 +15,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 
 **Tag:** `v0.3.0-advisory-beta`  
 **Foundation:** PR #3 merge  
-**Tip (docs pin):** `96ffd8a` on `main`
+**Tip (docs pin):** `42ca274` on `main`
 
 ### Product
 
@@ -23,6 +23,7 @@ Advisory-only product. No real money, no book placement, no capital custody.
 - Closed paper loop: fixture / free-first observe → candidates → paper sim → settle → performance / promotion review
 - Free-first ESPN + The Odds API observation (keys optional; CI uses injection)
 - Free-first **multi-league** observe (NBA / NFL / MLB / NHL / MLS / EPL) via API, CLI, and Workbench league select
+- Free-first **multi-ingest auto-compete** merges candidates across all INGESTED events (not first-only)
 - Multi-sport ESPN day-one surface (NBA / NFL / MLB / NHL / EPL / MLS)
 - Fixtures `day001` + `day002` + `day003` (model fields on day002/day003; multi-event slate)
 - Advice reliability buckets + append-only reliability history + Workbench tables

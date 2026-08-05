@@ -22,7 +22,7 @@ prior: PRODUCTION_READINESS_ASSESSMENT_2026-08-04.md
 delta: PRODUCTION_READINESS_DELTA_2026-08-04-phase-b.md
 ```
 
-> **Current tip** (post-merge continuum): see [PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](PRODUCTION_READINESS_CONTINUUM_2026-08-04.md) (`96ffd8a`, package 0.3.0). Gate table below is the **PR #3 foundation** pin.
+> **Current tip** (post-merge continuum): see [PRODUCTION_READINESS_CONTINUUM_2026-08-04.md](PRODUCTION_READINESS_CONTINUUM_2026-08-04.md) (`42ca274`, package 0.3.0). Gate table below is the **PR #3 foundation** pin.
 
 ## Gate scores
 
