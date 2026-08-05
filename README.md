@@ -38,7 +38,7 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 
 ## Status
 
-**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `3feb5e4` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
+**Readiness:** [local advisory beta **PASS**](docs/PRODUCTION_READINESS.md) on `main` — foundation **PR #3 MERGED** (`838ea88`); tip continuum `96ffd8a` — [continuum note](docs/evidence/PRODUCTION_READINESS_CONTINUUM_2026-08-04.md).  
 **Open PRs:** none (all continuum work is on `main`).  
 **Money / live books:** **never** — contract-forbidden.
 
@@ -46,7 +46,7 @@ Most “betting tools” either invent certainty or quietly become money rails. 
 |-------|--------|--------|
 | Governance + hashing | **shipped** | Authority locks, fail-closed helpers |
 | Packet contracts v1 | **shipped** | Nine JSON Schemas + Pydantic |
-| Fixture ingest + source health | **shipped** | `fixtures/day001` + `day002` (model fields) |
+| Fixture ingest + source health | **shipped** | `fixtures/day001`–`day003` (model fields on day002+) |
 | Market-first strategies | **shipped** | Consensus · public fade · CLV; model edge gated (calibration) |
 | Paper guard + ledger | **shipped** | `PAPER_ONLY`, hash-chained JSONL + settlement bank |
 | Settlement / promotion / operator day | **shipped** | Fixture closed loop via `run_operator_day` |

@@ -11,7 +11,7 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 | **What it is not** | Money handler, sportsbook, payment rail, live bet placer, or Abraxas runtime dependency. |
 | **Package** | `hollersports` **0.3.0** (`packages/hollersports`) |
 | **Mode** | `ADVISORY_ONLY` / `PAPER_ONLY` (sim) · `capital_authority=false` · `execution_authority=false` · **no real money** |
-| **Main tip (docs pin)** | `3feb5e4` · foundation PR **#3** MERGED `838ea88` |
+| **Main tip (docs pin)** | `96ffd8a` · foundation PR **#3** MERGED `838ea88` |
 | **Evidence** | `README.md`, `docs/SYSTEM_CONTRACT.md`, `packages/hollersports/`, `schemas/json/`, `tests/`, `docs/agents/` |
 
 ## Surfaces
@@ -38,9 +38,9 @@ Vocabulary: **OBSERVED** (in tree now) · **PLANNED** (design + plan) · **NOT_C
 
 | | |
 |--|--|
-| **What it is** | Registry, fixture day packs (`day001`, `day002`), source health, market ingestion; optional ESPN + Odds API observation pack + conflict detector. |
+| **What it is** | Registry, fixture day packs (`day001`, `day002`, `day003`), source health, market ingestion; optional ESPN + Odds API observation pack + conflict detector. |
 | **What it is not** | Recommendation engine or money path; live network never required for CI. |
-| **Paths** | `hollersports/sources/`, `fixtures/day001/`, `fixtures/day002/`, `fixtures/MANIFEST.json`, `scripts/holler_free_first_ingest.py` |
+| **Paths** | `hollersports/sources/`, `fixtures/day001/`, `fixtures/day002/`, `fixtures/day003/`, `fixtures/MANIFEST.json`, `scripts/holler_free_first_ingest.py` |
 | **Tests** | `test_source_health`, `test_market_ingestion`, `test_espn_scoreboard`, `test_odds_api`, `test_source_conflict`, `test_free_first_ingest` |
 
 ### Strategy competition + model edge — OBSERVED

@@ -71,7 +71,7 @@ def main() -> int:
         "--fixtures",
         nargs="*",
         default=list(DEFAULT_FIXTURES),
-        help="Fixture day names (default: day001 day002)",
+        help="Fixture day names (default: day001 day002 day003)",
     )
     parser.add_argument(
         "--out",

@@ -6,12 +6,13 @@ class: ADVISORY_OPERATOR_READY   # local advisory beta only
 foundation_pr: 3
 foundation_merge_sha: 838ea88d0aa85b1c85f810bb080c590f5c8a7804
 foundation_merged_at: "2026-08-04T21:25:36Z"
-tip_sha: 3feb5e4
-feature_tip_before_docs_pin: 4a9172849a3f11e36b873f4511d534c646174f84
+tip_sha: 96ffd8a
+feature_tip_before_docs_pin: 96ffd8a
+prior_docs_pin: 3feb5e4
 branch: main
 package_version: "0.3.0"
 tag: v0.3.0-advisory-beta
-date: "2026-08-04"
+date: "2026-08-05"
 verdict: PASS
 scope: local_single_operator_advisory
 capital_authority: false
@@ -33,13 +34,13 @@ There is **no open PR** to merge. Continuum commits after #3 were pushed directl
 
 ## Tip vs foundation
 
-| | Foundation (PR #3) | Tip (`main` @ `4a91728`) |
+| | Foundation (PR #3) | Tip (`main` @ `96ffd8a`) |
 |--|--------------------|---------------------------|
 | Package | 0.2 → 0.3 path | **0.3.0** |
-| Tests | ~43–71 | **101** (`pytest tests/ --ignore=hollersports-core`) |
-| Fixtures | day001 | day001 + day002 |
+| Tests | ~43–71 | **101+** (`pytest tests/ --ignore=hollersports-core`) |
+| Fixtures | day001 | day001 + day002 + day003 |
 | Calibration | gate stub | Ladder + cumulative bank + Hermes playbook |
-| Workbench | Today/Book/Health | + reliability history + calibration panel |
+| Workbench | Today/Book/Health | + reliability history + calibration panel + Book model-edge cue |
 | CI | pytest + smoke | + calibration suite + backfill step |
 
 ## Continuum features (on `main` after #3)
@@ -51,6 +52,8 @@ There is **no open PR** to merge. Continuum commits after #3 were pushed directl
 5. Calibration ladder + testing framework (markers, suite)  
 6. Cumulative settlement bank + `make backfill`  
 7. Hermes backfill playbook (`AGENTS.md`, `docs/agents/HERMES_BACKFILL.md`, `backfill_status.py`)  
+8. Multi-event fixture slate + day003 + Book model-edge strategy cue  
+
 
 ## Evidence at tip
 

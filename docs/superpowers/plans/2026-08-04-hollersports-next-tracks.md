@@ -1,6 +1,6 @@
 # HollerSports — next tracks (post advisory beta)
 
-> After PR #3 merge to `main` (**MERGED** `838ea88`). Continuum tip `3feb5e4`.  
+> After PR #3 merge to `main` (**MERGED** `838ea88`). Continuum tip `96ffd8a`.  
 > Advisory only — no real money. **No open PR** — work lands on `main`.
 
 ## Completed (v0.2 → v0.3 advisory beta)
